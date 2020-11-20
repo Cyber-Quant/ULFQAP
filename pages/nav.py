@@ -511,7 +511,7 @@ class Nav(QWidget):
                 self.rsi_info.name in self.apply_rules:
             self.apply_rules.remove(self.rsi_info.name)
 
-        with open(apply_rules_config_path, 'w') as f:
+        with open(apply_rules_config_path, 'w', encoding='utf-8') as f:
             json.dump(self.apply_rules, f, indent=4, ensure_ascii=False)
 
     def open_rule_table_menu(self, pos):
@@ -611,7 +611,7 @@ class Nav(QWidget):
         self.fav_table.setItem(row_idx, 0, QTableWidgetItem(code))
         self.fav_table.setItem(row_idx, 1, QTableWidgetItem(name))
 
-        with open(fav_stocks_config_path, 'w') as f:
+        with open(fav_stocks_config_path, 'w', encoding='utf-8') as f:
             json.dump(self.fav_stocks, f, indent=4, ensure_ascii=False)
 
     def on_un_fav(self):
@@ -635,9 +635,9 @@ class Nav(QWidget):
         for row_idx in rows_to_remove:
             self.fav_table.removeRow(row_idx)
 
-        with open(fav_stocks_config_path, 'w') as f:
+        with open(fav_stocks_config_path, 'w', encoding='utf-8') as f:
             json.dump(self.fav_stocks, f, indent=4, ensure_ascii=False)
-        with open(custom_watch_config_path, 'w') as f:
+        with open(custom_watch_config_path, 'w', encoding='utf-8') as f:
             json.dump(self.custom_watch, f, indent=4, ensure_ascii=False)
 
     def on_set_custom_watch(self):
@@ -668,7 +668,7 @@ class Nav(QWidget):
             if item['code'] == code:
                 self.custom_watch.remove(item)
         self.custom_watch.append(obj)
-        with open(custom_watch_config_path, 'w') as f:
+        with open(custom_watch_config_path, 'w', encoding='utf-8') as f:
             json.dump(self.custom_watch, f, indent=4, ensure_ascii=False)
 
     def on_fav_table_row_changed(self):

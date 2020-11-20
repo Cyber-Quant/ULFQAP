@@ -692,7 +692,7 @@ class Choose(QWidget):
             if fav not in self.fav_stocks:
                 self.fav_stocks.append(fav)
 
-        with open(fav_stocks_config_path, 'w') as f:
+        with open(fav_stocks_config_path, 'w', encoding='utf-8') as f:
             json.dump(self.fav_stocks, f, indent=4, ensure_ascii=False)
         self.fav_stock_changed_signal.emit()
 
@@ -709,7 +709,7 @@ class Choose(QWidget):
                 if stock in self.fav_stocks:
                     self.fav_stocks.remove(stock)
 
-        with open(fav_stocks_config_path, 'w') as f:
+        with open(fav_stocks_config_path, 'w', encoding='utf-8') as f:
             json.dump(self.fav_stocks, f, indent=4, ensure_ascii=False)
         self.fav_stock_changed_signal.emit()
 
@@ -732,7 +732,7 @@ class Choose(QWidget):
         for row_idx in rows_to_remove:
             self.table.removeRow(row_idx)
 
-        with open(fav_stocks_config_path, 'w') as f:
+        with open(fav_stocks_config_path, 'w', encoding='utf-8') as f:
             json.dump(self.fav_stocks, f, indent=4, ensure_ascii=False)
         self.fav_stock_changed_signal.emit()
 

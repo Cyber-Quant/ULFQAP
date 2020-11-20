@@ -27,7 +27,7 @@ def save_last_updated_date(new_trading_day):
             else:
                 data['date'] = new_trading_day
 
-    with open(global_config_path, 'w') as f:
+    with open(global_config_path, 'w', encoding='utf-8') as f:
         json.dump(data, f, indent=4, ensure_ascii=False)
 
 

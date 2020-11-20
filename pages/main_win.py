@@ -61,7 +61,7 @@ class MainWin(QWidget):
                 with open(global_config_path, 'r', encoding='utf-8') as f:
                     data = json.load(f)
             data['agree'] = True
-            with open(global_config_path, 'w') as f:
+            with open(global_config_path, 'w', encoding='utf-8') as f:
                 json.dump(data, f, indent=4, ensure_ascii=False)
         self._on_continue()
 

@@ -435,7 +435,7 @@ class BOLLConfig(QDialog):
             data['open_up'] = True
         else:
             data['open_up'] = False
-        with open(self.config_path, 'w') as f:
+        with open(self.config_path, 'w', encoding='utf-8') as f:
             json.dump(data, f, indent=4, ensure_ascii=False)
         self.close()
 

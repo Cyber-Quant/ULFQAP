@@ -176,7 +176,7 @@ class WRConfig(QDialog):
         data['m'] = int(self.m_input.text())
         data['n'] = int(self.n_input.text())
         data['k'] = int(self.k_input.text())
-        with open(self.config_path, 'w') as f:
+        with open(self.config_path, 'w', encoding='utf-8') as f:
             json.dump(data, f, indent=4, ensure_ascii=False)
         self.close()
 
