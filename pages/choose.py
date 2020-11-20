@@ -665,16 +665,16 @@ class Choose(QWidget):
 
     def open_pool_ops_menu(self, position):
         pop_menu = QMenu()
-        custom_add_action = QAction('手动加入预选池', self)
         fav_action = QAction('加入自选', self)
         un_fav_action = QAction('删除自选', self)
         remove_action = QAction('删除', self)
-        pop_menu.addAction(custom_add_action)
-        pop_menu.addSeparator()
+        custom_add_action = QAction('手动加入预选池', self)
         pop_menu.addAction(fav_action)
         pop_menu.addAction(un_fav_action)
         pop_menu.addSeparator()
         pop_menu.addAction(remove_action)
+        pop_menu.addSeparator()
+        pop_menu.addAction(custom_add_action)
 
         custom_add_action.triggered.connect(self.on_custom_add)
         fav_action.triggered.connect(self.on_fav)
