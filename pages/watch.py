@@ -109,6 +109,7 @@ class Watch(QWidget):
 
         self.k_plt = pg.PlotWidget(enableMenu=False)
         self.k_plt.plotItem.setMouseEnabled(y=False)
+        self.k_plt.hideAxis('bottom')
 
         main_v_box = QVBoxLayout()
         main_v_box.addWidget(self.top_widget)
