@@ -177,6 +177,13 @@ class KDJConfig(QDialog):
         self.config_path = rules_config_path.joinpath('kdj.json')
         self.info = KDJInfo()
 
+        if self.config_path.exists():
+            with open(self.config_path, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                self.m = data['m']
+        else:
+            self.m = 9
+
         reg = QRegExp('[0-9]+$')
         validator = QRegExpValidator()
         validator.setRegExp(reg)
@@ -186,7 +193,7 @@ class KDJConfig(QDialog):
         self.desc.setReadOnly(True)
         self.desc.setText(self.info.desc)
         self.m_label = QLabel('周期m')
-        self.m_input = QLineEdit()
+        self.m_input = QLineEdit(str(self.m))
         self.m_input.setValidator(validator)
         self.btn_cancel = QPushButton('取消')
         self.btn_ok = QPushButton('确定')

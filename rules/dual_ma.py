@@ -146,6 +146,17 @@ class DualMAConfig(QDialog):
         self.config_path = rules_config_path.joinpath('dual_ma.json')
         self.info = DualMAInfo()
 
+        if self.config_path.exists():
+            with open(self.config_path, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                self.m = data['m']
+                self.n = data['n']
+                self.k = data['k']
+        else:
+            self.m = 20
+            self.n = 55
+            self.k = 3
+
         reg = QRegExp('[0-9]+$')
         validator = QRegExpValidator()
         validator.setRegExp(reg)
@@ -155,13 +166,13 @@ class DualMAConfig(QDialog):
         self.desc.setReadOnly(True)
         self.desc.setText(self.info.desc)
         self.m_label = QLabel('短周期m')
-        self.m_input = QLineEdit()
+        self.m_input = QLineEdit(str(self.m))
         self.m_input.setValidator(validator)
         self.n_label = QLabel('长周期n')
-        self.n_input = QLineEdit()
+        self.n_input = QLineEdit(str(self.n))
         self.n_input.setValidator(validator)
         self.k_label = QLabel('k个点')
-        self.k_input = QLineEdit()
+        self.k_input = QLineEdit(str(self.k))
         self.k_input.setValidator(validator)
         self.btn_cancel = QPushButton('取消')
         self.btn_ok = QPushButton('确定')
