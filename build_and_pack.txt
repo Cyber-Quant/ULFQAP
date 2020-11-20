@@ -1,0 +1,4 @@
+# Cython and pack
+python build.py build_ext --inplace
+pyinstaller -D -w main.py
+pyinstaller -y Cyber.spec

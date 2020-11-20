@@ -1,0 +1,220 @@
+import json
+
+from qtpy.QtWidgets import *
+from qtpy.QtGui import *
+from qtpy.QtCore import *
+
+from conf.conf import rules_config_path, DEFAULT_K_DAYS
+from rules.base import get_latest_n_desc_data
+
+
+class KDJInfo:
+    def __init__(self):
+        self.name = 'KDJ指数'
+        self.desc = '''
+        KDJ指数
+        9(m)日RSV: (第9(m)日收盘价 - 9(m)日最低价) / (9(m)日最高价 - 9(m)日最低价) * 100
+        快线K: RSV的9(m)日周期平均值
+        慢线D: K的9(m)日周期平均值
+        超快线/确认线J: 3*K - 2*D
+        KD小于20，超卖，金叉，做多。KD大于80，超买，并且死叉，做空。
+        '''
+        self.choose_flag = True
+        self.watch_flag = False
+
+
+class KDJChoose(QThread):
+    progress_signal = Signal(int, str, str)
+
+    def __init__(self, stocks, parent=None):
+        super(KDJChoose, self).__init__(parent)
+        self.codes = []
+        self.names = []
+        for stock in stocks:
+            self.codes.append(stock['code'])
+            self.names.append(stock['name'])
+
+        self.config_path = rules_config_path.joinpath('kdj.json')
+        if self.config_path.exists():
+            with open(self.config_path, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                self.m = data['m']
+        else:
+            self.m = 9
+
+    def _get_batch_data(self, code):
+        rows = get_latest_n_desc_data(code, DEFAULT_K_DAYS)
+        closes = []
+        highs = []
+        lows = []
+        for row in rows:
+            closes.append(row.close)
+            highs.append(row.high)
+            lows.append(row.low)
+        return closes[::-1], highs[::-1], lows[::-1]
+
+    def _calc_kdj(self, code):
+        closes, highs, lows = self._get_batch_data(code)
+        _lows = []
+        _highs = []
+        for i, data in enumerate(closes):
+            if i < self.m:
+                continue
+            _lows.append(min(lows[i - self.m + 1:i + 1]))
+            _highs.append(max(highs[i - self.m + 1:i + 1]))
+        __lows = [0] * self.m
+        __highs = [0] * self.m
+        _lows = __lows + _lows
+        _highs = __highs + _highs
+        rsv = []
+        for i, close in enumerate(closes):
+            if i < self.m:
+                continue
+            # When the stock is suspend, the ohlc keep the same value
+            # Save the same prices
+            _diff = _highs[i] - _lows[i]
+            if _diff == 0:
+                _diff = 0.01
+            rsv.append((closes[i] - _lows[i]) / _diff * 100)
+        _rsv = [0] * self.m
+        rsv = _rsv + rsv
+        k = []
+        d = []
+        j = []
+        for i, data in enumerate(rsv):
+            if i <= self.m:
+                k.append(50)
+                d.append(50)
+                j.append(50)
+                continue
+            _k = 2 / 3 * k[i - 1] + 1 / 3 * rsv[i]
+            _d = 2 / 3 * d[i - 1] + 1 / 3 * _k
+            k.append(_k)
+            d.append(_d)
+            j.append(3 * _k - 2 * _d)
+        return k, d, j
+
+    def choose(self, code):
+        k, d, j = self._calc_kdj(code)
+        if (k[-1] < 20 and d[-1] < 20) and (k[-1] >= d[-1] and k[-3] < d[-3]):
+            return True
+        else:
+            return False
+
+    def run(self):
+        step = int(len(self.codes) / 100) + 1
+        i = 0
+        j = 0
+        for code in self.codes:
+            i += 1
+            ret = self.choose(code)
+            if not ret:
+                continue
+            self.progress_signal.emit(j, code, self.names[i - 1])
+            if i % step == 0:
+                j += 1
+        self.progress_signal.emit(100, '', '')
+
+
+class KDJ:
+    def __init__(self):
+        self.config_path = rules_config_path.joinpath('kdj.json')
+        if self.config_path.exists():
+            with open(self.config_path, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                self.m = data['m']
+        else:
+            self.m = 9
+
+    def calc_kdj(self, closes, highs, lows):
+        _lows = []
+        _highs = []
+        for i, data in enumerate(closes):
+            if i < self.m:
+                continue
+            _lows.append(min(lows[i - self.m + 1:i + 1]))
+            _highs.append(max(highs[i - self.m + 1:i + 1]))
+        __lows = [0] * self.m
+        __highs = [0] * self.m
+        _lows = __lows + _lows
+        _highs = __highs + _highs
+        rsv = []
+        for i, close in enumerate(closes):
+            if i < self.m:
+                continue
+            # When the stock is suspend, the ohlc keep the same value
+            # Save the same prices
+            _diff = _highs[i] - _lows[i]
+            if _diff == 0:
+                _diff = 0.01
+            rsv.append((closes[i] - _lows[i]) / _diff * 100)
+        _rsv = [0] * self.m
+        rsv = _rsv + rsv
+        k = []
+        d = []
+        j = []
+        for i, data in enumerate(rsv):
+            if i <= self.m:
+                k.append(50)
+                d.append(50)
+                j.append(50)
+                continue
+            _k = 2 / 3 * k[i - 1] + 1 / 3 * rsv[i]
+            _d = 2 / 3 * d[i - 1] + 1 / 3 * _k
+            k.append(_k)
+            d.append(_d)
+            j.append(3 * _k - 2 * _d)
+
+        return k, d, j
+
+
+class KDJConfig(QDialog):
+    def __init__(self, parent=None):
+        super(KDJConfig, self).__init__(parent)
+        self.setWindowTitle('KDJ策略配置')
+        self.setWindowModality(Qt.WindowModal)
+
+        self.config_path = rules_config_path.joinpath('kdj.json')
+        self.info = KDJInfo()
+
+        reg = QRegExp('[0-9]+$')
+        validator = QRegExpValidator()
+        validator.setRegExp(reg)
+
+        main_f_box = QFormLayout()
+        self.desc = QTextEdit()
+        self.desc.setReadOnly(True)
+        self.desc.setText(self.info.desc)
+        self.m_label = QLabel('周期m')
+        self.m_input = QLineEdit()
+        self.m_input.setValidator(validator)
+        self.btn_cancel = QPushButton('取消')
+        self.btn_ok = QPushButton('确定')
+        main_f_box.addRow(self.desc)
+        main_f_box.addRow(self.m_label, self.m_input)
+        main_f_box.addRow(self.btn_cancel, self.btn_ok)
+        self.setLayout(main_f_box)
+
+        self.btn_cancel.clicked.connect(self.close)
+        self.btn_ok.clicked.connect(self.ok)
+
+    def ok(self):
+        if not self.config_path.exists():
+            data = {}
+        else:
+            with open(self.config_path, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+        data['m'] = int(self.m_input.text())
+        with open(self.config_path, 'w') as f:
+            json.dump(data, f, indent=4, ensure_ascii=False)
+        self.close()
+
+
+if __name__ == '__main__':
+    import sys
+
+    app = QApplication(sys.argv)
+    main = KDJConfig()
+    main.show()
+
+    sys.exit(app.exec_())

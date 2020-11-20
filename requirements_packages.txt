@@ -1,0 +1,12 @@
+baostock
+Cython
+easyquotation
+lxml
+notify-py
+peewee
+pyinstaller
+pyqtgraph
+PySide2
+QtPy
+requests
+six

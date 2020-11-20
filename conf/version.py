@@ -1,0 +1,9 @@
+SOFT_NAME = 'Cyber'
+DEV = 'Dev'
+BETA = 'Beta'
+RELEASE = ''
+name = SOFT_NAME
+channel = DEV
+major = 0
+minor = 1
+fix = 18
