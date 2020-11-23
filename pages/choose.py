@@ -57,16 +57,9 @@ class Choose(QWidget):
         self.current_kline_code = None
         self.current_indicatrix_name = None
 
+        self.choose_thread = None
         # TODO make rules plugin
         # NEW RULES #
-        self.dual_ma_choose_thread = None
-        self.volume_increase_choose_thread = None
-        self.wr_choose_thread = None
-        self.turtle_choose_thread = None
-        self.boll_choose_thread = None
-        self.macd_choose_thread = None
-        self.kdj_choose_thread = None
-        self.rsi_choose_thread = None
         self.dual_ma_info = DualMAInfo()
         self.volume_increase_info = VolumeIncreaseInfo()
         self.wr_info = WRInfo()
@@ -79,8 +72,11 @@ class Choose(QWidget):
         op_v_box = QVBoxLayout()
         self.re_search_check = QCheckBox('从结果中再选')
         self.btn_choose = QPushButton('策略选股')
+        self.btn_stop_choose = QPushButton('停止')
+        self.btn_stop_choose.setDisabled(True)
         op_v_box.addWidget(self.re_search_check)
         op_v_box.addWidget(self.btn_choose)
+        op_v_box.addWidget(self.btn_stop_choose)
 
         self.filter_group_box = QGroupBox()
         choose_v_box = QVBoxLayout()
@@ -215,6 +211,7 @@ class Choose(QWidget):
         self.setLayout(main_v_box)
 
         self.btn_choose.clicked.connect(self.on_choose)
+        self.btn_stop_choose.clicked.connect(self.on_stop_choose)
         self.table.customContextMenuRequested.connect(self.open_pool_ops_menu)
         self.k_move_slot = pg.SignalProxy(self.k_plt.scene().sigMouseMoved,
                                           rateLimit=60,
@@ -567,10 +564,12 @@ class Choose(QWidget):
     def disable_all(self):
         self.re_search_check.setDisabled(True)
         self.btn_choose.setDisabled(True)
+        self.btn_stop_choose.setEnabled(True)
 
     def enable_all(self):
         self.re_search_check.setEnabled(True)
         self.btn_choose.setEnabled(True)
+        self.btn_stop_choose.setDisabled(True)
 
     def set_progress_bar(self, value, code, name):
         self.progress_bar.setValue(value)
@@ -622,54 +621,31 @@ class Choose(QWidget):
             elif len(self.apply_rules) == 1:
                 # NEW RULES #
                 if self.apply_rules[0] == self.dual_ma_info.name:
-                    self.dual_ma_choose_thread = DualMAChoose(
-                        self.stocks_to_be_chosen)
-                    self.dual_ma_choose_thread.progress_signal.connect(
-                        self.set_progress_bar)
-                    self.dual_ma_choose_thread.start()
-                if self.apply_rules[0] == self.volume_increase_info.name:
-                    self.volume_increase_choose_thread = VolumeIncreaseChoose(
-                        self.stocks_to_be_chosen)
-                    self.volume_increase_choose_thread.progress_signal.connect(
-                        self.set_progress_bar)
-                    self.volume_increase_choose_thread.start()
-                if self.apply_rules[0] == self.wr_info.name:
-                    self.wr_choose_thread = WRChoose(self.stocks_to_be_chosen)
-                    self.wr_choose_thread.progress_signal.connect(
-                        self.set_progress_bar)
-                    self.wr_choose_thread.start()
-                if self.apply_rules[0] == self.turtle_info.name:
-                    self.turtle_choose_thread = TurtleChoose(
-                        self.stocks_to_be_chosen)
-                    self.turtle_choose_thread.progress_signal.connect(
-                        self.set_progress_bar)
-                    self.turtle_choose_thread.start()
-                if self.apply_rules[0] == self.boll_info.name:
-                    self.boll_choose_thread = BOLLChoose(
-                        self.stocks_to_be_chosen)
-                    self.boll_choose_thread.progress_signal.connect(
-                        self.set_progress_bar)
-                    self.boll_choose_thread.start()
-                if self.apply_rules[0] == self.macd_info.name:
-                    self.macd_choose_thread = MACDChoose(
-                        self.stocks_to_be_chosen)
-                    self.macd_choose_thread.progress_signal.connect(
-                        self.set_progress_bar)
-                    self.macd_choose_thread.start()
-                if self.apply_rules[0] == self.kdj_info.name:
-                    self.kdj_choose_thread = KDJChoose(self.stocks_to_be_chosen)
-                    self.kdj_choose_thread.progress_signal.connect(
-                        self.set_progress_bar)
-                    self.kdj_choose_thread.start()
-                if self.apply_rules[0] == self.rsi_info.name:
-                    self.rsi_choose_thread = RSIChoose(self.stocks_to_be_chosen)
-                    self.rsi_choose_thread.progress_signal.connect(
-                        self.set_progress_bar)
-                    self.rsi_choose_thread.start()
+                    self.choose_thread = DualMAChoose(self.stocks_to_be_chosen)
+                elif self.apply_rules[0] == self.volume_increase_info.name:
+                    self.choose_thread = VolumeIncreaseChoose(self.stocks_to_be_chosen)
+                elif self.apply_rules[0] == self.wr_info.name:
+                    self.choose_thread = WRChoose(self.stocks_to_be_chosen)
+                elif self.apply_rules[0] == self.turtle_info.name:
+                    self.choose_thread = TurtleChoose(self.stocks_to_be_chosen)
+                elif self.apply_rules[0] == self.boll_info.name:
+                    self.choose_thread = BOLLChoose(self.stocks_to_be_chosen)
+                elif self.apply_rules[0] == self.macd_info.name:
+                    self.choose_thread = MACDChoose(self.stocks_to_be_chosen)
+                elif self.apply_rules[0] == self.kdj_info.name:
+                    self.choose_thread = KDJChoose(self.stocks_to_be_chosen)
+                elif self.apply_rules[0] == self.rsi_info.name:
+                    self.choose_thread = RSIChoose(self.stocks_to_be_chosen)
+                self.choose_thread.progress_signal.connect(self.set_progress_bar)
+                self.choose_thread.start()
             else:
                 QMessageBox.warning(self, '警告', '一次只能使用一个策略选股',
                                     QMessageBox.Ok, QMessageBox.Ok)
                 self.enable_all()
+
+    def on_stop_choose(self):
+        self.choose_thread.terminate()
+        self.enable_all()
 
     def open_pool_ops_menu(self, position):
         pop_menu = QMenu()

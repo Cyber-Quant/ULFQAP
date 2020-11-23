@@ -81,7 +81,13 @@ class Watch(QWidget):
 
         self.top_widget = QWidget()
         top_h_box = QHBoxLayout()
+
+        op_v_box = QVBoxLayout()
         self.btn_watch = QPushButton('开始盯盘')
+        self.btn_stop_watch = QPushButton('停止')
+        self.btn_stop_watch.setDisabled(True)
+        op_v_box.addWidget(self.btn_watch)
+        op_v_box.addWidget(self.btn_stop_watch)
 
         self.info_group_box = QGroupBox()
         info_h_box = QHBoxLayout()
@@ -101,7 +107,7 @@ class Watch(QWidget):
         info_h_box.addWidget(self.volume_label)
         info_h_box.addWidget(self.volume_input)
         self.info_group_box.setLayout(info_h_box)
-        top_h_box.addWidget(self.btn_watch)
+        top_h_box.addLayout(op_v_box)
         top_h_box.addStretch()
         top_h_box.addWidget(self.info_group_box)
         self.top_widget.setLayout(top_h_box)
@@ -118,6 +124,7 @@ class Watch(QWidget):
         self.setLayout(main_v_box)
 
         self.btn_watch.clicked.connect(self.on_watch)
+        self.btn_stop_watch.clicked.connect(self.on_stop_watch)
         self.move_slot = pg.SignalProxy(self.k_plt.scene().sigMouseMoved,
                                         rateLimit=60, slot=self.emit_kline_info)
         self.kline_info_signal.connect(self.on_kline_info_changed)
@@ -153,6 +160,9 @@ class Watch(QWidget):
         notification.send()
 
     def on_watch(self):
+        self.btn_watch.setDisabled(True)
+        self.btn_stop_watch.setEnabled(True)
+
         with open(fav_stocks_config_path, 'r', encoding='utf-8') as f:
             fav_stocks = json.load(f)
 
@@ -173,6 +183,24 @@ class Watch(QWidget):
                 self.boll_watch_thread.up_signal.connect(self.notify_up)
                 self.boll_watch_thread.down_signal.connect(self.notify_down)
                 self.boll_watch_thread.start()
+
+    def on_stop_watch(self):
+        with open(fav_stocks_config_path, 'r', encoding='utf-8') as f:
+            fav_stocks = json.load(f)
+        if fav_stocks:
+            self.custom_watch_thread.terminate()
+
+        for rule_name in self.watch_rules:
+            # NEW RULES #
+            if rule_name == self.turtle_info.name and \
+                    self.turtle_watch_thread is not None:
+                self.turtle_watch_thread.terminate()
+            if rule_name == self.boll_info.name and \
+                    self.boll_watch_thread is not None:
+                self.boll_watch_thread.terminate()
+
+        self.btn_watch.setEnabled(True)
+        self.btn_stop_watch.setDisabled(True)
 
     def draw_kline(self, code):
         self.current_kline_code = code
