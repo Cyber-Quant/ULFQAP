@@ -7,7 +7,7 @@ from qtpy.QtGui import *
 from qtpy.QtCore import *
 
 from conf.conf import fav_stocks_config_path, apply_rules_config_path, \
-    DEFAULT_K_DAYS
+    DEFAULT_K_LIMIT
 from db.models import AStockInfo
 from rules.base import get_latest_n_desc_data
 from rules.boll import BOLL, BOLLChoose, BOLLInfo
@@ -56,6 +56,7 @@ class Choose(QWidget):
 
         self.current_kline_code = None
         self.current_indicatrix_name = None
+        self.current_kline_period = 'd'
 
         self.choose_thread = None
         # TODO make rules plugin
@@ -108,7 +109,7 @@ class Choose(QWidget):
         self.left_widget.setMinimumWidth(220)
         self.left_widget.setMaximumWidth(250)
 
-        info_h_box = QHBoxLayout()
+        info_g_box = QGridLayout()
         self.date_label = QLabel('日期')
         self.date_input = QLineEdit()
         self.date_input.setDisabled(True)
@@ -127,19 +128,66 @@ class Choose(QWidget):
         self.volume_label = QLabel('成交量')
         self.volume_input = QLineEdit()
         self.volume_input.setDisabled(True)
-        info_h_box.addStretch()
-        info_h_box.addWidget(self.date_label)
-        info_h_box.addWidget(self.date_input)
-        info_h_box.addWidget(self.open_label)
-        info_h_box.addWidget(self.open_input)
-        info_h_box.addWidget(self.close_label)
-        info_h_box.addWidget(self.close_input)
-        info_h_box.addWidget(self.high_label)
-        info_h_box.addWidget(self.high_input)
-        info_h_box.addWidget(self.low_label)
-        info_h_box.addWidget(self.low_input)
-        info_h_box.addWidget(self.volume_label)
-        info_h_box.addWidget(self.volume_input)
+        info_g_box.addWidget(self.date_label, 0, 0)
+        info_g_box.addWidget(self.date_input, 0, 1)
+        info_g_box.addWidget(self.volume_label, 1, 0)
+        info_g_box.addWidget(self.volume_input, 1, 1)
+        info_g_box.addWidget(self.open_label, 0, 2)
+        info_g_box.addWidget(self.open_input, 0, 3)
+        info_g_box.addWidget(self.close_label, 1, 2)
+        info_g_box.addWidget(self.close_input, 1, 3)
+        info_g_box.addWidget(self.high_label, 0, 4)
+        info_g_box.addWidget(self.high_input, 0, 5)
+        info_g_box.addWidget(self.low_label, 1, 4)
+        info_g_box.addWidget(self.low_input, 1, 5)
+
+        self.info_widget = QGroupBox()
+        self.info_widget.setLayout(info_g_box)
+
+        self.day_check = QRadioButton('日')
+        self.day_check.setChecked(True)
+        self.week_check = QRadioButton('周')
+        self.month_check = QRadioButton('月')
+        self.m5_check = QRadioButton('5分')
+        self.m15_check = QRadioButton('15分')
+        self.m30_check = QRadioButton('30分')
+        self.hour_check = QRadioButton('时')
+        self.m5_check.setDisabled(True)
+        self.m15_check.setDisabled(True)
+        self.m30_check.setDisabled(True)
+        self.hour_check.setDisabled(True)
+        self.day_check.toggled.connect(self.on_period_change)
+        self.week_check.toggled.connect(self.on_period_change)
+        self.month_check.toggled.connect(self.on_period_change)
+        self.m5_check.toggled.connect(self.on_period_change)
+        self.m15_check.toggled.connect(self.on_period_change)
+        self.m30_check.toggled.connect(self.on_period_change)
+        self.hour_check.toggled.connect(self.on_period_change)
+
+        self.period_widget = QGroupBox()
+        period_g_box = QGridLayout()
+        period_g_box.addWidget(self.day_check, 0, 0)
+        period_g_box.addWidget(self.week_check, 0, 1)
+        period_g_box.addWidget(self.month_check, 0, 2)
+        period_g_box.addWidget(self.m5_check, 1, 0)
+        period_g_box.addWidget(self.m15_check, 1, 1)
+        period_g_box.addWidget(self.m30_check, 1, 2)
+        period_g_box.addWidget(self.hour_check, 1, 3)
+        period_g_box.setContentsMargins(0, 0, 0, 0)
+        self.period_widget.setLayout(period_g_box)
+
+        self.period_group = QButtonGroup()
+        self.period_group.addButton(self.day_check)
+        self.period_group.addButton(self.week_check)
+        self.period_group.addButton(self.month_check)
+        self.period_group.addButton(self.m5_check)
+        self.period_group.addButton(self.m15_check)
+        self.period_group.addButton(self.m30_check)
+        self.period_group.addButton(self.hour_check)
+
+        info_h_box = QHBoxLayout()
+        info_h_box.addWidget(self.period_widget)
+        info_h_box.addWidget(self.info_widget)
 
         right_v_box = QVBoxLayout()
         self.plt_area = DockArea()
@@ -235,6 +283,25 @@ class Choose(QWidget):
         self.table.itemSelectionChanged.connect(self.on_row_changed)
         self.kline_info_signal.connect(self.on_kline_info_changed)
 
+    def on_period_change(self):
+        check = self.sender()
+        if check.isChecked():
+            if check.text() == '日':
+                self.current_kline_period = 'd'
+            elif check.text() == '周':
+                self.current_kline_period = 'w'
+            elif check.text() == '月':
+                self.current_kline_period = 'm'
+            elif check.text() == '5分':
+                self.current_kline_period = '5'
+            elif check.text() == '15分':
+                self.current_kline_period = '15'
+            elif check.text() == '30分':
+                self.current_kline_period = '30'
+            elif check.text() == '时':
+                self.current_kline_period = '60'
+        self.re_render_all_plots(self.current_kline_code)
+
     def on_row_changed(self):
         row = self.table.currentRow()
         code = self.table.item(row, 0).text()
@@ -254,7 +321,8 @@ class Choose(QWidget):
             return
 
         self.kline_data = []
-        data = get_latest_n_desc_data(code, DEFAULT_K_DAYS)
+        data = get_latest_n_desc_data(code, DEFAULT_K_LIMIT,
+                                      period=self.current_kline_period)
         _open = []
         _close = []
         _high = []
@@ -623,7 +691,8 @@ class Choose(QWidget):
                 if self.apply_rules[0] == self.dual_ma_info.name:
                     self.choose_thread = DualMAChoose(self.stocks_to_be_chosen)
                 elif self.apply_rules[0] == self.volume_increase_info.name:
-                    self.choose_thread = VolumeIncreaseChoose(self.stocks_to_be_chosen)
+                    self.choose_thread = VolumeIncreaseChoose(
+                        self.stocks_to_be_chosen)
                 elif self.apply_rules[0] == self.wr_info.name:
                     self.choose_thread = WRChoose(self.stocks_to_be_chosen)
                 elif self.apply_rules[0] == self.turtle_info.name:
@@ -636,7 +705,8 @@ class Choose(QWidget):
                     self.choose_thread = KDJChoose(self.stocks_to_be_chosen)
                 elif self.apply_rules[0] == self.rsi_info.name:
                     self.choose_thread = RSIChoose(self.stocks_to_be_chosen)
-                self.choose_thread.progress_signal.connect(self.set_progress_bar)
+                self.choose_thread.progress_signal.connect(
+                    self.set_progress_bar)
                 self.choose_thread.start()
             else:
                 QMessageBox.warning(self, '警告', '一次只能使用一个策略选股',

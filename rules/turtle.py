@@ -6,7 +6,7 @@ from qtpy.QtGui import *
 from qtpy.QtCore import *
 
 from apis.realtime_price import fetch_sina_realtime_price
-from conf.conf import rules_config_path, DEFAULT_K_DAYS
+from conf.conf import rules_config_path, DEFAULT_K_LIMIT
 from rules.base import get_latest_n_desc_data, get_last_desc_data
 
 
@@ -211,7 +211,7 @@ class Turtle:
         return down
 
     def _get_batch_up_data(self, code):
-        rows = get_latest_n_desc_data(code, DEFAULT_K_DAYS)
+        rows = get_latest_n_desc_data(code, DEFAULT_K_LIMIT)
         data = []
         for row in rows:
             data.append(row.high)
@@ -230,7 +230,7 @@ class Turtle:
         return ups
 
     def _get_batch_down_data(self, code):
-        rows = get_latest_n_desc_data(code, DEFAULT_K_DAYS)
+        rows = get_latest_n_desc_data(code, DEFAULT_K_LIMIT)
         data = []
         for row in rows:
             data.append(row.low)

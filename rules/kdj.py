@@ -4,7 +4,7 @@ from qtpy.QtWidgets import *
 from qtpy.QtGui import *
 from qtpy.QtCore import *
 
-from conf.conf import rules_config_path, DEFAULT_K_DAYS
+from conf.conf import rules_config_path, DEFAULT_K_LIMIT
 from rules.base import get_latest_n_desc_data
 
 
@@ -43,7 +43,7 @@ class KDJChoose(QThread):
             self.m = 9
 
     def _get_batch_data(self, code):
-        rows = get_latest_n_desc_data(code, DEFAULT_K_DAYS)
+        rows = get_latest_n_desc_data(code, DEFAULT_K_LIMIT)
         closes = []
         highs = []
         lows = []

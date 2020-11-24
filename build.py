@@ -4,7 +4,8 @@ from Cython.Build import cythonize
 setup(
     name='cyber',
     ext_modules=cythonize(
-        ['./apis/k_day.py', './apis/realtime_price.py', './apis/stock_info.py',
+        ['./apis/k_charts.py', './apis/realtime_price.py',
+         './apis/stock_info.py',
          './conf/conf.py', './conf/version.py',
          './db/db.py', './db/models.py', './db/ops.py',
          './pages/about.py', './pages/backtrack.py', './pages/choose.py',

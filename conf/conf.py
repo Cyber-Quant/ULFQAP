@@ -13,7 +13,7 @@ rules_config_path = bundle_dir / 'user_data/rules'
 
 licence_html_path = bundle_dir / 'media/license.html'
 
-DEFAULT_K_DAYS = 250
+DEFAULT_K_LIMIT = 250
 
 DAY_K_READY_HOUR = 17
 DAY_K_READY_MINUTE = 30
