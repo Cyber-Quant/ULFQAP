@@ -1,5 +1,4 @@
 import json
-import os
 
 from qtpy.QtCore import *
 from qtpy.QtGui import *

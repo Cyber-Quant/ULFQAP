@@ -1,6 +1,5 @@
 import easyquotation
 import json
-import os
 import pyqtgraph as pg
 import time
 
