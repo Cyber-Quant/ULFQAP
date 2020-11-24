@@ -10,6 +10,8 @@ class Backtrack(QWidget):
         super(Backtrack, self).__init__(parent)
         self.setWindowTitle('回测')
 
+        self.track_option = None
+
         self.op_group_box = QGroupBox()
         op_h_box = QHBoxLayout()
 
@@ -43,13 +45,6 @@ class Backtrack(QWidget):
         init_money_v_box.addWidget(self.init_money_label)
         init_money_v_box.addWidget(self.init_money_input)
 
-        offset_v_box = QVBoxLayout()
-        self.offset_label = QLabel('滑点')
-        self.offset_input = QLineEdit()
-        self.offset_input.setValidator(double_validator)
-        offset_v_box.addWidget(self.offset_label)
-        offset_v_box.addWidget(self.offset_input)
-
         fee_v_box = QVBoxLayout()
         self.fee_label = QLabel('手续费')
         self.fee_input = QLineEdit()
@@ -65,13 +60,16 @@ class Backtrack(QWidget):
         tax_v_box.addWidget(self.tax_input)
 
         options_v_box = QVBoxLayout()
-        self.track_fav_check = QCheckBox('只回测自选股')
+        self.track_fav_check = QRadioButton('自选股')
         self.track_fav_check.setChecked(True)
-        self.track_pool_check = QCheckBox('只回测预选池股票')
-        self.track_all_check = QCheckBox('回测所有股票')
+        self.track_all_check = QRadioButton('全部股票')
         options_v_box.addWidget(self.track_fav_check)
-        options_v_box.addWidget(self.track_pool_check)
         options_v_box.addWidget(self.track_all_check)
+        self.option_group = QButtonGroup()
+        self.option_group.addButton(self.track_fav_check)
+        self.option_group.addButton(self.track_all_check)
+        self.track_fav_check.toggled.connect(self.on_option_change)
+        self.track_all_check.toggled.connect(self.on_option_change)
 
         op_v_box = QVBoxLayout()
         self.track_fav_check.setChecked(True)
@@ -81,7 +79,6 @@ class Backtrack(QWidget):
         op_h_box.addLayout(start_date_v_box)
         op_h_box.addLayout(end_date_v_box)
         op_h_box.addLayout(init_money_v_box)
-        op_h_box.addLayout(offset_v_box)
         op_h_box.addLayout(fee_v_box)
         op_h_box.addLayout(tax_v_box)
         op_h_box.addLayout(options_v_box)
@@ -119,6 +116,14 @@ class Backtrack(QWidget):
         self.setLayout(main_v_box)
 
         self.btn_backtrack.clicked.connect(self.on_backtrack)
+
+    def on_option_change(self):
+        check = self.sender()
+        if check.isChecked():
+            if check.text() == '自选股':
+                self.track_option = 'fav'
+            elif check.text() == '全部股票':
+                self.track_option = 'all'
 
     def on_backtrack(self):
         msg = '''
