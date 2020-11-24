@@ -50,7 +50,7 @@ class Config(QWidget):
         self.start_date.setDisplayFormat('yyyy-MM-dd')
         self.start_date.setMinimumDate(QDate.currentDate().addDays(-3650))
         self.start_date.setMaximumDate(QDate.currentDate().addDays(-1))
-        self.start_date.setDate(QDate.currentDate().addDays(-30))
+        self.start_date.setDate(QDate.currentDate().addDays(-365))
 
         self.end_date = QDateTimeEdit()
         self.end_date.setCalendarPopup(True)

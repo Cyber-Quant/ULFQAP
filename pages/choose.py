@@ -148,31 +148,15 @@ class Choose(QWidget):
         self.day_check.setChecked(True)
         self.week_check = QRadioButton('周')
         self.month_check = QRadioButton('月')
-        self.m5_check = QRadioButton('5分')
-        self.m15_check = QRadioButton('15分')
-        self.m30_check = QRadioButton('30分')
-        self.hour_check = QRadioButton('时')
-        self.m5_check.setDisabled(True)
-        self.m15_check.setDisabled(True)
-        self.m30_check.setDisabled(True)
-        self.hour_check.setDisabled(True)
         self.day_check.toggled.connect(self.on_period_change)
         self.week_check.toggled.connect(self.on_period_change)
         self.month_check.toggled.connect(self.on_period_change)
-        self.m5_check.toggled.connect(self.on_period_change)
-        self.m15_check.toggled.connect(self.on_period_change)
-        self.m30_check.toggled.connect(self.on_period_change)
-        self.hour_check.toggled.connect(self.on_period_change)
 
         self.period_widget = QGroupBox()
         period_g_box = QGridLayout()
         period_g_box.addWidget(self.day_check, 0, 0)
         period_g_box.addWidget(self.week_check, 0, 1)
         period_g_box.addWidget(self.month_check, 0, 2)
-        period_g_box.addWidget(self.m5_check, 1, 0)
-        period_g_box.addWidget(self.m15_check, 1, 1)
-        period_g_box.addWidget(self.m30_check, 1, 2)
-        period_g_box.addWidget(self.hour_check, 1, 3)
         period_g_box.setContentsMargins(0, 0, 0, 0)
         self.period_widget.setLayout(period_g_box)
 
@@ -180,10 +164,6 @@ class Choose(QWidget):
         self.period_group.addButton(self.day_check)
         self.period_group.addButton(self.week_check)
         self.period_group.addButton(self.month_check)
-        self.period_group.addButton(self.m5_check)
-        self.period_group.addButton(self.m15_check)
-        self.period_group.addButton(self.m30_check)
-        self.period_group.addButton(self.hour_check)
 
         info_h_box = QHBoxLayout()
         info_h_box.addWidget(self.period_widget)
@@ -292,14 +272,6 @@ class Choose(QWidget):
                 self.current_kline_period = 'w'
             elif check.text() == '月':
                 self.current_kline_period = 'm'
-            elif check.text() == '5分':
-                self.current_kline_period = '5'
-            elif check.text() == '15分':
-                self.current_kline_period = '15'
-            elif check.text() == '30分':
-                self.current_kline_period = '30'
-            elif check.text() == '时':
-                self.current_kline_period = '60'
         self.re_render_all_plots(self.current_kline_code)
 
     def on_row_changed(self):

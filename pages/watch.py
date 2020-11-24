@@ -63,6 +63,8 @@ class Watch(QWidget):
             with open(apply_rules_config_path, 'r', encoding='utf-8') as f:
                 self.watch_rules = json.load(f)
 
+        self.current_kline_period = '1'
+
         # TODO make rules plugin
         # NEW RULES #
         self.boll_watch_thread = None
@@ -107,15 +109,53 @@ class Watch(QWidget):
         info_h_box.addWidget(self.volume_label)
         info_h_box.addWidget(self.volume_input)
         self.info_group_box.setLayout(info_h_box)
+
+        self.m1_check = QRadioButton('1分')
+        self.m1_check.setChecked(True)
+        self.m5_check = QRadioButton('5分')
+        self.m15_check = QRadioButton('15分')
+        self.m30_check = QRadioButton('30分')
+        self.hour_check = QRadioButton('时')
+        self.m5_check.setDisabled(True)
+        self.m15_check.setDisabled(True)
+        self.m30_check.setDisabled(True)
+        self.hour_check.setDisabled(True)
+        self.m1_check.toggled.connect(self.on_period_change)
+        self.m5_check.toggled.connect(self.on_period_change)
+        self.m15_check.toggled.connect(self.on_period_change)
+        self.m30_check.toggled.connect(self.on_period_change)
+        self.hour_check.toggled.connect(self.on_period_change)
+
+        self.period_widget = QGroupBox()
+        period_g_box = QGridLayout()
+        period_g_box.addWidget(self.m1_check, 0, 0)
+        period_g_box.addWidget(self.m5_check, 0, 1)
+        period_g_box.addWidget(self.m15_check, 0, 2)
+        period_g_box.addWidget(self.m30_check, 1, 0)
+        period_g_box.addWidget(self.hour_check, 1, 1)
+        period_g_box.setContentsMargins(0, 0, 0, 0)
+        self.period_widget.setLayout(period_g_box)
+
+        self.period_group = QButtonGroup()
+        self.period_group.addButton(self.m1_check)
+        self.period_group.addButton(self.m5_check)
+        self.period_group.addButton(self.m15_check)
+        self.period_group.addButton(self.m30_check)
+        self.period_group.addButton(self.hour_check)
+
         top_h_box.addLayout(op_v_box)
+        top_h_box.addWidget(self.period_widget)
         top_h_box.addStretch()
         top_h_box.addWidget(self.info_group_box)
+
         self.top_widget.setLayout(top_h_box)
         self.top_widget.setMaximumHeight(100)
 
         self.k_plt = pg.PlotWidget(enableMenu=False)
         self.k_plt.plotItem.setMouseEnabled(y=False)
         self.k_plt.hideAxis('bottom')
+
+        index_height = 70
 
         main_v_box = QVBoxLayout()
         main_v_box.addWidget(self.top_widget)
@@ -128,6 +168,22 @@ class Watch(QWidget):
         self.move_slot = pg.SignalProxy(self.k_plt.scene().sigMouseMoved,
                                         rateLimit=60, slot=self.emit_kline_info)
         self.kline_info_signal.connect(self.on_kline_info_changed)
+
+    def on_period_change(self):
+        check = self.sender()
+        if check.isChecked():
+            if check.text() == '1分':
+                self.current_kline_period = '1'
+            elif check.text() == '5分':
+                self.current_kline_period = '5'
+            elif check.text() == '15分':
+                self.current_kline_period = '15'
+            elif check.text() == '30分':
+                self.current_kline_period = '30'
+            elif check.text() == '时':
+                self.current_kline_period = '60'
+        # self.re_render_all_plots(self.current_kline_code)
+        self.draw_kline(self.current_kline_code)
 
     def notify_up(self, rule_name, code, name, up, price):
         self._notify(rule_name, code, name, 'up', up, price)
