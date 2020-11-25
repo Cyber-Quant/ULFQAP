@@ -248,6 +248,95 @@ class Turtle:
         downs = _downs + downs[:-1]
         return downs
 
+    def _get_batch_close_date(self, code):
+        rows = get_latest_n_desc_data(code, DEFAULT_K_LIMIT)
+        close = []
+        date = []
+        for row in rows:
+            close.append(row.close)
+            date.append(row.date)
+        return close[::-1], date[::-1]
+
+    def track(self, code, init_money, fee, pass_fee, tax):
+        closes, dates = self._get_batch_close_date(code)
+        ups = self.calc_batch_up(code)
+        downs = self.calc_batch_down(code)
+        if self.m > self.n:
+            start = self.m
+        else:
+            start = self.n
+        buy_prices = []
+        buy_dates = []
+        buy_index = []
+        sell_prices = []
+        sell_dates = []
+        sell_index = []
+        drawdowns = []
+        old_state = 's'
+        for i in range(len(closes)):
+            if i < start:
+                continue
+            if closes[i] >= ups[i]:
+                state = 'b'
+                if state != old_state:
+                    buy_prices.append(closes[i])
+                    buy_dates.append(dates[i])
+                    buy_index.append(i)
+                    old_state = state
+            elif closes[i] < downs[i]:
+                state = 's'
+                if state != old_state:
+                    sell_prices.append(closes[i])
+                    sell_dates.append(dates[i])
+                    sell_index.append(i)
+                    old_state = state
+        if len(sell_prices) < len(buy_prices):
+            sell_prices.append(closes[-1])
+            sell_dates.append(dates[-1])
+
+        money = init_money
+        opening_index_slices = []
+        opening_price_slices = []
+        closing_index_slices = []
+        closing_price_slices = []
+        for i in range(len(buy_prices)):
+            hands = int(money * (1 - fee) / buy_prices[i] / 100)
+            left_money = money - hands * buy_prices[i] * 100
+            sell_money = hands * sell_prices[i] * (1 - tax - pass_fee) * 100
+            money = sell_money + left_money
+
+            old_close = buy_prices[i]
+            for close in closes[buy_index[i]:sell_index[i] + 1]:
+                if close < old_close:
+                    old_close = close
+            drawdown = buy_prices[i] - old_close / buy_prices[i] * 100
+            drawdowns.append(drawdown)
+            if i == 0:
+                first_start = 0
+            else:
+                first_start = sell_index[i - 1]
+            closing_index = []
+            closing_price = []
+            for idx in range(first_start, buy_index[i] + 1):
+                closing_index.append(idx)
+                closing_price.append(closes[idx])
+            closing_index_slices.append(closing_index)
+            closing_price_slices.append(closing_price)
+            opening_index = []
+            opening_price = []
+            for idx in range(buy_index[i], sell_index[i] + 1):
+                opening_index.append(idx)
+                opening_price.append(closes[idx])
+            opening_index_slices.append(opening_index)
+            opening_price_slices.append(opening_price)
+
+        _return = (money - init_money) / init_money * 100
+        max_drawdown = max(drawdowns)
+
+        return _return, max_drawdown, closes, dates, \
+               opening_index_slices, opening_price_slices, \
+               closing_index_slices, closing_price_slices
+
 
 class TurtleConfig(QDialog):
     def __init__(self, parent=None):

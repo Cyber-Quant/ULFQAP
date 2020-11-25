@@ -673,6 +673,7 @@ class Nav(QWidget):
     def on_fav_table_row_changed(self):
         row = self.fav_table.currentRow()
         code = self.fav_table.item(row, 0).text()
+        name = self.fav_table.item(row, 1).text()
         row = self.rule_table.currentRow()
         if row != -1:
             rule = self.rule_table.item(row, 1).text()
@@ -684,6 +685,8 @@ class Nav(QWidget):
         elif self.list.currentRow() == 1:
             self.choose.re_render_all_plots(code)
             self.choose.draw_indicatrix(rule)
+        elif self.list.currentRow() == 2:
+            self.back_track.set_code(code, name)
 
     def on_rule_table_row_changed(self):
         row = self.rule_table.currentRow()
@@ -699,6 +702,8 @@ class Nav(QWidget):
         elif self.list.currentRow() == 1:
             self.choose.re_render_all_plots(code)
             self.choose.re_draw_indicatrix(rule)
+        elif self.list.currentRow() == 2:
+            self.back_track.set_rule(rule)
 
 
 class CustomWatchDialog(QDialog):
