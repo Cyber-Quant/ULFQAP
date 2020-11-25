@@ -41,18 +41,18 @@ class Choose(QWidget):
         self.apply_rules = []
 
         self.kline_data = []
-        self.k_v_line = pg.InfiniteLine(angle=90, movable=False, )
-        self.k_h_line = pg.InfiniteLine(angle=0, movable=False, )
-        self.vol_v_line = pg.InfiniteLine(angle=90, movable=False, )
-        self.vol_h_line = pg.InfiniteLine(angle=0, movable=False, )
-        self.macd_v_line = pg.InfiniteLine(angle=90, movable=False, )
-        self.macd_h_line = pg.InfiniteLine(angle=0, movable=False, )
-        self.kdj_v_line = pg.InfiniteLine(angle=90, movable=False, )
-        self.kdj_h_line = pg.InfiniteLine(angle=0, movable=False, )
-        self.rsi_v_line = pg.InfiniteLine(angle=90, movable=False, )
-        self.rsi_h_line = pg.InfiniteLine(angle=0, movable=False, )
-        self.wr_v_line = pg.InfiniteLine(angle=90, movable=False, )
-        self.wr_h_line = pg.InfiniteLine(angle=0, movable=False, )
+        self.k_v_line = pg.InfiniteLine(angle=90, movable=False)
+        self.k_h_line = pg.InfiniteLine(angle=0, movable=False)
+        self.vol_v_line = pg.InfiniteLine(angle=90, movable=False)
+        self.vol_h_line = pg.InfiniteLine(angle=0, movable=False)
+        self.macd_v_line = pg.InfiniteLine(angle=90, movable=False)
+        self.macd_h_line = pg.InfiniteLine(angle=0, movable=False)
+        self.kdj_v_line = pg.InfiniteLine(angle=90, movable=False)
+        self.kdj_h_line = pg.InfiniteLine(angle=0, movable=False)
+        self.rsi_v_line = pg.InfiniteLine(angle=90, movable=False)
+        self.rsi_h_line = pg.InfiniteLine(angle=0, movable=False)
+        self.wr_v_line = pg.InfiniteLine(angle=90, movable=False)
+        self.wr_h_line = pg.InfiniteLine(angle=0, movable=False)
 
         self.current_kline_code = None
         self.current_indicatrix_name = None
