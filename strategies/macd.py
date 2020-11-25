@@ -4,8 +4,8 @@ from qtpy.QtWidgets import *
 from qtpy.QtGui import *
 from qtpy.QtCore import *
 
-from conf.conf import rules_config_path, DEFAULT_K_LIMIT
-from rules.base import get_latest_n_desc_data
+from conf.conf import strategies_config_path, DEFAULT_K_LIMIT
+from strategies.base import get_latest_n_desc_data
 
 
 class MACDInfo:
@@ -36,7 +36,7 @@ class MACDChoose(QThread):
             self.codes.append(stock['code'])
             self.names.append(stock['name'])
 
-        self.config_path = rules_config_path.joinpath('macd.json')
+        self.config_path = strategies_config_path.joinpath('macd.json')
         if self.config_path.exists():
             with open(self.config_path, 'r', encoding='utf-8') as f:
                 data = json.load(f)
@@ -110,7 +110,7 @@ class MACDChoose(QThread):
 
 class MACD:
     def __init__(self):
-        self.config_path = rules_config_path.joinpath('macd.json')
+        self.config_path = strategies_config_path.joinpath('macd.json')
         if self.config_path.exists():
             with open(self.config_path, 'r', encoding='utf-8') as f:
                 data = json.load(f)
@@ -158,7 +158,7 @@ class MACDConfig(QDialog):
         self.setWindowTitle('MACD策略配置')
         self.setWindowModality(Qt.WindowModal)
 
-        self.config_path = rules_config_path.joinpath('macd.json')
+        self.config_path = strategies_config_path.joinpath('macd.json')
         self.info = MACDInfo()
 
         if self.config_path.exists():

@@ -4,8 +4,8 @@ from qtpy.QtWidgets import *
 from qtpy.QtGui import *
 from qtpy.QtCore import *
 
-from conf.conf import rules_config_path, DEFAULT_K_LIMIT
-from rules.base import get_latest_n_desc_data
+from conf.conf import strategies_config_path, DEFAULT_K_LIMIT
+from strategies.base import get_latest_n_desc_data
 
 
 class RSIInfo:
@@ -32,7 +32,7 @@ class RSIChoose(QThread):
             self.codes.append(stock['code'])
             self.names.append(stock['name'])
 
-        self.config_path = rules_config_path.joinpath('rsi.json')
+        self.config_path = strategies_config_path.joinpath('rsi.json')
         if self.config_path.exists():
             with open(self.config_path, 'r', encoding='utf-8') as f:
                 data = json.load(f)
@@ -113,7 +113,7 @@ class RSIChoose(QThread):
 
 class RSI:
     def __init__(self):
-        self.config_path = rules_config_path.joinpath('rsi.json')
+        self.config_path = strategies_config_path.joinpath('rsi.json')
         if self.config_path.exists():
             with open(self.config_path, 'r', encoding='utf-8') as f:
                 data = json.load(f)
@@ -172,7 +172,7 @@ class RSIConfig(QDialog):
         self.setWindowTitle('RSI策略配置')
         self.setWindowModality(Qt.WindowModal)
 
-        self.config_path = rules_config_path.joinpath('rsi.json')
+        self.config_path = strategies_config_path.joinpath('rsi.json')
         self.info = RSIInfo()
 
         if self.config_path.exists():

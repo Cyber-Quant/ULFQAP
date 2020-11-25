@@ -7,24 +7,24 @@ from qtpy.QtCore import *
 
 from conf.conf import fav_stocks_config_path, DEFAULT_K_LIMIT
 from db.models import AStockInfo
-from rules.base import get_latest_n_desc_data
-from rules.boll import BOLL, BOLLInfo
-from rules.dual_ma import DualMA, DualMAInfo
-from rules.kdj import KDJ, KDJInfo
-from rules.macd import MACD, MACDInfo
-from rules.rsi import RSI, RSIInfo
-from rules.turtle import Turtle, TurtleInfo
-from rules.volume_increase import VolumeIncreaseInfo
-from rules.wr import WR, WRInfo
+from strategies.base import get_latest_n_desc_data
+from strategies.boll import BOLL, BOLLInfo
+from strategies.dual_ma import DualMA, DualMAInfo
+from strategies.kdj import KDJ, KDJInfo
+from strategies.macd import MACD, MACDInfo
+from strategies.rsi import RSI, RSIInfo
+from strategies.turtle import Turtle, TurtleInfo
+from strategies.volume_increase import VolumeIncreaseInfo
+from strategies.wr import WR, WRInfo
 
 
-class Backtrack(QWidget):
+class Backtest(QWidget):
     def __init__(self, parent=None):
-        super(Backtrack, self).__init__(parent)
+        super(Backtest, self).__init__(parent)
         self.setWindowTitle('回测')
 
         self.track_option = 'fav'
-        self.current_rule_name = None
+        self.current_strategy_name = None
         self.current_code = None
         self.current_name = None
         self.closes = None
@@ -81,7 +81,7 @@ class Backtrack(QWidget):
         self.track_fav_check.toggled.connect(self.on_option_change)
         self.track_all_check.toggled.connect(self.on_option_change)
 
-        self.btn_backtrack = QPushButton('开始回测')
+        self.btn_backtest = QPushButton('开始回测')
 
         op_g_box.addWidget(self.start_date_label, 0, 0)
         op_g_box.addWidget(self.start_date, 1, 0)
@@ -97,7 +97,7 @@ class Backtrack(QWidget):
         op_g_box.addWidget(self.tax_input, 1, 5)
         op_g_box.addWidget(self.track_fav_check, 0, 6)
         op_g_box.addWidget(self.track_all_check, 1, 6)
-        op_g_box.addWidget(self.btn_backtrack, 0, 7)
+        op_g_box.addWidget(self.btn_backtest, 0, 7)
         self.op_group_box.setLayout(op_g_box)
 
         self.progress_bar = QProgressBar()
@@ -139,7 +139,7 @@ class Backtrack(QWidget):
 
         self.setLayout(main_v_box)
 
-        self.btn_backtrack.clicked.connect(self.on_backtrack)
+        self.btn_backtest.clicked.connect(self.on_backtest)
         self.table.itemSelectionChanged.connect(self.on_row_changed)
         self.k_move_slot = pg.SignalProxy(self.k_plt.scene().sigMouseMoved,
                                           rateLimit=60,
@@ -153,7 +153,7 @@ class Backtrack(QWidget):
             elif check.text() == '全部股票':
                 self.track_option = 'all'
 
-    def on_backtrack(self):
+    def on_backtest(self):
         if self.track_option == 'fav':
             with open(fav_stocks_config_path, 'r', encoding='utf-8') as f:
                 stocks = json.load(f)
@@ -174,32 +174,32 @@ class Backtrack(QWidget):
         row = self.table.currentRow()
         self.current_code = self.table.item(row, 0).text()
         self.current_name = self.table.item(row, 1).text()
-        if self.current_rule_name is not None:
-            self.track(self.current_code, self.current_rule_name)
+        if self.current_strategy_name is not None:
+            self.track(self.current_code, self.current_strategy_name)
 
     def set_code(self, code, name):
         self.current_code = code
         self.current_name = name
-        if self.current_rule_name is not None:
-            self.track(self.current_code, self.current_rule_name)
+        if self.current_strategy_name is not None:
+            self.track(self.current_code, self.current_strategy_name)
 
-    def set_rule(self, rule_name):
-        self.current_rule_name = rule_name
+    def set_strategy(self, strategy_name):
+        self.current_strategy_name = strategy_name
         if self.current_code is not None:
-            self.track(self.current_code, self.current_rule_name)
+            self.track(self.current_code, self.current_strategy_name)
 
-    def track(self, code, rule_name):
+    def track(self, code, strategy_name):
         self.current_code = code
-        self.current_rule_name = rule_name
-        if self.current_code is None or self.current_rule_name is None:
+        self.current_strategy_name = strategy_name
+        if self.current_code is None or self.current_strategy_name is None:
             return
         init_money = float(self.init_money_input.text()) * 10000
         fee = float(self.fee_input.text()) / 10000
         pass_fee = float(self.pass_fee_input.text()) / 10000
         tax = float(self.tax_input.text()) / 1000
-        # NEW RULES
+        # NEW STRATEGIES #
         turtle_info = TurtleInfo()
-        if self.current_rule_name == turtle_info.name:
+        if self.current_strategy_name == turtle_info.name:
             turtle = Turtle()
             _return, max_drawdown, self.closes, self.dates, \
             opening_index_slices, opening_price_slices, \
@@ -228,7 +228,7 @@ class Backtrack(QWidget):
         self.k_plt.addItem(self.k_h_line, ignoreBounds=True)
         self.k_plt.addItem(self.info_label)
 
-        self.info.setText(self.current_rule_name)
+        self.info.setText(self.current_strategy_name)
         self.info.append(self.current_code + ' ' + self.current_name)
         self.info.append('收益率: ' + str(_return))
         self.info.append('最大回撤: ' + str(max_drawdown))
@@ -252,6 +252,6 @@ if __name__ == '__main__':
     import sys
 
     app = QApplication(sys.argv)
-    main = Backtrack()
+    main = Backtest()
     main.show()
     sys.exit(app.exec_())

@@ -7,9 +7,9 @@ db_path = bundle_dir / 'user_data/quant.db'
 
 global_config_path = bundle_dir / 'user_data/conf.json'
 fav_stocks_config_path = bundle_dir / 'user_data/fav_stocks.json'
-apply_rules_config_path = bundle_dir / 'user_data/apply_rules.json'
+apply_strategies_config_path = bundle_dir / 'user_data/apply_strategies.json'
 custom_watch_config_path = bundle_dir / 'user_data/custom_watch.json'
-rules_config_path = bundle_dir / 'user_data/rules'
+strategies_config_path = bundle_dir / 'user_data/strategies'
 
 licence_html_path = bundle_dir / 'media/license.html'
 

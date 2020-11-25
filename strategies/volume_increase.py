@@ -5,8 +5,8 @@ from qtpy.QtWidgets import *
 from qtpy.QtGui import *
 from qtpy.QtCore import *
 
-from conf.conf import rules_config_path
-from rules.base import get_latest_n_desc_data
+from conf.conf import strategies_config_path
+from strategies.base import get_latest_n_desc_data
 
 
 class VolumeIncreaseInfo:
@@ -32,7 +32,7 @@ class VolumeIncreaseChoose(QThread):
             self.codes.append(stock['code'])
             self.names.append(stock['name'])
 
-        self.config_path = rules_config_path.joinpath('volume_increase.json')
+        self.config_path = strategies_config_path.joinpath('volume_increase.json')
         if self.config_path.exists():
             with open(self.config_path, 'r', encoding='utf-8') as f:
                 data = json.load(f)
@@ -82,7 +82,7 @@ class VolumeIncreaseConfig(QDialog):
         self.setWindowTitle('成交量放大策略配置')
         self.setWindowModality(Qt.WindowModal)
 
-        self.config_path = rules_config_path.joinpath('volume_increase.json')
+        self.config_path = strategies_config_path.joinpath('volume_increase.json')
         self.info = VolumeIncreaseInfo()
 
         if self.config_path.exists():

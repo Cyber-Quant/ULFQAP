@@ -5,8 +5,8 @@ from qtpy.QtWidgets import *
 from qtpy.QtGui import *
 from qtpy.QtCore import *
 
-from conf.conf import rules_config_path, DEFAULT_K_LIMIT
-from rules.base import get_latest_n_desc_data
+from conf.conf import strategies_config_path, DEFAULT_K_LIMIT
+from strategies.base import get_latest_n_desc_data
 
 
 class DualMAInfo:
@@ -34,7 +34,7 @@ class DualMAChoose(QThread):
             self.codes.append(stock['code'])
             self.names.append(stock['name'])
 
-        self.config_path = rules_config_path.joinpath('dual_ma.json')
+        self.config_path = strategies_config_path.joinpath('dual_ma.json')
         if self.config_path.exists():
             with open(self.config_path, 'r', encoding='utf-8') as f:
                 data = json.load(f)
@@ -95,7 +95,7 @@ class DualMAChoose(QThread):
 
 class DualMA:
     def __init__(self):
-        self.config_path = rules_config_path.joinpath('dual_ma.json')
+        self.config_path = strategies_config_path.joinpath('dual_ma.json')
         if self.config_path.exists():
             with open(self.config_path, 'r', encoding='utf-8') as f:
                 data = json.load(f)
@@ -143,7 +143,7 @@ class DualMAConfig(QDialog):
         self.setWindowTitle('双均线策略配置')
         self.setWindowModality(Qt.WindowModal)
 
-        self.config_path = rules_config_path.joinpath('dual_ma.json')
+        self.config_path = strategies_config_path.joinpath('dual_ma.json')
         self.info = DualMAInfo()
 
         if self.config_path.exists():

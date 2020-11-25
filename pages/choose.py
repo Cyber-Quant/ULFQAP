@@ -6,18 +6,18 @@ from qtpy.QtWidgets import *
 from qtpy.QtGui import *
 from qtpy.QtCore import *
 
-from conf.conf import fav_stocks_config_path, apply_rules_config_path, \
+from conf.conf import fav_stocks_config_path, apply_strategies_config_path, \
     DEFAULT_K_LIMIT
 from db.models import AStockInfo
-from rules.base import get_latest_n_desc_data
-from rules.boll import BOLL, BOLLChoose, BOLLInfo
-from rules.dual_ma import DualMA, DualMAChoose, DualMAInfo
-from rules.kdj import KDJ, KDJChoose, KDJInfo
-from rules.macd import MACD, MACDChoose, MACDInfo
-from rules.rsi import RSI, RSIChoose, RSIInfo
-from rules.turtle import Turtle, TurtleChoose, TurtleInfo
-from rules.volume_increase import VolumeIncreaseChoose, VolumeIncreaseInfo
-from rules.wr import WR, WRChoose, WRInfo
+from strategies.base import get_latest_n_desc_data
+from strategies.boll import BOLL, BOLLChoose, BOLLInfo
+from strategies.dual_ma import DualMA, DualMAChoose, DualMAInfo
+from strategies.kdj import KDJ, KDJChoose, KDJInfo
+from strategies.macd import MACD, MACDChoose, MACDInfo
+from strategies.rsi import RSI, RSIChoose, RSIInfo
+from strategies.turtle import Turtle, TurtleChoose, TurtleInfo
+from strategies.volume_increase import VolumeIncreaseChoose, VolumeIncreaseInfo
+from strategies.wr import WR, WRChoose, WRInfo
 from utils.candlestick import CandlestickItem
 from utils.custom_add_dialog import CustomAddDialog
 
@@ -38,7 +38,7 @@ class Choose(QWidget):
 
         self.stocks_to_be_chosen = []
         self.stocks_pre_chose = []
-        self.apply_rules = []
+        self.apply_strategies = []
 
         self.kline_data = []
         self.k_v_line = pg.InfiniteLine(angle=90, movable=False)
@@ -59,8 +59,8 @@ class Choose(QWidget):
         self.current_kline_period = 'd'
 
         self.choose_thread = None
-        # TODO make rules plugin
-        # NEW RULES #
+        # TODO: make strategies plugin
+        # NEW STRATEGIES #
         self.dual_ma_info = DualMAInfo()
         self.volume_increase_info = VolumeIncreaseInfo()
         self.wr_info = WRInfo()
@@ -561,13 +561,13 @@ class Choose(QWidget):
             return
         self.draw_indicatrix(name)
 
-    def draw_indicatrix(self, rule_name):
-        self.current_indicatrix_name = rule_name
+    def draw_indicatrix(self, strategy_name):
+        self.current_indicatrix_name = strategy_name
         if self.current_kline_code is None or \
                 self.current_indicatrix_name is None:
             return
 
-        # NEW RULES #
+        # NEW STRATEGIES #
         if self.current_indicatrix_name == self.dual_ma_info.name:
             dual_ma = DualMA()
             short_period_mas = dual_ma.calc_short_period_ma(
@@ -647,35 +647,35 @@ class Choose(QWidget):
                     }
                     self.stocks_to_be_chosen.append(_stock)
 
-        if not apply_rules_config_path.exists():
+        if not apply_strategies_config_path.exists():
             QMessageBox.warning(self, '警告', '请先选择一个策略',
                                 QMessageBox.Ok, QMessageBox.Ok)
             self.enable_all()
         else:
-            with open(apply_rules_config_path, 'r', encoding='utf-8') as f:
-                self.apply_rules = json.load(f)
-            if len(self.apply_rules) == 0:
+            with open(apply_strategies_config_path, 'r', encoding='utf-8') as f:
+                self.apply_strategies = json.load(f)
+            if len(self.apply_strategies) == 0:
                 QMessageBox.warning(self, '警告', '请先选择一个策略',
                                     QMessageBox.Ok, QMessageBox.Ok)
                 self.enable_all()
-            elif len(self.apply_rules) == 1:
-                # NEW RULES #
-                if self.apply_rules[0] == self.dual_ma_info.name:
+            elif len(self.apply_strategies) == 1:
+                # NEW STRATEGIES #
+                if self.apply_strategies[0] == self.dual_ma_info.name:
                     self.choose_thread = DualMAChoose(self.stocks_to_be_chosen)
-                elif self.apply_rules[0] == self.volume_increase_info.name:
+                elif self.apply_strategies[0] == self.volume_increase_info.name:
                     self.choose_thread = VolumeIncreaseChoose(
                         self.stocks_to_be_chosen)
-                elif self.apply_rules[0] == self.wr_info.name:
+                elif self.apply_strategies[0] == self.wr_info.name:
                     self.choose_thread = WRChoose(self.stocks_to_be_chosen)
-                elif self.apply_rules[0] == self.turtle_info.name:
+                elif self.apply_strategies[0] == self.turtle_info.name:
                     self.choose_thread = TurtleChoose(self.stocks_to_be_chosen)
-                elif self.apply_rules[0] == self.boll_info.name:
+                elif self.apply_strategies[0] == self.boll_info.name:
                     self.choose_thread = BOLLChoose(self.stocks_to_be_chosen)
-                elif self.apply_rules[0] == self.macd_info.name:
+                elif self.apply_strategies[0] == self.macd_info.name:
                     self.choose_thread = MACDChoose(self.stocks_to_be_chosen)
-                elif self.apply_rules[0] == self.kdj_info.name:
+                elif self.apply_strategies[0] == self.kdj_info.name:
                     self.choose_thread = KDJChoose(self.stocks_to_be_chosen)
-                elif self.apply_rules[0] == self.rsi_info.name:
+                elif self.apply_strategies[0] == self.rsi_info.name:
                     self.choose_thread = RSIChoose(self.stocks_to_be_chosen)
                 self.choose_thread.progress_signal.connect(
                     self.set_progress_bar)

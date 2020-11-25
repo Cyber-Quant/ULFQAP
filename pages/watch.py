@@ -7,11 +7,11 @@ from notifypy import Notify
 from qtpy.QtCore import *
 from qtpy.QtWidgets import *
 
-from conf.conf import fav_stocks_config_path, apply_rules_config_path, \
+from conf.conf import fav_stocks_config_path, apply_strategies_config_path, \
     bundle_dir
-from rules.boll import BOLL, BOLLInfo
-from rules.custom_watch import CustomWatch
-from rules.turtle import Turtle, TurtleInfo, TurtleWatch
+from strategies.boll import BOLL, BOLLInfo
+from strategies.custom_watch import CustomWatch
+from strategies.turtle import Turtle, TurtleInfo, TurtleWatch
 
 
 def gen_time_slices():
@@ -56,16 +56,16 @@ class Watch(QWidget):
         super(Watch, self).__init__(parent)
         self.setWindowTitle('自选股')
 
-        if not apply_rules_config_path.exists():
-            self.watch_rules = []
+        if not apply_strategies_config_path.exists():
+            self.watch_strategies = []
         else:
-            with open(apply_rules_config_path, 'r', encoding='utf-8') as f:
-                self.watch_rules = json.load(f)
+            with open(apply_strategies_config_path, 'r', encoding='utf-8') as f:
+                self.watch_strategies = json.load(f)
 
         self.current_kline_period = '1'
 
-        # TODO make rules plugin
-        # NEW RULES #
+        # TODO: make strategies plugin
+        # NEW STRATEGIES #
         self.boll_watch_thread = None
         self.turtle_watch_thread = None
         self.custom_watch_thread = None
@@ -184,14 +184,14 @@ class Watch(QWidget):
         # self.re_render_all_plots(self.current_kline_code)
         self.draw_kline(self.current_kline_code)
 
-    def notify_up(self, rule_name, code, name, up, price):
-        self._notify(rule_name, code, name, 'up', up, price)
+    def notify_up(self, strategy_name, code, name, up, price):
+        self._notify(strategy_name, code, name, 'up', up, price)
 
-    def notify_down(self, rule_name, code, name, down, price):
-        self._notify(rule_name, code, name, 'down', down, price)
+    def notify_down(self, strategy_name, code, name, down, price):
+        self._notify(strategy_name, code, name, 'down', down, price)
 
-    def _notify(self, rule_name, code, name, flag, base, price):
-        title = rule_name + ' ' + code + ' ' + name
+    def _notify(self, strategy_name, code, name, flag, base, price):
+        title = strategy_name + ' ' + code + ' ' + name
         if flag == 'up':
             msg_op = '发出做多信号'
             base_line = '上轨'
@@ -226,14 +226,14 @@ class Watch(QWidget):
         self.custom_watch_thread.down_signal.connect(self.notify_down)
         self.custom_watch_thread.start()
 
-        for rule_name in self.watch_rules:
-            # NEW RULES #
-            if rule_name == self.turtle_info.name:
+        for strategy_name in self.watch_strategies:
+            # NEW STRATEGIES #
+            if strategy_name == self.turtle_info.name:
                 self.turtle_watch_thread = TurtleWatch(fav_stocks)
                 self.turtle_watch_thread.up_signal.connect(self.notify_up)
                 self.turtle_watch_thread.down_signal.connect(self.notify_down)
                 self.turtle_watch_thread.start()
-            if rule_name == self.boll_info.name:
+            if strategy_name == self.boll_info.name:
                 self.boll_watch_thread = TurtleWatch(fav_stocks)
                 self.boll_watch_thread.up_signal.connect(self.notify_up)
                 self.boll_watch_thread.down_signal.connect(self.notify_down)
@@ -245,12 +245,12 @@ class Watch(QWidget):
         if fav_stocks:
             self.custom_watch_thread.terminate()
 
-        for rule_name in self.watch_rules:
-            # NEW RULES #
-            if rule_name == self.turtle_info.name and \
+        for strategy_name in self.watch_strategies:
+            # NEW STRATEGIES #
+            if strategy_name == self.turtle_info.name and \
                     self.turtle_watch_thread is not None:
                 self.turtle_watch_thread.terminate()
-            if rule_name == self.boll_info.name and \
+            if strategy_name == self.boll_info.name and \
                     self.boll_watch_thread is not None:
                 self.boll_watch_thread.terminate()
 
@@ -313,13 +313,13 @@ class Watch(QWidget):
         self.price_input.setText(str(price))
         self.volume_input.setText(str(volume))
 
-    def draw_indicatrix(self, rule_name):
-        self.current_indicatrix_name = rule_name
+    def draw_indicatrix(self, strategy_name):
+        self.current_indicatrix_name = strategy_name
         if self.current_kline_code is None or \
                 self.current_indicatrix_name is None:
             return
 
-        # NEW RULES #
+        # NEW STRATEGIES #
         if self.current_indicatrix_name == self.turtle_info.name:
             turtle = Turtle()
             up = turtle.calc_up(self.current_kline_code)
