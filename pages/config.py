@@ -5,7 +5,8 @@ from qtpy.QtCore import *
 from qtpy.QtWidgets import *
 
 from apis.k_charts import FetchDayK, FetchWeekK, FetchMonthK, UpdateStockInfo, \
-    get_code_list, reset_k_line_data, save_last_updated_date
+    get_code_list, reset_k_line_data
+from apis.stock_info import save_last_updated_date
 from apis.stock_info import need_update, reset_last_updated_date, \
     fetch_last_trading_day, get_last_updated_date, reset_stock_info
 from pages.about import About
@@ -19,6 +20,7 @@ class Config(QWidget):
         self.fdk = None
         self.fwk = None
         self.fmk = None
+        self.index_date = None
         self.day_s_date = None
         self.day_e_date = None
         self.week_s_date = None
@@ -31,8 +33,14 @@ class Config(QWidget):
 
         self.up_group_box = QGroupBox()
         up_h_box = QHBoxLayout()
-        self.btn_up = QPushButton('更新到最新')
-        up_h_box.addWidget(self.btn_up)
+        self.btn_up_stock_info = QPushButton('更新股票信息')
+        self.btn_up_day_k = QPushButton('更新日K')
+        self.btn_up_week_k = QPushButton('更新周K')
+        self.btn_up_month_k = QPushButton('更新月K')
+        up_h_box.addWidget(self.btn_up_stock_info)
+        up_h_box.addWidget(self.btn_up_day_k)
+        up_h_box.addWidget(self.btn_up_week_k)
+        up_h_box.addWidget(self.btn_up_month_k)
         up_h_box.addStretch()
         self.up_group_box.setLayout(up_h_box)
 
@@ -59,11 +67,17 @@ class Config(QWidget):
         self.end_date.setMaximumDate(QDate.currentDate().addDays(0))
         self.end_date.setDate(QDate.currentDate())
 
-        self.btn_up_range = QPushButton('按日期更新')
+        self.btn_up_range_stock_info = QPushButton('按日期更新股票信息')
+        self.btn_up_range_day_k = QPushButton('按日期更新日K')
+        self.btn_up_range_week_k = QPushButton('按日期更新周K')
+        self.btn_up_range_month_k = QPushButton('按日期更新月K')
 
         range_up_h_box.addWidget(self.start_date)
         range_up_h_box.addWidget(self.end_date)
-        range_up_h_box.addWidget(self.btn_up_range)
+        range_up_h_box.addWidget(self.btn_up_range_stock_info)
+        range_up_h_box.addWidget(self.btn_up_range_day_k)
+        range_up_h_box.addWidget(self.btn_up_range_week_k)
+        range_up_h_box.addWidget(self.btn_up_range_month_k)
         range_up_h_box.addStretch()
         self.range_up_group_box.setLayout(range_up_h_box)
 
@@ -82,53 +96,39 @@ class Config(QWidget):
 
         self.setLayout(main_v_box)
 
-        self.btn_up.clicked.connect(self.on_up)
+        self.btn_up_stock_info.clicked.connect(self.on_up_stock_info)
+        self.btn_up_day_k.clicked.connect(self.on_up_day_k)
+        self.btn_up_week_k.clicked.connect(self.on_up_week_k)
+        self.btn_up_month_k.clicked.connect(self.on_up_month_k)
         self.btn_reset.clicked.connect(self.on_reset)
-        self.btn_up_range.clicked.connect(self.on_fetch_range)
+        self.btn_up_range_stock_info.clicked.connect(
+            self.on_up_custom_stock_info)
+        self.btn_up_range_day_k.clicked.connect(self.on_up_custom_day_k)
+        self.btn_up_range_week_k.clicked.connect(self.on_up_custom_week_k)
+        self.btn_up_range_month_k.clicked.connect(self.on_up_custom_month_k)
         self.btn_about.clicked.connect(self.on_about)
 
     def enable_all_buttons(self):
-        self.btn_up.setEnabled(True)
+        self.btn_up_stock_info.setEnabled(True)
+        self.btn_up_day_k.setEnabled(True)
+        self.btn_up_week_k.setEnabled(True)
+        self.btn_up_month_k.setEnabled(True)
         self.btn_reset.setEnabled(True)
-        self.btn_up_range.setEnabled(True)
+        self.btn_up_range_stock_info.setEnabled(True)
+        self.btn_up_range_day_k.setEnabled(True)
+        self.btn_up_range_week_k.setEnabled(True)
+        self.btn_up_range_month_k.setEnabled(True)
 
     def disable_all_buttons(self):
-        self.btn_up.setDisabled(True)
+        self.btn_up_stock_info.setDisabled(True)
+        self.btn_up_day_k.setDisabled(True)
+        self.btn_up_week_k.setDisabled(True)
+        self.btn_up_month_k.setDisabled(True)
         self.btn_reset.setDisabled(True)
-        self.btn_up_range.setDisabled(True)
-
-    def complete_stock_info_progress(self):
-        self.code_list = get_code_list()
-        self.fdk = FetchDayK(self.day_s_date, self.day_e_date, self.code_list)
-        self.fdk.sig_fetch_day_k.connect(self.set_progress_bar)
-        self.fdk.sig_fetch_day_k_done.connect(self.complete_day_k_progress)
-        self.fdk.err_signal.connect(self.show_warning)
-        self.fdk.start()
-
-    def complete_day_k_progress(self):
-        self.fwk = FetchWeekK(self.week_s_date, self.week_e_date,
-                              self.code_list)
-        self.fwk.sig_fetch_week_k.connect(self.set_progress_bar)
-        self.fwk.sig_fetch_week_k_done.connect(
-            self.complete_week_k_progress)
-        self.fwk.err_signal.connect(self.show_warning)
-        self.fwk.start()
-
-    def complete_week_k_progress(self):
-        self.fmk = FetchMonthK(self.month_s_date, self.month_e_date,
-                               self.code_list)
-        self.fmk.sig_fetch_month_k.connect(self.set_progress_bar)
-        self.fmk.sig_fetch_month_k_done.connect(
-            self.complete_month_k_progress)
-        self.fmk.err_signal.connect(self.show_warning)
-        self.fmk.start()
-
-    def complete_month_k_progress(self):
-        self.set_progress_bar(100)
-        self.enable_all_buttons()
-        save_last_updated_date(self.day_e_date)
-        self.code_list = []
-        self.progress_bar.reset()
+        self.btn_up_range_stock_info.setDisabled(True)
+        self.btn_up_range_day_k.setDisabled(True)
+        self.btn_up_range_week_k.setDisabled(True)
+        self.btn_up_range_month_k.setDisabled(True)
 
     def set_progress_bar(self, value):
         self.progress_bar.setValue(value)
@@ -138,25 +138,142 @@ class Config(QWidget):
                             QMessageBox.Ok, QMessageBox.Ok)
         self.enable_all_buttons()
 
-    def _up_k_line(self):
-        self.usi = UpdateStockInfo(self.day_e_date)
-        self.usi.sig_up_stock_info.connect(self.set_progress_bar)
-        self.usi.sig_up_stock_info_done.connect(
-            self.complete_stock_info_progress)
-        self.usi.err_signal.connect(self.show_warning)
-        self.usi.start()
-
     def on_reset(self):
         self.progress_bar.reset()
         reset_stock_info()
         reset_k_line_data()
         reset_last_updated_date()
 
-    def on_up(self):
+    def complete_month_k_progress(self):
+        self.set_progress_bar(100)
+        self.enable_all_buttons()
+        save_last_updated_date(self.month_e_date, 'm')
+        self.code_list = []
+        self.progress_bar.reset()
+
+    def _up_month_k(self):
+        self.code_list = get_code_list()
+        self.fmk = FetchMonthK(self.month_s_date, self.month_e_date,
+                               self.code_list)
+        self.fmk.sig_fetch_month_k.connect(self.set_progress_bar)
+        self.fmk.sig_fetch_month_k_done.connect(
+            self.complete_month_k_progress)
+        self.fmk.err_signal.connect(self.show_warning)
+        self.fmk.start()
+
+    def on_up_month_k(self):
         self.progress_bar.reset()
         self.disable_all_buttons()
 
-        ret = need_update()
+        if self.month_s_date is None or self.month_e_date is None:
+            self.prepare_date_range('m')
+
+        if self.month_s_date is not None and self.month_e_date is not None:
+            self._up_month_k()
+        else:
+            QMessageBox.warning(self, '警告', '月K更新失败，请重试',
+                                QMessageBox.Ok, QMessageBox.Ok)
+
+    def complete_week_k_progress(self):
+        self.set_progress_bar(100)
+        self.enable_all_buttons()
+        save_last_updated_date(self.week_e_date, 'w')
+        self.progress_bar.reset()
+
+    def _up_week_k(self):
+        self.code_list = get_code_list()
+        self.fwk = FetchWeekK(self.week_s_date, self.week_e_date,
+                              self.code_list)
+        self.fwk.sig_fetch_week_k.connect(self.set_progress_bar)
+        self.fwk.sig_fetch_week_k_done.connect(
+            self.complete_week_k_progress)
+        self.fwk.err_signal.connect(self.show_warning)
+        self.fwk.start()
+
+    def on_up_week_k(self):
+        self.progress_bar.reset()
+        self.disable_all_buttons()
+
+        if self.week_s_date is None or self.week_e_date is None:
+            self.prepare_date_range('w')
+
+        if self.week_s_date is not None and self.week_e_date is not None:
+            self._up_week_k()
+        else:
+            QMessageBox.warning(self, '警告', '周K更新失败，请重试',
+                                QMessageBox.Ok, QMessageBox.Ok)
+
+    def complete_day_k_progress(self):
+        self.set_progress_bar(100)
+        self.enable_all_buttons()
+        save_last_updated_date(self.day_e_date, 'd')
+        self.progress_bar.reset()
+
+    def _up_day_k(self):
+        self.code_list = get_code_list()
+        self.fdk = FetchDayK(self.day_s_date, self.day_e_date, self.code_list)
+        self.fdk.sig_fetch_day_k.connect(self.set_progress_bar)
+        self.fdk.sig_fetch_day_k_done.connect(self.complete_day_k_progress)
+        self.fdk.err_signal.connect(self.show_warning)
+        self.fdk.start()
+
+    def on_up_day_k(self):
+        self.progress_bar.reset()
+        self.disable_all_buttons()
+
+        if self.day_s_date is None or self.day_e_date is None:
+            self.prepare_date_range('d')
+
+        if self.day_s_date is not None and self.day_e_date is not None:
+            self._up_day_k()
+        else:
+            QMessageBox.warning(self, '警告', '日K更新失败，请重试',
+                                QMessageBox.Ok, QMessageBox.Ok)
+
+    def complete_stock_info_progress(self):
+        self.set_progress_bar(100)
+        self.enable_all_buttons()
+        save_last_updated_date(self.index_date, 'i')
+        self.progress_bar.reset()
+
+    def _up_stock_info(self):
+        self.usi = UpdateStockInfo(self.index_date)
+        self.usi.sig_up_stock_info.connect(self.set_progress_bar)
+        self.usi.sig_up_stock_info_done.connect(
+            self.complete_stock_info_progress)
+        self.usi.err_signal.connect(self.show_warning)
+        self.usi.start()
+
+    def on_up_stock_info(self):
+        self.progress_bar.reset()
+        self.disable_all_buttons()
+
+        if self.index_date is None:
+            self.prepare_index_update()
+
+        if self.index_date is not None:
+            self._up_stock_info()
+        else:
+            QMessageBox.warning(self, '警告', '股票信息更新失败，请重试',
+                                QMessageBox.Ok, QMessageBox.Ok)
+
+    def prepare_index_update(self):
+        ret = need_update('i')
+        if ret == 0:
+            lg = bs.login()
+            if lg.error_code != '0' or lg.error_msg != 'success':
+                QMessageBox.warning(self, '警告', lg.error_msg,
+                                    QMessageBox.Ok, QMessageBox.Ok)
+            ret, date_str = fetch_last_trading_day()
+            bs.logout()
+            if ret != 0:
+                QMessageBox.warning(self, '警告', date_str,
+                                    QMessageBox.Ok, QMessageBox.Ok)
+            else:
+                self.index_date = date_str
+
+    def prepare_date_range(self, flag):
+        ret = need_update(flag)
         if ret == 0:
             lg = bs.login()
             if lg.error_code != '0' or lg.error_msg != 'success':
@@ -168,7 +285,7 @@ class Config(QWidget):
                 QMessageBox.warning(self, '警告', day_e_date_str,
                                     QMessageBox.Ok, QMessageBox.Ok)
 
-            day_s_date_str = get_last_updated_date()
+            day_s_date_str = get_last_updated_date(flag)
             day_e_date = datetime.datetime.strptime(day_e_date_str,
                                                     '%Y-%m-%d')
             day_s_date = datetime.datetime.strptime(day_s_date_str,
@@ -193,9 +310,6 @@ class Config(QWidget):
             self.week_e_date = week_e_date_str
             self.month_s_date = month_s_date_str
             self.month_e_date = month_e_date_str
-
-            self._up_k_line()
-
         elif ret == -1:
             QMessageBox.information(self, '提示', '目前还没有更新的数据',
                                     QMessageBox.Ok, QMessageBox.Ok)
@@ -206,7 +320,22 @@ class Config(QWidget):
                                 QMessageBox.Ok, QMessageBox.Ok)
             return False
 
-    def on_fetch_range(self):
+    def on_up_custom_month_k(self):
+        self.custom_date_range()
+        self.on_up_month_k()
+
+    def on_up_custom_week_k(self):
+        self.custom_date_range()
+        self.on_up_week_k()
+
+    def on_up_custom_day_k(self):
+        self.custom_date_range()
+        self.on_up_day_k()
+
+    def on_up_custom_stock_info(self):
+        self.on_up_stock_info()
+
+    def custom_date_range(self):
         self.progress_bar.reset()
         self.disable_all_buttons()
 
@@ -223,8 +352,6 @@ class Config(QWidget):
         self.week_e_date = week_e_date.strftime('%Y-%m-%d')
         self.month_s_date = month_s_date.strftime('%Y-%m-%d')
         self.month_e_date = month_e_date.strftime('%Y-%m-%d')
-
-        self._up_k_line()
 
     def on_about(self):
         about = About(self)

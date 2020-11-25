@@ -8,24 +8,33 @@ from db.models import AStockInfo
 from db.ops import create_table, drop_table
 
 
-def save_last_updated_date(new_trading_day):
+def save_last_updated_date(new_trading_day, flag):
+    key = 'index_update_date'
+    if flag == 'i':
+        key = 'index_update_date'
+    elif flag == 'd':
+        key = 'day_k_update_date'
+    elif flag == 'w':
+        key = 'week_k_update_date'
+    elif flag == 'm':
+        key = 'month_k_update_date'
     if not global_config_path.exists():
-        data = {'date': new_trading_day}
+        data = {key: new_trading_day}
     else:
         with open(global_config_path, 'r', encoding='utf-8') as f:
             data = json.load(f)
-            if 'date' in data:
-                saved_date = data['date']
+            if key in data:
+                saved_date = data[key]
             else:
                 saved_date = '1970-01-01'
             new_date = datetime.datetime.strptime(new_trading_day, '%Y-%m-%d')
             old_date = datetime.datetime.strptime(saved_date, '%Y-%m-%d')
             if new_trading_day == '1970-01-01':
-                data['date'] = '1970-01-01'
+                data[key] = '1970-01-01'
             elif old_date >= new_date:
-                data['date'] = saved_date
+                data[key] = saved_date
             else:
-                data['date'] = new_trading_day
+                data[key] = new_trading_day
 
     with open(global_config_path, 'w', encoding='utf-8') as f:
         json.dump(data, f, indent=4, ensure_ascii=False)
@@ -33,7 +42,10 @@ def save_last_updated_date(new_trading_day):
 
 def reset_last_updated_date():
     date = '1970-01-01'
-    save_last_updated_date(date)
+    save_last_updated_date(date, 'i')
+    save_last_updated_date(date, 'd')
+    save_last_updated_date(date, 'w')
+    save_last_updated_date(date, 'm')
 
 
 def reset_stock_info():
@@ -68,20 +80,30 @@ def fetch_last_trading_day(date=None):
         return 0, trading_days[-2]
 
 
-def get_last_updated_date():
+def get_last_updated_date(flag):
+    key = 'index_update_date'
+    if flag == 'i':
+        key = 'index_update_date'
+    elif flag == 'd':
+        key = 'day_k_update_date'
+    elif flag == 'w':
+        key = 'week_k_update_date'
+    elif flag == 'm':
+        key = 'month_k_update_date'
+
     if not global_config_path.exists():
         return '1970-01-01'
     else:
         with open(global_config_path, 'r', encoding='utf-8') as f:
             data = json.load(f)
-            if 'date' in data:
-                stored_date = data['date']
+            if key in data:
+                stored_date = data[key]
             else:
                 stored_date = '1970-01-01'
         return stored_date
 
 
-def need_update():
+def need_update(flag):
     lg = bs.login()
     if lg.error_code != '0' or lg.error_msg != 'success':
         return lg.error_msg
@@ -92,7 +114,7 @@ def need_update():
 
     bs.logout()
 
-    stored_date = get_last_updated_date()
+    stored_date = get_last_updated_date(flag)
     new_date = datetime.datetime.strptime(new_trading_day, '%Y-%m-%d')
     old_date = datetime.datetime.strptime(stored_date, '%Y-%m-%d')
     if old_date >= new_date:

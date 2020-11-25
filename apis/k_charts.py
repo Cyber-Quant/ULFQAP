@@ -4,7 +4,7 @@ import datetime
 from qtpy.QtCore import *
 
 from apis.stock_info import AStockInfo, fetch_all_code, \
-    reset_stock_info, save_last_updated_date, fetch_last_trading_day, \
+    reset_stock_info, fetch_last_trading_day, \
     fetch_stock_info
 from db.models import AStockDayLine, AStockWeekLine, AStockMonthLine
 from db.ops import create_table, drop_table
@@ -391,9 +391,9 @@ class UpdateStockInfo(QThread):
     sig_up_stock_info_done = Signal()
     err_signal = Signal(str)
 
-    def __init__(self, e_date, parent=None):
+    def __init__(self, date, parent=None):
         super(UpdateStockInfo, self).__init__(parent)
-        self.e_date = e_date
+        self.date = date
 
     def run(self):
         lg = bs.login()
@@ -401,7 +401,7 @@ class UpdateStockInfo(QThread):
             return lg.error_msg
 
         self.sig_up_stock_info.emit(1)
-        ret, date = fetch_last_trading_day(date=self.e_date)
+        ret, date = fetch_last_trading_day(date=self.date)
         if ret != 0:
             self.err_signal.emit(date)
             return False
@@ -410,8 +410,8 @@ class UpdateStockInfo(QThread):
             self.err_signal.emit(stock_code_list)
             return False
         stock_num = len(stock_code_list)
-        total_num = int(stock_num / 10 * 11)
-        step = int(total_num / 10)
+        total_num = int(stock_num / 100 * 110)
+        step = int(total_num / 100)
         i = 0
         j = 0
         reset_stock_info()
@@ -473,11 +473,12 @@ class FetchDayK(QThread):
         if lg.error_code != '0' or lg.error_msg != 'success':
             return lg.error_msg
 
+        self.sig_fetch_day_k.emit(1)
         stock_num = len(self.stock_code_list)
-        total_num = int(stock_num / 30 * 31)
-        step = int(total_num / 30)
+        total_num = int(stock_num / 100 * 110)
+        step = int(total_num / 100)
         i = 0
-        j = 10
+        j = 0
         for code in self.stock_code_list:
             i += 1
             ret, data = fetch_day_line_data(code, self.s_date, self.e_date)
@@ -509,11 +510,12 @@ class FetchWeekK(QThread):
         if lg.error_code != '0' or lg.error_msg != 'success':
             return lg.error_msg
 
+        self.sig_fetch_week_k.emit(1)
         stock_num = len(self.stock_code_list)
-        total_num = int(stock_num / 30 * 31)
-        step = int(total_num / 30)
+        total_num = int(stock_num / 100 * 110)
+        step = int(total_num / 100)
         i = 0
-        j = 40
+        j = 0
         for code in self.stock_code_list:
             i += 1
             ret, data = fetch_week_line_data(code, self.s_date, self.e_date)
@@ -545,11 +547,12 @@ class FetchMonthK(QThread):
         if lg.error_code != '0' or lg.error_msg != 'success':
             return lg.error_msg
 
+        self.sig_fetch_month_k.emit(1)
         stock_num = len(self.stock_code_list)
-        total_num = int(stock_num / 30 * 31)
-        step = int(total_num / 30)
+        total_num = int(stock_num / 100 * 110)
+        step = int(total_num / 100)
         i = 0
-        j = 70
+        j = 0
         for code in self.stock_code_list:
             i += 1
             ret, data = fetch_month_line_data(code, self.s_date, self.e_date)
