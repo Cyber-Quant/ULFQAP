@@ -23,7 +23,7 @@ class Backtest(QWidget):
         super(Backtest, self).__init__(parent)
         self.setWindowTitle('回测')
 
-        self.track_option = 'fav'
+        self.backtest_option = 'fav'
         self.current_strategy_name = None
         self.current_code = None
         self.current_name = None
@@ -71,15 +71,15 @@ class Backtest(QWidget):
         self.tax_input.setValidator(double_validator)
         self.tax_input.setText('1')
 
-        self.track_fav_check = QRadioButton('自选股')
-        self.track_fav_check.setChecked(True)
-        self.track_all_check = QRadioButton('全部股票')
+        self.backtest_fav_check = QRadioButton('自选股')
+        self.backtest_fav_check.setChecked(True)
+        self.backtest_all_check = QRadioButton('全部股票')
 
         self.option_group = QButtonGroup()
-        self.option_group.addButton(self.track_fav_check)
-        self.option_group.addButton(self.track_all_check)
-        self.track_fav_check.toggled.connect(self.on_option_change)
-        self.track_all_check.toggled.connect(self.on_option_change)
+        self.option_group.addButton(self.backtest_fav_check)
+        self.option_group.addButton(self.backtest_all_check)
+        self.backtest_fav_check.toggled.connect(self.on_option_change)
+        self.backtest_all_check.toggled.connect(self.on_option_change)
 
         self.btn_backtest = QPushButton('开始回测')
 
@@ -95,8 +95,8 @@ class Backtest(QWidget):
         op_g_box.addWidget(self.pass_fee_input, 1, 4)
         op_g_box.addWidget(self.tax_label, 0, 5)
         op_g_box.addWidget(self.tax_input, 1, 5)
-        op_g_box.addWidget(self.track_fav_check, 0, 6)
-        op_g_box.addWidget(self.track_all_check, 1, 6)
+        op_g_box.addWidget(self.backtest_fav_check, 0, 6)
+        op_g_box.addWidget(self.backtest_all_check, 1, 6)
         op_g_box.addWidget(self.btn_backtest, 0, 7)
         self.op_group_box.setLayout(op_g_box)
 
@@ -149,15 +149,15 @@ class Backtest(QWidget):
         check = self.sender()
         if check.isChecked():
             if check.text() == '自选股':
-                self.track_option = 'fav'
+                self.backtest_option = 'fav'
             elif check.text() == '全部股票':
-                self.track_option = 'all'
+                self.backtest_option = 'all'
 
     def on_backtest(self):
-        if self.track_option == 'fav':
+        if self.backtest_option == 'fav':
             with open(fav_stocks_config_path, 'r', encoding='utf-8') as f:
                 stocks = json.load(f)
-        elif self.track_option == 'all':
+        elif self.backtest_option == 'all':
             stocks = []
             rows = AStockInfo.select()
             for row in rows:
@@ -175,20 +175,20 @@ class Backtest(QWidget):
         self.current_code = self.table.item(row, 0).text()
         self.current_name = self.table.item(row, 1).text()
         if self.current_strategy_name is not None:
-            self.track(self.current_code, self.current_strategy_name)
+            self.backtest(self.current_code, self.current_strategy_name)
 
     def set_code(self, code, name):
         self.current_code = code
         self.current_name = name
         if self.current_strategy_name is not None:
-            self.track(self.current_code, self.current_strategy_name)
+            self.backtest(self.current_code, self.current_strategy_name)
 
     def set_strategy(self, strategy_name):
         self.current_strategy_name = strategy_name
         if self.current_code is not None:
-            self.track(self.current_code, self.current_strategy_name)
+            self.backtest(self.current_code, self.current_strategy_name)
 
-    def track(self, code, strategy_name):
+    def backtest(self, code, strategy_name):
         self.current_code = code
         self.current_strategy_name = strategy_name
         if self.current_code is None or self.current_strategy_name is None:
@@ -204,8 +204,8 @@ class Backtest(QWidget):
             _return, max_drawdown, self.closes, self.dates, \
             opening_index_slices, opening_price_slices, \
             closing_index_slices, closing_price_slices = \
-                turtle.track(self.current_code,
-                             init_money, fee, pass_fee, tax)
+                turtle.backtest(self.current_code,
+                                init_money, fee, pass_fee, tax)
 
         self.k_plt.plotItem.clear()
         for i, obj in enumerate(opening_price_slices):

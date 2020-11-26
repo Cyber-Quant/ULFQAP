@@ -257,7 +257,7 @@ class Turtle:
             date.append(row.date)
         return close[::-1], date[::-1]
 
-    def track(self, code, init_money, fee, pass_fee, tax):
+    def backtest(self, code, init_money, fee, pass_fee, tax):
         closes, dates = self._get_batch_close_date(code)
         ups = self.calc_batch_up(code)
         downs = self.calc_batch_down(code)

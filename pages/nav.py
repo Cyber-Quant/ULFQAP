@@ -77,7 +77,7 @@ class Nav(QWidget):
 
         self.watch = None
         self.choose = None
-        self.back_track = None
+        self.backtest = None
         self.config = None
 
         main_h_box = QHBoxLayout()
@@ -452,8 +452,8 @@ class Nav(QWidget):
         self.choose.fav_stock_changed_signal.connect(self.on_refresh_fav_table)
         self.stacked_window.addWidget(self.choose)
 
-        self.back_track = Backtest()
-        self.stacked_window.addWidget(self.back_track)
+        self.backtest = Backtest()
+        self.stacked_window.addWidget(self.backtest)
 
         self.config = Config()
         self.stacked_window.addWidget(self.config)
@@ -686,7 +686,7 @@ class Nav(QWidget):
             self.choose.re_render_all_plots(code)
             self.choose.draw_indicatrix(strategy)
         elif self.list.currentRow() == 2:
-            self.back_track.set_code(code, name)
+            self.backtest.set_code(code, name)
 
     def on_strategy_table_row_changed(self):
         row = self.strategy_table.currentRow()
@@ -703,7 +703,7 @@ class Nav(QWidget):
             self.choose.re_render_all_plots(code)
             self.choose.re_draw_indicatrix(strategy)
         elif self.list.currentRow() == 2:
-            self.back_track.set_strategy(strategy)
+            self.backtest.set_strategy(strategy)
 
 
 class CustomWatchDialog(QDialog):
