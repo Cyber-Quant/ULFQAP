@@ -207,16 +207,34 @@ class Backtest(QWidget):
         pass_fee = float(self.pass_fee_input.text()) / 10000
         tax = float(self.tax_input.text()) / 1000
         # NEW STRATEGIES #
+        boll_info = BOLLInfo()
+        dual_ma_info = DualMAInfo()
+        kdj_info = KDJInfo()
+        macd_info = MACDInfo()
+        rsi_info = RSIInfo()
         turtle_info = TurtleInfo()
-        if self.current_strategy_name == turtle_info.name:
-            turtle = Turtle()
-            _return, max_drawdown, \
-            self.opens, self.closes, self.highs, self.lows, \
-            self.volumes, self.dates, \
-            opening_index_slices, opening_price_slices, \
-            closing_index_slices, closing_price_slices = \
-                turtle.backtest(self.current_code,
-                                init_money, fee, pass_fee, tax)
+        wr_info = WRInfo()
+        if self.current_strategy_name == boll_info.name:
+            backtest = BOLL()
+        elif self.current_strategy_name == dual_ma_info.name:
+            backtest = DualMA()
+        elif self.current_strategy_name == kdj_info.name:
+            backtest = KDJ()
+        elif self.current_strategy_name == macd_info.name:
+            backtest = MACD()
+        elif self.current_strategy_name == rsi_info.name:
+            backtest = RSI()
+        elif self.current_strategy_name == turtle_info.name:
+            backtest = Turtle()
+        elif self.current_strategy_name == wr_info.name:
+            backtest = WR()
+        _return, max_drawdown, \
+        self.opens, self.closes, self.highs, self.lows, \
+        self.volumes, self.dates, \
+        opening_index_slices, opening_price_slices, \
+        closing_index_slices, closing_price_slices = \
+            backtest.backtest(self.current_code,
+                              init_money, fee, pass_fee, tax)
 
         for i, obj in enumerate(opening_price_slices):
             if opening_price_slices[i][-1] > opening_price_slices[i][0]:
