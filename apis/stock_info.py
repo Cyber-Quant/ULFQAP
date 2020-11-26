@@ -1,9 +1,8 @@
 import baostock as bs
 import datetime
 import json
-import time
 
-from conf.conf import global_config_path
+from conf.conf import global_config_path, DAY_K_READY_HOUR, DAY_K_READY_MINUTE
 from db.models import AStockInfo
 from db.ops import create_table, drop_table
 
@@ -72,9 +71,14 @@ def fetch_last_trading_day(date=None):
     for day in date_list:
         if day[1] == '1':
             trading_days.append(day[0])
-    now = time.localtime()
-    from conf.conf import DAY_K_READY_HOUR, DAY_K_READY_MINUTE
-    if now.tm_hour >= DAY_K_READY_HOUR and now.tm_min > DAY_K_READY_MINUTE:
+
+    now = datetime.datetime.now()
+    year = now.year
+    month = now.month
+    day = now.day
+    ready_time = datetime.datetime(year, month, day, DAY_K_READY_HOUR,
+                                   DAY_K_READY_MINUTE, 0, 0)
+    if now >= ready_time:
         return 0, trading_days[-1]
     else:
         return 0, trading_days[-2]
