@@ -722,6 +722,9 @@ class Choose(QWidget):
             json.dump(self.fav_stocks, f, indent=4, ensure_ascii=False)
         self.fav_stock_changed_signal.emit()
 
+        with open(fav_stocks_config_path, 'r', encoding='utf-8') as f:
+            self.fav_stocks = json.load(f)
+
     def on_un_fav(self):
         rows = self.table.selectedIndexes()
         rows_to_un_fav = []
@@ -738,6 +741,9 @@ class Choose(QWidget):
         with open(fav_stocks_config_path, 'w', encoding='utf-8') as f:
             json.dump(self.fav_stocks, f, indent=4, ensure_ascii=False)
         self.fav_stock_changed_signal.emit()
+
+        with open(fav_stocks_config_path, 'r', encoding='utf-8') as f:
+            self.fav_stocks = json.load(f)
 
     def on_remove(self):
         rows = self.table.selectedIndexes()
@@ -761,6 +767,9 @@ class Choose(QWidget):
         with open(fav_stocks_config_path, 'w', encoding='utf-8') as f:
             json.dump(self.fav_stocks, f, indent=4, ensure_ascii=False)
         self.fav_stock_changed_signal.emit()
+
+        with open(fav_stocks_config_path, 'r', encoding='utf-8') as f:
+            self.fav_stocks = json.load(f)
 
     def on_custom_add(self):
         custom_add_dlg = CustomAddDialog(self)
