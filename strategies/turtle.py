@@ -248,17 +248,27 @@ class Turtle:
         downs = _downs + downs[:-1]
         return downs
 
-    def _get_batch_close_date(self, code):
+    def _get_batch_data(self, code):
         rows = get_latest_n_desc_data(code, DEFAULT_K_LIMIT)
+        _open = []
         close = []
+        high = []
+        low = []
+        volume = []
         date = []
         for row in rows:
+            _open.append(row.open)
             close.append(row.close)
+            high.append(row.high)
+            low.append(row.low)
+            volume.append(row.volume)
             date.append(row.date)
-        return close[::-1], date[::-1]
+        return _open[::-1], close[::-1], high[::-1], low[::-1], \
+               volume[::-1], date[::-1]
 
     def backtest(self, code, init_money, fee, pass_fee, tax):
-        closes, dates = self._get_batch_close_date(code)
+        opens, closes, highs, lows, volumes, dates = \
+            self._get_batch_data(code)
         ups = self.calc_batch_up(code)
         downs = self.calc_batch_down(code)
         if self.m > self.n:
@@ -276,14 +286,14 @@ class Turtle:
         for i in range(len(closes)):
             if i < start:
                 continue
-            if closes[i] >= ups[i]:
+            if highs[i] >= ups[i]:
                 state = 'b'
                 if state != old_state:
                     buy_prices.append(closes[i])
                     buy_dates.append(dates[i])
                     buy_index.append(i)
                     old_state = state
-            elif closes[i] < downs[i]:
+            elif lows[i] < downs[i]:
                 state = 's'
                 if state != old_state:
                     sell_prices.append(closes[i])
@@ -293,6 +303,7 @@ class Turtle:
         if len(sell_prices) < len(buy_prices):
             sell_prices.append(closes[-1])
             sell_dates.append(dates[-1])
+            sell_index.append(len(buy_prices))
 
         money = init_money
         opening_index_slices = []
@@ -327,13 +338,15 @@ class Turtle:
             for idx in range(buy_index[i], sell_index[i] + 1):
                 opening_index.append(idx)
                 opening_price.append(closes[idx])
-            opening_index_slices.append(opening_index)
-            opening_price_slices.append(opening_price)
+            if opening_index:
+                opening_index_slices.append(opening_index)
+                opening_price_slices.append(opening_price)
 
         _return = (money - init_money) / init_money * 100
         max_drawdown = max(drawdowns)
 
-        return _return, max_drawdown, closes, dates, \
+        return _return, max_drawdown, \
+               opens, closes, highs, lows, volumes, dates, \
                opening_index_slices, opening_price_slices, \
                closing_index_slices, closing_price_slices
 

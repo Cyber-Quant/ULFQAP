@@ -27,7 +27,11 @@ class Backtest(QWidget):
         self.current_strategy_name = None
         self.current_code = None
         self.current_name = None
+        self.opens = None
         self.closes = None
+        self.highs = None
+        self.lows = None
+        self.volumes = None
         self.dates = None
         self.k_v_line = pg.InfiniteLine(angle=90, movable=False)
         self.k_h_line = pg.InfiniteLine(angle=0, movable=False)
@@ -100,8 +104,6 @@ class Backtest(QWidget):
         op_g_box.addWidget(self.btn_backtest, 0, 7)
         self.op_group_box.setLayout(op_g_box)
 
-        self.progress_bar = QProgressBar()
-
         result_h_box = QHBoxLayout()
         self.table = QTableWidget()
         headers = ['代码', '名称']
@@ -133,7 +135,6 @@ class Backtest(QWidget):
         result_h_box.addWidget(self.k_plt)
 
         main_v_box = QVBoxLayout()
-        main_v_box.addWidget(self.progress_bar)
         main_v_box.addWidget(self.op_group_box)
         main_v_box.addLayout(result_h_box)
 
@@ -189,6 +190,14 @@ class Backtest(QWidget):
             self.backtest(self.current_code, self.current_strategy_name)
 
     def backtest(self, code, strategy_name):
+        self.k_plt.plotItem.clear()
+        self.opens = []
+        self.closes = []
+        self.highs = []
+        self.lows = []
+        self.volumes = []
+        self.dates = []
+
         self.current_code = code
         self.current_strategy_name = strategy_name
         if self.current_code is None or self.current_strategy_name is None:
@@ -201,13 +210,14 @@ class Backtest(QWidget):
         turtle_info = TurtleInfo()
         if self.current_strategy_name == turtle_info.name:
             turtle = Turtle()
-            _return, max_drawdown, self.closes, self.dates, \
+            _return, max_drawdown, \
+            self.opens, self.closes, self.highs, self.lows, \
+            self.volumes, self.dates, \
             opening_index_slices, opening_price_slices, \
             closing_index_slices, closing_price_slices = \
                 turtle.backtest(self.current_code,
                                 init_money, fee, pass_fee, tax)
 
-        self.k_plt.plotItem.clear()
         for i, obj in enumerate(opening_price_slices):
             if opening_price_slices[i][-1] > opening_price_slices[i][0]:
                 pen_color = 'r'
@@ -240,9 +250,15 @@ class Backtest(QWidget):
             index = int(mouse_point.x())
             if -1 < index < len(self.closes):
                 self.info_label.setHtml(
-                    "<p style='color:white'><strong>日期：{0}</strong></p><p "
-                    "style='color:white'>收盘：{1}</p>".format(
-                        self.dates[index], self.closes[index]))
+                    "<p style='color:white'><strong>日期：{0}</strong></p>"
+                    "<p style='color:white'>开盘：{1}</p>"
+                    "<p style='color:white'>最高：{2}</p>"
+                    "<p style='color:white'>最低：{3}</p>"
+                    "<p style='color:white'>收盘：{4}</p>"
+                    "<p style='color:white'>成交量：{5}</p>".format(
+                        self.dates[index], self.opens[index], self.highs[index],
+                        self.lows[index], self.closes[index],
+                        self.volumes[index]))
                 self.info_label.setPos(mouse_point.x(), mouse_point.y())
             self.k_v_line.setPos(mouse_point.x())
             self.k_h_line.setPos(mouse_point.y())
