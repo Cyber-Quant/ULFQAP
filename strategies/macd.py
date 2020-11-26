@@ -25,6 +25,7 @@ class MACDInfo:
         self.watch_flag = False
 
 
+# TODO: Separate common code
 class MACDChoose(QThread):
     progress_signal = Signal(int, str, str)
 
@@ -108,6 +109,7 @@ class MACDChoose(QThread):
         self.progress_signal.emit(100, '', '')
 
 
+# TODO: Separate common code
 class MACD:
     def __init__(self):
         self.config_path = strategies_config_path.joinpath('macd.json')
@@ -257,6 +259,7 @@ class MACD:
                closing_index_slices, closing_price_slices
 
 
+# TODO: line color, different usage of this strategy
 class MACDConfig(QDialog):
     def __init__(self, parent=None):
         super(MACDConfig, self).__init__(parent)

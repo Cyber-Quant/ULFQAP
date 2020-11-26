@@ -21,6 +21,7 @@ class RSIInfo:
         self.watch_flag = False
 
 
+# TODO: Separate common code
 class RSIChoose(QThread):
     progress_signal = Signal(int, str, str)
 
@@ -111,6 +112,7 @@ class RSIChoose(QThread):
         self.progress_signal.emit(100, '', '')
 
 
+# TODO: Separate common code
 class RSI:
     def __init__(self):
         self.config_path = strategies_config_path.joinpath('rsi.json')
@@ -274,6 +276,7 @@ class RSI:
                closing_index_slices, closing_price_slices
 
 
+# TODO: line color, different usage of this strategy
 class RSIConfig(QDialog):
     def __init__(self, parent=None):
         super(RSIConfig, self).__init__(parent)

@@ -21,6 +21,7 @@ class VolumeIncreaseInfo:
         self.watch_flag = False
 
 
+# TODO: Separate common code
 class VolumeIncreaseChoose(QThread):
     progress_signal = Signal(int, str, str)
 

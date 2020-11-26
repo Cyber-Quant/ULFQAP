@@ -21,6 +21,7 @@ class WRInfo:
         self.watch_flag = False
 
 
+# TODO: Separate common code
 class WRChoose(QThread):
     progress_signal = Signal(int, str, str)
 
@@ -96,6 +97,7 @@ class WRChoose(QThread):
         self.progress_signal.emit(100, '', '')
 
 
+# TODO: Separate common code
 class WR:
     def __init__(self):
         self.config_path = strategies_config_path.joinpath('wr.json')
@@ -227,6 +229,7 @@ class WR:
                closing_index_slices, closing_price_slices
 
 
+# TODO: line color, different usage of this strategy
 class WRConfig(QDialog):
     def __init__(self, parent=None):
         super(WRConfig, self).__init__(parent)

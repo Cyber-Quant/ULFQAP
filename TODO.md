@@ -2,8 +2,10 @@ TODO
 ---
 
 - Reduce DB IO to improve update performance.
+- Separate common code in strategies, reduce DB IO at the same time.
 - Dynamic update K line.
 - Minute K.
+- Improve strategies to get better backtest results.
 - Refresh minute K by minute in Watch page.
 - Notify iOS and Android.
 - Exclude Right and Exclude Dividend.

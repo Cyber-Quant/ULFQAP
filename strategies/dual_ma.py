@@ -23,6 +23,7 @@ class DualMAInfo:
         self.watch_flag = False
 
 
+# TODO: Separate common code
 class DualMAChoose(QThread):
     progress_signal = Signal(int, str, str)
 
@@ -93,6 +94,7 @@ class DualMAChoose(QThread):
         self.progress_signal.emit(100, '', '')
 
 
+# TODO: Separate common code
 class DualMA:
     def __init__(self):
         self.config_path = strategies_config_path.joinpath('dual_ma.json')
@@ -242,6 +244,7 @@ class DualMA:
                closing_index_slices, closing_price_slices
 
 
+# TODO: line color, different usage of this strategy
 class DualMAConfig(QDialog):
     def __init__(self, parent=None):
         super(DualMAConfig, self).__init__(parent)

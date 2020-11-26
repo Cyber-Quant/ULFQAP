@@ -23,6 +23,7 @@ class KDJInfo:
         self.watch_flag = False
 
 
+# TODO: Separate common code
 class KDJChoose(QThread):
     progress_signal = Signal(int, str, str)
 
@@ -116,6 +117,7 @@ class KDJChoose(QThread):
         self.progress_signal.emit(100, '', '')
 
 
+# TODO: Separate common code
 class KDJ:
     def __init__(self):
         self.config_path = strategies_config_path.joinpath('kdj.json')
@@ -269,6 +271,7 @@ class KDJ:
                closing_index_slices, closing_price_slices
 
 
+# TODO: line color, different usage of this strategy
 class KDJConfig(QDialog):
     def __init__(self, parent=None):
         super(KDJConfig, self).__init__(parent)

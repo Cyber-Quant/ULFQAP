@@ -24,6 +24,7 @@ class TurtleInfo:
         self.watch_flag = True
 
 
+# TODO: Separate common code
 class TurtleChoose(QThread):
     progress_signal = Signal(int, str, str)
 
@@ -100,6 +101,7 @@ class TurtleChoose(QThread):
         self.progress_signal.emit(100, '', '')
 
 
+# TODO: Separate common code
 class TurtleWatch(QThread):
     up_signal = Signal(str, str, str, float, float)
     down_signal = Signal(str, str, str, float, float)
@@ -172,6 +174,7 @@ class TurtleWatch(QThread):
             time.sleep(3)
 
 
+# TODO: Separate common code
 class Turtle:
     def __init__(self):
         self.config_path = strategies_config_path.joinpath('turtle.json')
@@ -351,6 +354,7 @@ class Turtle:
                closing_index_slices, closing_price_slices
 
 
+# TODO: line color, different usage of this strategy
 class TurtleConfig(QDialog):
     def __init__(self, parent=None):
         super(TurtleConfig, self).__init__(parent)

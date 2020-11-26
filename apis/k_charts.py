@@ -20,10 +20,6 @@ def reset_k_line_data():
 
 
 def _fetch_day_line_data(code, start_date, end_date):
-    # lg = bs.login()
-    # if lg.error_code != '0' or lg.error_msg != 'success':
-    #     return int(lg.error_code), lg.error_msg
-
     fields = 'date,code,open,high,low,close,preclose,volume,amount,adjustflag,turn,tradestatus,pctChg,peTTM,psTTM,pcfNcfTTM,pbMRQ,isST'
     frequency = 'd'
     rs = bs.query_history_k_data_plus(code,
@@ -39,15 +35,11 @@ def _fetch_day_line_data(code, start_date, end_date):
         data = rs.get_row_data()
         if len(data) > 0:
             data_list.append(data)
-    # bs.logout()
+
     return 0, data_list
 
 
 def _fetch_week_line_data(code, start_date, end_date):
-    # lg = bs.login()
-    # if lg.error_code != '0' or lg.error_msg != 'success':
-    #     return int(lg.error_code), lg.error_msg
-
     fields = 'date,code,open,high,low,close,volume,amount,adjustflag,turn,pctChg'
     frequency = 'w'
     rs = bs.query_history_k_data_plus(code,
@@ -63,15 +55,11 @@ def _fetch_week_line_data(code, start_date, end_date):
         data = rs.get_row_data()
         if len(data) > 0:
             data_list.append(data)
-    # bs.logout()
+
     return 0, data_list
 
 
 def _fetch_month_line_data(code, start_date, end_date):
-    # lg = bs.login()
-    # if lg.error_code != '0' or lg.error_msg != 'success':
-    #     return int(lg.error_code), lg.error_msg
-
     fields = 'date,code,open,high,low,close,volume,amount,adjustflag,turn,pctChg'
     frequency = 'm'
     rs = bs.query_history_k_data_plus(code,
@@ -87,11 +75,11 @@ def _fetch_month_line_data(code, start_date, end_date):
         data = rs.get_row_data()
         if len(data) > 0:
             data_list.append(data)
-    # bs.logout()
+
     return 0, data_list
 
 
-# TODO Using asc()/desc().get() to reduce SQL query.
+# TODO: Using asc()/desc().get() to reduce SQL query.
 def fetch_day_line_data(code, start_date, end_date):
     charts = AStockDayLine.select().where(AStockDayLine.code == code).order_by(
         AStockDayLine.date.asc())
@@ -122,7 +110,7 @@ def fetch_day_line_data(code, start_date, end_date):
     return 0, day_data_list
 
 
-# TODO Using asc()/desc().get() to reduce SQL query.
+# TODO: Using asc()/desc().get() to reduce SQL query.
 def fetch_week_line_data(code, start_date, end_date):
     charts = AStockWeekLine.select().where(
         AStockWeekLine.code == code).order_by(
@@ -155,7 +143,7 @@ def fetch_week_line_data(code, start_date, end_date):
     return 0, week_data_list
 
 
-# TODO Using asc()/desc().get() to reduce SQL query.
+# TODO: Using asc()/desc().get() to reduce SQL query.
 def fetch_month_line_data(code, start_date, end_date):
     charts = AStockMonthLine.select().where(
         AStockMonthLine.code == code).order_by(

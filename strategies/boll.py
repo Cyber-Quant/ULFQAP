@@ -29,6 +29,7 @@ class BOLLInfo:
         self.watch_flag = True
 
 
+# TODO: Separate common code
 class BOLLChoose(QThread):
     progress_signal = Signal(int, str, str)
 
@@ -160,6 +161,7 @@ class BOLLChoose(QThread):
         self.progress_signal.emit(100, '', '')
 
 
+# TODO: Separate common code
 class BOLLWatch(QThread):
     up_signal = Signal(str, str, str, float, float)
     down_signal = Signal(str, str, str, float, float)
@@ -237,6 +239,7 @@ class BOLLWatch(QThread):
             time.sleep(3)
 
 
+# TODO: Separate common code
 class BOLL:
     def __init__(self):
         self.config_path = strategies_config_path.joinpath('boll.json')
@@ -429,7 +432,7 @@ class BOLL:
                closing_index_slices, closing_price_slices
 
 
-
+# TODO: line color, different usage of this strategy
 class BOLLConfig(QDialog):
     def __init__(self, parent=None):
         super(BOLLConfig, self).__init__(parent)
