@@ -315,6 +315,7 @@ class Config(QWidget):
                                     QMessageBox.Ok, QMessageBox.Ok)
             self.progress_bar.reset()
             self.enable_all_buttons()
+            return False
         else:
             QMessageBox.warning(self, '警告', ret,
                                 QMessageBox.Ok, QMessageBox.Ok)
