@@ -108,7 +108,7 @@ class Config(QWidget):
         self.btn_up_range_month_k.clicked.connect(self.on_up_custom_month_k)
         self.btn_about.clicked.connect(self.on_about)
 
-    def enable_all_buttons(self):
+    def enable_all(self):
         self.btn_up_stock_info.setEnabled(True)
         self.btn_up_day_k.setEnabled(True)
         self.btn_up_week_k.setEnabled(True)
@@ -118,8 +118,10 @@ class Config(QWidget):
         self.btn_up_range_day_k.setEnabled(True)
         self.btn_up_range_week_k.setEnabled(True)
         self.btn_up_range_month_k.setEnabled(True)
+        self.start_date.setEnabled(True)
+        self.end_date.setEnabled(True)
 
-    def disable_all_buttons(self):
+    def disable_all(self):
         self.btn_up_stock_info.setDisabled(True)
         self.btn_up_day_k.setDisabled(True)
         self.btn_up_week_k.setDisabled(True)
@@ -129,6 +131,8 @@ class Config(QWidget):
         self.btn_up_range_day_k.setDisabled(True)
         self.btn_up_range_week_k.setDisabled(True)
         self.btn_up_range_month_k.setDisabled(True)
+        self.start_date.setDisabled(True)
+        self.end_date.setDisabled(True)
 
     def set_progress_bar(self, value):
         self.progress_bar.setValue(value)
@@ -136,7 +140,7 @@ class Config(QWidget):
     def show_warning(self, msg):
         QMessageBox.warning(self, '警告', msg,
                             QMessageBox.Ok, QMessageBox.Ok)
-        self.enable_all_buttons()
+        self.enable_all()
 
     def on_reset(self):
         self.progress_bar.reset()
@@ -146,7 +150,7 @@ class Config(QWidget):
 
     def complete_month_k_progress(self):
         self.set_progress_bar(100)
-        self.enable_all_buttons()
+        self.enable_all()
         save_last_updated_date(self.month_e_date, 'm')
         self.code_list = []
         self.progress_bar.reset()
@@ -163,7 +167,7 @@ class Config(QWidget):
 
     def on_up_month_k(self):
         self.progress_bar.reset()
-        self.disable_all_buttons()
+        self.disable_all()
 
         if self.month_s_date is None or self.month_e_date is None:
             self.prepare_date_range('m')
@@ -176,7 +180,7 @@ class Config(QWidget):
 
     def complete_week_k_progress(self):
         self.set_progress_bar(100)
-        self.enable_all_buttons()
+        self.enable_all()
         save_last_updated_date(self.week_e_date, 'w')
         self.progress_bar.reset()
 
@@ -192,7 +196,7 @@ class Config(QWidget):
 
     def on_up_week_k(self):
         self.progress_bar.reset()
-        self.disable_all_buttons()
+        self.disable_all()
 
         if self.week_s_date is None or self.week_e_date is None:
             self.prepare_date_range('w')
@@ -205,7 +209,7 @@ class Config(QWidget):
 
     def complete_day_k_progress(self):
         self.set_progress_bar(100)
-        self.enable_all_buttons()
+        self.enable_all()
         save_last_updated_date(self.day_e_date, 'd')
         self.progress_bar.reset()
 
@@ -219,7 +223,7 @@ class Config(QWidget):
 
     def on_up_day_k(self):
         self.progress_bar.reset()
-        self.disable_all_buttons()
+        self.disable_all()
 
         if self.day_s_date is None or self.day_e_date is None:
             self.prepare_date_range('d')
@@ -232,7 +236,7 @@ class Config(QWidget):
 
     def complete_stock_info_progress(self):
         self.set_progress_bar(100)
-        self.enable_all_buttons()
+        self.enable_all()
         save_last_updated_date(self.index_date, 'i')
         self.progress_bar.reset()
 
@@ -246,7 +250,7 @@ class Config(QWidget):
 
     def on_up_stock_info(self):
         self.progress_bar.reset()
-        self.disable_all_buttons()
+        self.disable_all()
 
         if self.index_date is None:
             self.prepare_index_update()
@@ -314,7 +318,7 @@ class Config(QWidget):
             QMessageBox.information(self, '提示', '目前还没有更新的数据',
                                     QMessageBox.Ok, QMessageBox.Ok)
             self.progress_bar.reset()
-            self.enable_all_buttons()
+            self.enable_all()
             return False
         else:
             QMessageBox.warning(self, '警告', ret,
@@ -338,7 +342,7 @@ class Config(QWidget):
 
     def custom_date_range(self):
         self.progress_bar.reset()
-        self.disable_all_buttons()
+        self.disable_all()
 
         day_s_date = self.start_date.date().toPython()
         day_e_date = self.end_date.date().toPython()
