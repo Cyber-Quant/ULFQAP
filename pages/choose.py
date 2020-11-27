@@ -24,7 +24,6 @@ from utils.custom_add_dialog import CustomAddDialog
 
 class Choose(QWidget):
     fav_stock_changed_signal = Signal()
-    kline_info_signal = Signal(str, float, float, float, float, int)
 
     def __init__(self, parent=None):
         super(Choose, self).__init__(parent)
@@ -105,41 +104,6 @@ class Choose(QWidget):
         self.left_widget.setMinimumWidth(220)
         self.left_widget.setMaximumWidth(250)
 
-        info_g_box = QGridLayout()
-        self.date_label = QLabel('日期')
-        self.date_input = QLineEdit()
-        self.date_input.setDisabled(True)
-        self.open_label = QLabel('开')
-        self.open_input = QLineEdit()
-        self.open_input.setDisabled(True)
-        self.close_label = QLabel('收')
-        self.close_input = QLineEdit()
-        self.close_input.setDisabled(True)
-        self.high_label = QLabel('高')
-        self.high_input = QLineEdit()
-        self.high_input.setDisabled(True)
-        self.low_label = QLabel('低')
-        self.low_input = QLineEdit()
-        self.low_input.setDisabled(True)
-        self.volume_label = QLabel('成交量')
-        self.volume_input = QLineEdit()
-        self.volume_input.setDisabled(True)
-        info_g_box.addWidget(self.date_label, 0, 0)
-        info_g_box.addWidget(self.date_input, 0, 1)
-        info_g_box.addWidget(self.volume_label, 1, 0)
-        info_g_box.addWidget(self.volume_input, 1, 1)
-        info_g_box.addWidget(self.open_label, 0, 2)
-        info_g_box.addWidget(self.open_input, 0, 3)
-        info_g_box.addWidget(self.close_label, 1, 2)
-        info_g_box.addWidget(self.close_input, 1, 3)
-        info_g_box.addWidget(self.high_label, 0, 4)
-        info_g_box.addWidget(self.high_input, 0, 5)
-        info_g_box.addWidget(self.low_label, 1, 4)
-        info_g_box.addWidget(self.low_input, 1, 5)
-
-        self.info_widget = QGroupBox()
-        self.info_widget.setLayout(info_g_box)
-
         self.day_check = QRadioButton('日')
         self.day_check.setChecked(True)
         self.week_check = QRadioButton('周')
@@ -163,7 +127,7 @@ class Choose(QWidget):
 
         info_h_box = QHBoxLayout()
         info_h_box.addWidget(self.period_widget)
-        info_h_box.addWidget(self.info_widget)
+        info_h_box.addStretch()
 
         right_v_box = QVBoxLayout()
         self.plt_area = DockArea()
@@ -172,6 +136,7 @@ class Choose(QWidget):
         self.k_plt = pg.PlotWidget(enableMenu=False)
         self.k_plt.plotItem.setMouseEnabled(y=False)
         self.k_plt.hideAxis('bottom')
+        self.info_label = pg.TextItem()
         self.plt_area.addDock(self.dock_k, 'bottom')
         self.dock_k.addWidget(self.k_plt)
 
@@ -257,7 +222,6 @@ class Choose(QWidget):
                                            rateLimit=60,
                                            slot=self.wr_emit_info)
         self.table.itemSelectionChanged.connect(self.on_row_changed)
-        self.kline_info_signal.connect(self.on_kline_info_changed)
 
     def on_period_change(self):
         check = self.sender()
@@ -404,6 +368,7 @@ class Choose(QWidget):
         self.k_plt.setYRange(y_min, y_max)
         self.k_plt.addItem(self.k_v_line, ignoreBounds=True)
         self.k_plt.addItem(self.k_h_line, ignoreBounds=True)
+        self.k_plt.addItem(self.info_label)
 
         uni_width = (k_data[1][0] - k_data[0][0]) / 3.0
 
@@ -452,12 +417,20 @@ class Choose(QWidget):
         index = int(mouse_point.x())
         if -1 < index < len(self.kline_data):
             volume = int(self.kline_data[index]['volume'] / 100)
-            self.kline_info_signal.emit(self.kline_data[index]['date'],
-                                        self.kline_data[index]['open'],
-                                        self.kline_data[index]['close'],
-                                        self.kline_data[index]['high'],
-                                        self.kline_data[index]['low'],
-                                        volume)
+            self.info_label.setHtml(
+                "<p style='color:white'><strong>日期：{0}</strong></p>"
+                "<p style='color:white'>开盘：{1}</p>"
+                "<p style='color:white'>最高：{2}</p>"
+                "<p style='color:white'>最低：{3}</p>"
+                "<p style='color:white'>收盘：{4}</p>"
+                "<p style='color:white'>成交量：{5}</p>".format(
+                    self.kline_data[index]['date'],
+                    self.kline_data[index]['open'],
+                    self.kline_data[index]['high'],
+                    self.kline_data[index]['low'],
+                    self.kline_data[index]['close'],
+                    volume))
+            self.info_label.setPos(mouse_point.x(), mouse_point.y())
 
     def kline_emit_info(self, event):
         pos = event[0]
@@ -542,14 +515,6 @@ class Choose(QWidget):
             self.macd_v_line.setPos(mouse_point.x())
             self.kdj_v_line.setPos(mouse_point.x())
             self.rsi_v_line.setPos(mouse_point.x())
-
-    def on_kline_info_changed(self, date, _open, close, high, low, volume):
-        self.date_input.setText(date)
-        self.open_input.setText(str(_open))
-        self.close_input.setText(str(close))
-        self.high_input.setText(str(high))
-        self.low_input.setText(str(low))
-        self.volume_input.setText(str(volume))
 
     def re_draw_indicatrix(self, name):
         self.current_indicatrix_name = name
