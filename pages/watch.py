@@ -11,12 +11,11 @@ from qtpy.QtWidgets import *
 from apis.k_charts import fetch_tencent_minute_k
 from conf.conf import fav_stocks_config_path, apply_strategies_config_path, \
     bundle_dir
-from strategies.boll import BOLL, BOLLInfo
+from strategies.boll import BOLL, BOLLInfo, BOLLWatch
 from strategies.custom_watch import CustomWatch
 from strategies.kdj import KDJ
 from strategies.macd import MACD
 from strategies.rsi import RSI
-from strategies.turtle import Turtle, TurtleInfo, TurtleWatch
 from strategies.wr import WR
 from utils.candlestick import CandlestickItem
 
@@ -75,10 +74,8 @@ class Watch(QWidget):
         # TODO: make strategies plugin
         # NEW STRATEGIES #
         self.boll_watch_thread = None
-        self.turtle_watch_thread = None
         self.custom_watch_thread = None
         self.boll_info = BOLLInfo()
-        self.turtle_info = TurtleInfo()
 
         self.kline_data = []
         self.times = gen_time_slices()
@@ -310,13 +307,8 @@ class Watch(QWidget):
 
         for strategy_name in self.watch_strategies:
             # NEW STRATEGIES #
-            if strategy_name == self.turtle_info.name:
-                self.turtle_watch_thread = TurtleWatch(fav_stocks)
-                self.turtle_watch_thread.up_signal.connect(self.notify_up)
-                self.turtle_watch_thread.down_signal.connect(self.notify_down)
-                self.turtle_watch_thread.start()
             if strategy_name == self.boll_info.name:
-                self.boll_watch_thread = TurtleWatch(fav_stocks)
+                self.boll_watch_thread = BOLLWatch(fav_stocks)
                 self.boll_watch_thread.up_signal.connect(self.notify_up)
                 self.boll_watch_thread.down_signal.connect(self.notify_down)
                 self.boll_watch_thread.start()
@@ -329,9 +321,6 @@ class Watch(QWidget):
 
         for strategy_name in self.watch_strategies:
             # NEW STRATEGIES #
-            if strategy_name == self.turtle_info.name and \
-                    self.turtle_watch_thread is not None:
-                self.turtle_watch_thread.terminate()
             if strategy_name == self.boll_info.name and \
                     self.boll_watch_thread is not None:
                 self.boll_watch_thread.terminate()
@@ -689,16 +678,7 @@ class Watch(QWidget):
             return
 
         # NEW STRATEGIES #
-        if self.current_indicatrix_name == self.turtle_info.name:
-            turtle = Turtle()
-            up = turtle.calc_up(self.current_kline_code)
-            down = turtle.calc_down(self.current_kline_code)
-
-            ups = [up] * 240
-            downs = [down] * 240
-            data = [ups, downs]
-            pen_colors = ['r', 'b']
-        elif self.current_indicatrix_name == self.boll_info.name:
+        if self.current_indicatrix_name == self.boll_info.name:
             boll = BOLL()
             up = boll.calc_up(self.current_kline_code)
             down = boll.calc_down(self.current_kline_code)

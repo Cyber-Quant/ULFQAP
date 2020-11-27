@@ -14,8 +14,7 @@ setup(
          './strategies/base.py', './strategies/boll.py',
          './strategies/custom_watch.py', './strategies/dual_ma.py',
          './strategies/kdj.py', './strategies/macd.py', './strategies/rsi.py',
-         './strategies/turtle.py', './strategies/volume_increase.py',
-         './strategies/wr.py',
+         './strategies/volume_increase.py', './strategies/wr.py',
          './utils/candlestick.py', './utils/custom_add_dialog.py'
          ])
 )

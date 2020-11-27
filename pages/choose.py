@@ -15,7 +15,6 @@ from strategies.dual_ma import DualMA, DualMAChoose, DualMAInfo
 from strategies.kdj import KDJ, KDJChoose, KDJInfo
 from strategies.macd import MACD, MACDChoose, MACDInfo
 from strategies.rsi import RSI, RSIChoose, RSIInfo
-from strategies.turtle import Turtle, TurtleChoose, TurtleInfo
 from strategies.volume_increase import VolumeIncreaseChoose, VolumeIncreaseInfo
 from strategies.wr import WR, WRChoose, WRInfo
 from utils.candlestick import CandlestickItem
@@ -61,7 +60,6 @@ class Choose(QWidget):
         self.dual_ma_info = DualMAInfo()
         self.volume_increase_info = VolumeIncreaseInfo()
         self.wr_info = WRInfo()
-        self.turtle_info = TurtleInfo()
         self.boll_info = BOLLInfo()
         self.macd_info = MACDInfo()
         self.kdj_info = KDJInfo()
@@ -589,12 +587,6 @@ class Choose(QWidget):
                 self.current_kline_code)
             data = [short_period_mas, long_period_mas]
             pen_colors = ['r', 'b']
-        elif self.current_indicatrix_name == self.turtle_info.name:
-            turtle = Turtle()
-            ups = turtle.calc_batch_up(self.current_kline_code)
-            downs = turtle.calc_batch_down(self.current_kline_code)
-            data = [ups, downs]
-            pen_colors = ['r', 'b']
         elif self.current_indicatrix_name == self.boll_info.name:
             boll = BOLL()
             ups = boll.calc_batch_up(self.current_kline_code)
@@ -680,8 +672,6 @@ class Choose(QWidget):
                         self.stocks_to_be_chosen)
                 elif self.apply_strategies[0] == self.wr_info.name:
                     self.choose_thread = WRChoose(self.stocks_to_be_chosen)
-                elif self.apply_strategies[0] == self.turtle_info.name:
-                    self.choose_thread = TurtleChoose(self.stocks_to_be_chosen)
                 elif self.apply_strategies[0] == self.boll_info.name:
                     self.choose_thread = BOLLChoose(self.stocks_to_be_chosen)
                 elif self.apply_strategies[0] == self.macd_info.name:

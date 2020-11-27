@@ -15,7 +15,6 @@ from strategies.dual_ma import DualMAConfig, DualMAInfo
 from strategies.kdj import KDJConfig, KDJInfo
 from strategies.macd import MACDConfig, MACDInfo
 from strategies.rsi import RSIConfig, RSIInfo
-from strategies.turtle import TurtleConfig, TurtleInfo
 from strategies.wr import WRConfig, WRInfo
 from strategies.volume_increase import VolumeIncreaseConfig, VolumeIncreaseInfo
 from utils.custom_add_dialog import CustomAddDialog
@@ -69,7 +68,6 @@ class Nav(QWidget):
         self.dual_ma_info = DualMAInfo()
         self.volume_increase_info = VolumeIncreaseInfo()
         self.wr_info = WRInfo()
-        self.turtle_info = TurtleInfo()
         self.boll_info = BOLLInfo()
         self.macd_info = MACDInfo()
         self.kdj_info = KDJInfo()
@@ -217,36 +215,6 @@ class Nav(QWidget):
         item.setTextAlignment(Qt.AlignCenter)
         self.strategy_table.setItem(row, 2, item)
         if self.wr_info.watch_flag:
-            watch_flag = 'Y'
-        else:
-            watch_flag = 'N'
-        item = QTableWidgetItem(watch_flag)
-        item.setTextAlignment(Qt.AlignCenter)
-        self.strategy_table.setItem(row, 3, item)
-
-        row = self.strategy_table.rowCount()
-        self.strategy_table.insertRow(row)
-        self.turtle_apply_check = QCheckBox()
-        h_box = QHBoxLayout()
-        # h_box.setAlignment(Qt.AlignCenter)
-        h_box.addWidget(self.turtle_apply_check)
-        widget = QWidget()
-        widget.setLayout(h_box)
-        if self.turtle_info.name in self.apply_strategies:
-            self.turtle_apply_check.setChecked(True)
-        else:
-            self.turtle_apply_check.setChecked(False)
-        self.strategy_table.setCellWidget(row, 0, widget)
-        self.strategy_table.setItem(row, 1, QTableWidgetItem(self.turtle_info.name))
-        self.turtle_apply_check.stateChanged.connect(self.update_watch_strategies)
-        if self.turtle_info.choose_flag:
-            choose_flag = 'Y'
-        else:
-            choose_flag = 'N'
-        item = QTableWidgetItem(choose_flag)
-        item.setTextAlignment(Qt.AlignCenter)
-        self.strategy_table.setItem(row, 2, item)
-        if self.turtle_info.watch_flag:
             watch_flag = 'Y'
         else:
             watch_flag = 'N'
@@ -469,9 +437,6 @@ class Nav(QWidget):
         if self.wr_apply_check.isChecked() and \
                 self.wr_info.name not in self.apply_strategies:
             self.apply_strategies.append(self.wr_info.name)
-        if self.turtle_apply_check.isChecked() and \
-                self.turtle_info.name not in self.apply_strategies:
-            self.apply_strategies.append(self.turtle_info.name)
         if self.boll_apply_check.isChecked() and \
                 self.boll_info.name not in self.apply_strategies:
             self.apply_strategies.append(self.boll_info.name)
@@ -494,9 +459,6 @@ class Nav(QWidget):
         if not self.wr_apply_check.isChecked() and \
                 self.wr_info.name in self.apply_strategies:
             self.apply_strategies.remove(self.wr_info.name)
-        if not self.turtle_apply_check.isChecked() and \
-                self.turtle_info.name in self.apply_strategies:
-            self.apply_strategies.remove(self.turtle_info.name)
         if not self.boll_apply_check.isChecked() and \
                 self.boll_info.name in self.apply_strategies:
             self.apply_strategies.remove(self.boll_info.name)
@@ -535,10 +497,6 @@ class Nav(QWidget):
             cfg_dlg.exec_()
         if name == self.wr_info.name:
             cfg_dlg = WRConfig(self)
-            cfg_dlg.show()
-            cfg_dlg.exec_()
-        if name == self.turtle_info.name:
-            cfg_dlg = TurtleConfig(self)
             cfg_dlg.show()
             cfg_dlg.exec_()
         if name == self.boll_info.name:

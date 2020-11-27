@@ -7,14 +7,11 @@ from qtpy.QtCore import *
 
 from conf.conf import fav_stocks_config_path, DEFAULT_K_LIMIT
 from db.models import AStockInfo
-from strategies.base import get_latest_n_desc_data
 from strategies.boll import BOLL, BOLLInfo
 from strategies.dual_ma import DualMA, DualMAInfo
 from strategies.kdj import KDJ, KDJInfo
 from strategies.macd import MACD, MACDInfo
 from strategies.rsi import RSI, RSIInfo
-from strategies.turtle import Turtle, TurtleInfo
-from strategies.volume_increase import VolumeIncreaseInfo
 from strategies.wr import WR, WRInfo
 
 
@@ -212,7 +209,6 @@ class Backtest(QWidget):
         kdj_info = KDJInfo()
         macd_info = MACDInfo()
         rsi_info = RSIInfo()
-        turtle_info = TurtleInfo()
         wr_info = WRInfo()
         if self.current_strategy_name == boll_info.name:
             backtest = BOLL()
@@ -224,8 +220,6 @@ class Backtest(QWidget):
             backtest = MACD()
         elif self.current_strategy_name == rsi_info.name:
             backtest = RSI()
-        elif self.current_strategy_name == turtle_info.name:
-            backtest = Turtle()
         elif self.current_strategy_name == wr_info.name:
             backtest = WR()
         _return, max_drawdown, \
