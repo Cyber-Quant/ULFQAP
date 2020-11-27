@@ -680,7 +680,7 @@ class Nav(QWidget):
         else:
             strategy = None
         if self.list.currentRow() == 0:
-            self.watch.draw_kline(code)
+            self.watch.render_all_plots(code)
             self.watch.draw_indicatrix(strategy)
         elif self.list.currentRow() == 1:
             self.choose.re_render_all_plots(code)
@@ -697,7 +697,7 @@ class Nav(QWidget):
         else:
             code = None
         if self.list.currentRow() == 0:
-            self.watch.draw_kline(code)
+            self.watch.render_all_plots(code)
             self.watch.draw_indicatrix(strategy)
         elif self.list.currentRow() == 1:
             self.choose.re_render_all_plots(code)

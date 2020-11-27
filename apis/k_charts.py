@@ -1,11 +1,14 @@
 import baostock as bs
 import datetime
+import json
+import requests
 
 from qtpy.QtCore import *
 
 from apis.stock_info import AStockInfo, fetch_all_code, \
     reset_stock_info, fetch_last_trading_day, \
     fetch_stock_info
+from conf.conf import DEFAULT_K_LIMIT
 from db.models import AStockDayLine, AStockWeekLine, AStockMonthLine
 from db.ops import create_table, drop_table
 
@@ -554,6 +557,32 @@ class FetchMonthK(QThread):
         self.sig_fetch_month_k_done.emit()
         bs.logout()
         return True
+
+
+def fetch_tencent_minute_k(code, period):
+    code = code.replace('.', '')
+    url = 'http://money.finance.sina.com.cn/quotes_service/api/' \
+          'json_v2.php/CN_MarketData.getKLineData?symbol='
+    url = url + code + '&scale=' + period + '&ma=' + period + '&datalen=' + str(
+        DEFAULT_K_LIMIT)
+    res = requests.get(url).text
+    items = json.loads(res)
+    k_charts = []
+    for item in items:
+        k_chart = {
+            'day': item['day'],
+            'open': float(item['open']),
+            'close': float(item['close']),
+            'high': float(item['high']),
+            'low': float(item['low']),
+            'volume': int(item['volume']),
+        }
+        if period != '60':
+            k_chart['ma_price'] = float(item['ma_price' + period])
+            k_chart['ma_volume'] = int(item['ma_volume' + period])
+
+        k_charts.append(k_chart)
+    return k_charts
 
 
 if __name__ == '__main__':
