@@ -87,6 +87,7 @@ class Backtest(QWidget):
 
         self.btn_backtest = QPushButton('批量回测')
         self.btn_stop_backtest = QPushButton('停止回测')
+        self.btn_stop_backtest.setDisabled(True)
 
         op_g_box.addWidget(self.start_date_label, 0, 0)
         op_g_box.addWidget(self.start_date, 1, 0)
@@ -147,13 +148,19 @@ class Backtest(QWidget):
 
     def enable_all(self):
         self.btn_backtest.setEnabled(True)
+        self.btn_stop_backtest.setDisabled(True)
         self.backtest_fav_check.setEnabled(True)
         self.backtest_all_check.setEnabled(True)
+        self.start_date.setEnabled(True)
+        self.end_date.setEnabled(True)
 
     def disable_all(self):
         self.btn_backtest.setDisabled(True)
+        self.btn_stop_backtest.setEnabled(True)
         self.backtest_fav_check.setDisabled(True)
         self.backtest_all_check.setDisabled(True)
+        self.start_date.setDisabled(True)
+        self.end_date.setDisabled(True)
 
     def set_progress_bar(self, value, code, name, _return, max_drawdown):
         self.progress_bar.setValue(value)
