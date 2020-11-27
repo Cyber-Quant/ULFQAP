@@ -97,6 +97,188 @@ class DualMAChoose(QThread):
 
 # TODO: Separate common code
 # TODO: Use numpy to speedup
+class DualMABacktest(QThread):
+    progress_signal = Signal(int, str, str, float, float)
+
+    def __init__(self, stocks, init_money, fee, pass_fee, tax, parent=None):
+        super(DualMABacktest, self).__init__(parent)
+        self.codes = []
+        self.names = []
+        self.init_money = init_money
+        self.fee = fee
+        self.pass_fee = pass_fee
+        self.tax = tax
+        for stock in stocks:
+            self.codes.append(stock['code'])
+            self.names.append(stock['name'])
+
+        self.config_path = strategies_config_path.joinpath('dual_ma.json')
+        if self.config_path.exists():
+            with open(self.config_path, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                self.m = data['m']
+                self.n = data['n']
+                self.k = data['k']
+        else:
+            self.m = 20
+            self.n = 55
+            self.k = 3
+
+    def _get_batch_close_data(self, code):
+        rows = get_latest_n_desc_data(code, DEFAULT_K_LIMIT)
+        data = []
+        for row in rows:
+            data.append(row.close)
+        return data[::-1]
+
+    def _calc_batch_ma(self, code, period):
+        data = self._get_batch_close_data(code)
+        mas = []
+        for i in range(len(data)):
+            if i < period - 1:
+                continue
+            ma = np.mean(data[i - period + 1: i + 1])
+            mas.append(ma)
+        return mas
+
+    def calc_short_period_ma(self, code):
+        short_period_mas = self._calc_batch_ma(code, self.m)
+        _short_period_mas = [0] * self.m
+        short_period_mas = _short_period_mas + short_period_mas
+        return short_period_mas
+
+    def calc_long_period_ma(self, code):
+        long_period_mas = self._calc_batch_ma(code, self.n)
+        _long_period_mas = [0] * self.n
+        long_period_mas = _long_period_mas + long_period_mas
+        return long_period_mas
+
+    def _get_batch_data(self, code):
+        rows = get_latest_n_desc_data(code, DEFAULT_K_LIMIT)
+        _open = []
+        close = []
+        high = []
+        low = []
+        volume = []
+        date = []
+        for row in rows:
+            _open.append(row.open)
+            close.append(row.close)
+            high.append(row.high)
+            low.append(row.low)
+            volume.append(row.volume)
+            date.append(row.date)
+        return _open[::-1], close[::-1], high[::-1], low[::-1], \
+               volume[::-1], date[::-1]
+
+    def backtest(self, code, init_money, fee, pass_fee, tax):
+        opens, closes, highs, lows, volumes, dates = \
+            self._get_batch_data(code)
+        slow_mas = self.calc_long_period_ma(code)
+        fast_mas = self.calc_short_period_ma(code)
+        if self.m > self.n:
+            start = self.m
+        else:
+            start = self.n
+        buy_prices = []
+        buy_dates = []
+        buy_index = []
+        sell_prices = []
+        sell_dates = []
+        sell_index = []
+        drawdowns = []
+        old_state = 's'
+        for i, x in enumerate(closes):
+            if i < start:
+                continue
+            if i == start:
+                continue
+            if fast_mas[i] >= slow_mas[i] and fast_mas[i - 1] < slow_mas[i - 1]:
+                state = 'b'
+                if state != old_state:
+                    buy_prices.append(closes[i])
+                    buy_dates.append(dates[i])
+                    buy_index.append(i)
+                    old_state = state
+            elif fast_mas[i] < slow_mas[i] and \
+                    fast_mas[i - 1] <= slow_mas[i - 1]:
+                state = 's'
+                if state != old_state:
+                    sell_prices.append(closes[i])
+                    sell_dates.append(dates[i])
+                    sell_index.append(i)
+                    old_state = state
+        if len(sell_prices) < len(buy_prices):
+            sell_prices.append(closes[-1])
+            sell_dates.append(dates[-1])
+            sell_index.append(len(buy_prices))
+
+        money = init_money
+        opening_index_slices = []
+        opening_price_slices = []
+        closing_index_slices = []
+        closing_price_slices = []
+        for i in range(len(buy_prices)):
+            hands = int(money * (1 - fee) / buy_prices[i] / 100)
+            left_money = money - hands * buy_prices[i] * 100
+            sell_money = hands * sell_prices[i] * (1 - tax - pass_fee) * 100
+            money = sell_money + left_money
+
+            old_close = buy_prices[i]
+            for close in closes[buy_index[i]:sell_index[i] + 1]:
+                if close < old_close:
+                    old_close = close
+            drawdown = buy_prices[i] - old_close / buy_prices[i] * 100
+            drawdowns.append(drawdown)
+            if i == 0:
+                first_start = 0
+            else:
+                first_start = sell_index[i - 1]
+            closing_index = []
+            closing_price = []
+            for idx in range(first_start, buy_index[i] + 1):
+                closing_index.append(idx)
+                closing_price.append(closes[idx])
+            closing_index_slices.append(closing_index)
+            closing_price_slices.append(closing_price)
+            opening_index = []
+            opening_price = []
+            for idx in range(buy_index[i], sell_index[i] + 1):
+                opening_index.append(idx)
+                opening_price.append(closes[idx])
+            if opening_index:
+                opening_index_slices.append(opening_index)
+                opening_price_slices.append(opening_price)
+
+        _return = (money - init_money) / init_money * 100
+        max_drawdown = max(drawdowns)
+
+        return _return, max_drawdown, \
+               opens, closes, highs, lows, volumes, dates, \
+               opening_index_slices, opening_price_slices, \
+               closing_index_slices, closing_price_slices
+
+    def run(self):
+        step = int(len(self.codes) / 100) + 1
+        i = 0
+        j = 0
+        for code in self.codes:
+            i += 1
+            _return, max_drawdown, \
+            opens, closes, highs, lows, volumes, dates, \
+            opening_index_slices, opening_price_slices, \
+            closing_index_slices, closing_price_slices = \
+                self.backtest(code, self.init_money, self.fee, self.pass_fee,
+                              self.tax)
+            self.progress_signal.emit(j, code, self.names[i - 1],
+                                      _return, max_drawdown)
+            if i % step == 0:
+                j += 1
+        self.progress_signal.emit(100, '', '', 0.0, 0.0)
+
+
+# TODO: Separate common code
+# TODO: Use numpy to speedup
 class DualMA:
     def __init__(self):
         self.config_path = strategies_config_path.joinpath('dual_ma.json')

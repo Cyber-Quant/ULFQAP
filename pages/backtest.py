@@ -7,12 +7,12 @@ from qtpy.QtCore import *
 
 from conf.conf import fav_stocks_config_path, DEFAULT_K_LIMIT
 from db.models import AStockInfo
-from strategies.boll import BOLL, BOLLInfo
-from strategies.dual_ma import DualMA, DualMAInfo
-from strategies.kdj import KDJ, KDJInfo
-from strategies.macd import MACD, MACDInfo
-from strategies.rsi import RSI, RSIInfo
-from strategies.wr import WR, WRInfo
+from strategies.boll import BOLL, BOLLBacktest, BOLLInfo
+from strategies.dual_ma import DualMA, DualMABacktest, DualMAInfo
+from strategies.kdj import KDJ, KDJBacktest, KDJInfo
+from strategies.macd import MACD, MACDBacktest, MACDInfo
+from strategies.rsi import RSI, RSIBacktest, RSIInfo
+from strategies.wr import WR, WRBacktest, WRInfo
 
 
 class Backtest(QWidget):
@@ -20,6 +20,7 @@ class Backtest(QWidget):
         super(Backtest, self).__init__(parent)
         self.setWindowTitle('回测')
 
+        self.backtest_thread = None
         self.backtest_option = 'fav'
         self.current_strategy_name = None
         self.current_code = None
@@ -32,6 +33,8 @@ class Backtest(QWidget):
         self.dates = None
         self.k_v_line = pg.InfiniteLine(angle=90, movable=False)
         self.k_h_line = pg.InfiniteLine(angle=0, movable=False)
+
+        self.progress_bar = QProgressBar()
 
         self.op_group_box = QGroupBox()
         op_g_box = QGridLayout()
@@ -82,7 +85,8 @@ class Backtest(QWidget):
         self.backtest_fav_check.toggled.connect(self.on_option_change)
         self.backtest_all_check.toggled.connect(self.on_option_change)
 
-        self.btn_add_pool = QPushButton('加入回测池')
+        self.btn_backtest = QPushButton('批量回测')
+        self.btn_stop_backtest = QPushButton('停止回测')
 
         op_g_box.addWidget(self.start_date_label, 0, 0)
         op_g_box.addWidget(self.start_date, 1, 0)
@@ -98,16 +102,16 @@ class Backtest(QWidget):
         op_g_box.addWidget(self.tax_input, 1, 5)
         op_g_box.addWidget(self.backtest_fav_check, 0, 6)
         op_g_box.addWidget(self.backtest_all_check, 1, 6)
-        op_g_box.addWidget(self.btn_add_pool, 0, 7)
+        op_g_box.addWidget(self.btn_backtest, 0, 7)
+        op_g_box.addWidget(self.btn_stop_backtest, 1, 7)
         self.op_group_box.setLayout(op_g_box)
 
         result_h_box = QHBoxLayout()
         self.table = QTableWidget()
-        headers = ['代码', '名称']
+        headers = ['', '收益率', '最大回撤']
         self.table.setColumnCount(len(headers))
         self.table.setHorizontalHeaderLabels(headers)
         self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        self.table.horizontalHeader().setVisible(False)
         self.table.verticalHeader().setVisible(False)
         self.table.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
@@ -116,13 +120,9 @@ class Backtest(QWidget):
         self.table.setContextMenuPolicy(Qt.CustomContextMenu)
         self.table.setMinimumWidth(220)
         self.table.setMaximumWidth(250)
-        self.info = QTextBrowser()
-        self.info.setMinimumWidth(220)
-        self.info.setMaximumWidth(250)
 
         left_v_box = QVBoxLayout()
         left_v_box.addWidget(self.table)
-        left_v_box.addWidget(self.info)
 
         self.k_plt = pg.PlotWidget(enableMenu=False)
         self.k_plt.hideAxis('bottom')
@@ -132,16 +132,41 @@ class Backtest(QWidget):
         result_h_box.addWidget(self.k_plt)
 
         main_v_box = QVBoxLayout()
+        main_v_box.addWidget(self.progress_bar)
         main_v_box.addWidget(self.op_group_box)
         main_v_box.addLayout(result_h_box)
 
         self.setLayout(main_v_box)
 
-        self.btn_add_pool.clicked.connect(self.on_backtest)
+        self.btn_backtest.clicked.connect(self.on_backtest)
+        self.btn_stop_backtest.clicked.connect(self.on_stop_backtest)
         self.table.itemSelectionChanged.connect(self.on_row_changed)
         self.k_move_slot = pg.SignalProxy(self.k_plt.scene().sigMouseMoved,
                                           rateLimit=60,
                                           slot=self.emit_backtest_info)
+
+    def enable_all(self):
+        self.btn_backtest.setEnabled(True)
+        self.backtest_fav_check.setEnabled(True)
+        self.backtest_all_check.setEnabled(True)
+
+    def disable_all(self):
+        self.btn_backtest.setDisabled(True)
+        self.backtest_fav_check.setDisabled(True)
+        self.backtest_all_check.setDisabled(True)
+
+    def set_progress_bar(self, value, code, name, _return, max_drawdown):
+        self.progress_bar.setValue(value)
+        if value == 100:
+            self.enable_all()
+        else:
+            return_str = str(round(_return, 2))
+            max_drawdown_str = str(round(max_drawdown, 2))
+            row = self.table.rowCount()
+            self.table.insertRow(row)
+            self.table.setItem(row, 0, QTableWidgetItem(name))
+            self.table.setItem(row, 1, QTableWidgetItem(return_str))
+            self.table.setItem(row, 2, QTableWidgetItem(max_drawdown_str))
 
     def on_option_change(self):
         check = self.sender()
@@ -151,7 +176,17 @@ class Backtest(QWidget):
             elif check.text() == '全部股票':
                 self.backtest_option = 'all'
 
+    def on_stop_backtest(self):
+        self.backtest_thread.terminate()
+        self.enable_all()
+
     def on_backtest(self):
+        self.disable_all()
+
+        rows = self.table.rowCount()
+        for i in reversed(range(rows)):
+            self.table.removeRow(i)
+
         if self.backtest_option == 'fav':
             with open(fav_stocks_config_path, 'r', encoding='utf-8') as f:
                 stocks = json.load(f)
@@ -162,11 +197,48 @@ class Backtest(QWidget):
                 if row.type == 1:
                     stocks.append({'code': row.code, 'name': row.name})
 
-        for stock in stocks:
-            row = self.table.rowCount()
-            self.table.insertRow(row)
-            self.table.setItem(row, 0, QTableWidgetItem(stock['code']))
-            self.table.setItem(row, 1, QTableWidgetItem(stock['name']))
+        if self.current_strategy_name is None:
+            QMessageBox.warning(self, '警告', '请选择一个策略进行回测',
+                                QMessageBox.Ok, QMessageBox.Ok)
+            self.enable_all()
+            return
+
+        init_money = float(self.init_money_input.text()) * 10000
+        fee = float(self.fee_input.text()) / 10000
+        pass_fee = float(self.pass_fee_input.text()) / 10000
+        tax = float(self.tax_input.text()) / 1000
+        # NEW STRATEGIES #
+        boll_info = BOLLInfo()
+        dual_ma_info = DualMAInfo()
+        kdj_info = KDJInfo()
+        macd_info = MACDInfo()
+        rsi_info = RSIInfo()
+        wr_info = WRInfo()
+        if self.current_strategy_name == boll_info.name:
+            self.backtest_thread = BOLLBacktest(stocks, init_money, fee,
+                                                pass_fee, tax)
+        elif self.current_strategy_name == dual_ma_info.name:
+            self.backtest_thread = DualMABacktest(stocks, init_money, fee,
+                                                  pass_fee, tax)
+        elif self.current_strategy_name == kdj_info.name:
+            self.backtest_thread = KDJBacktest(stocks, init_money, fee,
+                                               pass_fee, tax)
+        elif self.current_strategy_name == macd_info.name:
+            self.backtest_thread = MACDBacktest(stocks, init_money, fee,
+                                                pass_fee, tax)
+        elif self.current_strategy_name == rsi_info.name:
+            self.backtest_thread = RSIBacktest(stocks, init_money, fee,
+                                               pass_fee, tax)
+        elif self.current_strategy_name == wr_info.name:
+            self.backtest_thread = WRBacktest(stocks, init_money, fee, pass_fee,
+                                              tax)
+        else:
+            QMessageBox.warning(self, '警告', '该策略不支持回测，请换一个策略',
+                                QMessageBox.Ok, QMessageBox.Ok)
+            self.enable_all()
+        self.backtest_thread.progress_signal.connect(
+            self.set_progress_bar)
+        self.backtest_thread.start()
 
     def on_row_changed(self):
         row = self.table.currentRow()
@@ -249,11 +321,6 @@ class Backtest(QWidget):
         self.k_plt.addItem(self.k_v_line, ignoreBounds=True)
         self.k_plt.addItem(self.k_h_line, ignoreBounds=True)
         self.k_plt.addItem(self.info_label)
-
-        self.info.setText(self.current_strategy_name)
-        self.info.append(self.current_code + ' ' + self.current_name)
-        self.info.append('收益率: ' + str(_return))
-        self.info.append('最大回撤: ' + str(max_drawdown))
 
     def emit_backtest_info(self, event):
         pos = event[0]
