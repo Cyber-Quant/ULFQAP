@@ -267,10 +267,6 @@ class Backtest(QWidget):
             mouse_point = self.k_plt.plotItem.vb.mapSceneToView(pos)
             index = int(mouse_point.x())
             if -1 < index < len(self.closes):
-                if index >= len(self.closes) - 100:
-                    pos_x = mouse_point.x() - 100
-                else:
-                    pos_x = mouse_point.x()
                 self.info_label.setHtml(
                     "<p style='color:white'><strong>日期：{0}</strong></p>"
                     "<p style='color:white'>开盘：{1}</p>"
@@ -281,7 +277,7 @@ class Backtest(QWidget):
                         self.dates[index], self.opens[index], self.highs[index],
                         self.lows[index], self.closes[index],
                         self.volumes[index]))
-                self.info_label.setPos(pos_x, mouse_point.y())
+                self.info_label.setPos(mouse_point.x(), mouse_point.y())
             self.k_v_line.setPos(mouse_point.x())
             self.k_h_line.setPos(mouse_point.y())
 
