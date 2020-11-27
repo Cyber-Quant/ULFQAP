@@ -26,6 +26,7 @@ class MACDInfo:
 
 
 # TODO: Separate common code
+# TODO: Use numpy to speedup
 class MACDChoose(QThread):
     progress_signal = Signal(int, str, str)
 
@@ -110,6 +111,7 @@ class MACDChoose(QThread):
 
 
 # TODO: Separate common code
+# TODO: Use numpy to speedup
 class MACD:
     def __init__(self):
         self.config_path = strategies_config_path.joinpath('macd.json')

@@ -12,7 +12,7 @@ from strategies.base import get_latest_n_desc_data, get_last_desc_data
 
 class TurtleInfo:
     def __init__(self):
-        self.name = '海龟交易法'
+        self.name = 'Turtle'
         self.desc = '''
         唐奇安通道
         上轨 = 前20(m)日最高价的最大值
@@ -25,6 +25,7 @@ class TurtleInfo:
 
 
 # TODO: Separate common code
+# TODO: Use numpy to speedup
 class TurtleChoose(QThread):
     progress_signal = Signal(int, str, str)
 
@@ -102,6 +103,7 @@ class TurtleChoose(QThread):
 
 
 # TODO: Separate common code
+# TODO: Use numpy to speedup
 class TurtleWatch(QThread):
     up_signal = Signal(str, str, str, float, float)
     down_signal = Signal(str, str, str, float, float)
@@ -175,6 +177,7 @@ class TurtleWatch(QThread):
 
 
 # TODO: Separate common code
+# TODO: Use numpy to speedup
 class Turtle:
     def __init__(self):
         self.config_path = strategies_config_path.joinpath('turtle.json')

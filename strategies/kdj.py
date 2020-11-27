@@ -10,7 +10,7 @@ from strategies.base import get_latest_n_desc_data
 
 class KDJInfo:
     def __init__(self):
-        self.name = 'KDJ指数'
+        self.name = 'KDJ'
         self.desc = '''
         KDJ指数
         9(m)日RSV: (第9(m)日收盘价 - 9(m)日最低价) / (9(m)日最高价 - 9(m)日最低价) * 100
@@ -24,6 +24,7 @@ class KDJInfo:
 
 
 # TODO: Separate common code
+# TODO: Use numpy to speedup
 class KDJChoose(QThread):
     progress_signal = Signal(int, str, str)
 
@@ -118,6 +119,7 @@ class KDJChoose(QThread):
 
 
 # TODO: Separate common code
+# TODO: Use numpy to speedup
 class KDJ:
     def __init__(self):
         self.config_path = strategies_config_path.joinpath('kdj.json')

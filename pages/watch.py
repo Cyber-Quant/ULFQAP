@@ -56,6 +56,7 @@ def gen_time_slices():
     return times
 
 
+# TODO: separate common plot widget from this page and choose page
 class Watch(QWidget):
     kline_info_signal = Signal(str, float, int)
 

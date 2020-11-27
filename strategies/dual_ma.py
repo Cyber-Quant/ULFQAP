@@ -24,6 +24,7 @@ class DualMAInfo:
 
 
 # TODO: Separate common code
+# TODO: Use numpy to speedup
 class DualMAChoose(QThread):
     progress_signal = Signal(int, str, str)
 
@@ -95,6 +96,7 @@ class DualMAChoose(QThread):
 
 
 # TODO: Separate common code
+# TODO: Use numpy to speedup
 class DualMA:
     def __init__(self):
         self.config_path = strategies_config_path.joinpath('dual_ma.json')

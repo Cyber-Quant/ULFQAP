@@ -10,7 +10,7 @@ from strategies.base import get_latest_n_desc_data
 
 class RSIInfo:
     def __init__(self):
-        self.name = 'RSI指数'
+        self.name = 'RSI'
         self.desc = '''
         RSI指数
         6(m)日RSI = 6(m)日内收盘涨幅的平均值/(6(m)日内收盘涨幅均值+6(m)日内收盘跌幅均值) ×100
@@ -22,6 +22,7 @@ class RSIInfo:
 
 
 # TODO: Separate common code
+# TODO: Use numpy to speedup
 class RSIChoose(QThread):
     progress_signal = Signal(int, str, str)
 
@@ -113,6 +114,7 @@ class RSIChoose(QThread):
 
 
 # TODO: Separate common code
+# TODO: Use numpy to speedup
 class RSI:
     def __init__(self):
         self.config_path = strategies_config_path.joinpath('rsi.json')

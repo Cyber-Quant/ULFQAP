@@ -13,7 +13,7 @@ from strategies.base import get_latest_n_desc_data
 
 class BOLLInfo:
     def __init__(self):
-        self.name = '布林带'
+        self.name = 'BOLL'
         self.desc = '''
         布林带
         中轨线 = 20(m)日的移动平均线(SMA)
@@ -30,6 +30,7 @@ class BOLLInfo:
 
 
 # TODO: Separate common code
+# TODO: Use numpy to speedup
 class BOLLChoose(QThread):
     progress_signal = Signal(int, str, str)
 
@@ -162,6 +163,7 @@ class BOLLChoose(QThread):
 
 
 # TODO: Separate common code
+# TODO: Use numpy to speedup
 class BOLLWatch(QThread):
     up_signal = Signal(str, str, str, float, float)
     down_signal = Signal(str, str, str, float, float)
@@ -240,6 +242,7 @@ class BOLLWatch(QThread):
 
 
 # TODO: Separate common code
+# TODO: Use numpy to speedup
 class BOLL:
     def __init__(self):
         self.config_path = strategies_config_path.joinpath('boll.json')

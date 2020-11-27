@@ -22,6 +22,7 @@ from utils.candlestick import CandlestickItem
 from utils.custom_add_dialog import CustomAddDialog
 
 
+# TODO: separate common plot widget from this page and watch page
 class Choose(QWidget):
     fav_stock_changed_signal = Signal()
     kline_info_signal = Signal(str, float, float, float, float, int)

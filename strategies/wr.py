@@ -10,7 +10,7 @@ from strategies.base import get_latest_n_desc_data
 
 class WRInfo:
     def __init__(self):
-        self.name = '威廉指数'
+        self.name = 'WR'
         self.desc = '''
         威廉指数
         (30(m)日最高价 - 第30(m)日收盘价) / (30(m)日最高价 - 30(m)日最低价) * 100
@@ -22,6 +22,7 @@ class WRInfo:
 
 
 # TODO: Separate common code
+# TODO: Use numpy to speedup
 class WRChoose(QThread):
     progress_signal = Signal(int, str, str)
 
@@ -98,6 +99,7 @@ class WRChoose(QThread):
 
 
 # TODO: Separate common code
+# TODO: Use numpy to speedup
 class WR:
     def __init__(self):
         self.config_path = strategies_config_path.joinpath('wr.json')
