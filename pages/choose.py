@@ -30,11 +30,7 @@ class Choose(QWidget):
         super(Choose, self).__init__(parent)
         self.setWindowTitle('选股')
 
-        if not fav_stocks_config_path.exists():
-            self.fav_stocks = []
-        else:
-            with open(fav_stocks_config_path, 'r', encoding='utf-8') as f:
-                self.fav_stocks = json.load(f)
+        self.fav_stocks = []
 
         self.stocks_to_be_chosen = []
         self.stocks_pre_chose = []
@@ -709,6 +705,12 @@ class Choose(QWidget):
         pop_menu.exec_(self.table.mapToGlobal(position))
 
     def on_fav(self):
+        if not fav_stocks_config_path.exists():
+            self.fav_stocks = []
+        else:
+            with open(fav_stocks_config_path, 'r', encoding='utf-8') as f:
+                self.fav_stocks = json.load(f)
+
         rows = self.table.selectedIndexes()
         for row in rows:
             fav = {
@@ -722,10 +724,13 @@ class Choose(QWidget):
             json.dump(self.fav_stocks, f, indent=4, ensure_ascii=False)
         self.fav_stock_changed_signal.emit()
 
-        with open(fav_stocks_config_path, 'r', encoding='utf-8') as f:
-            self.fav_stocks = json.load(f)
-
     def on_un_fav(self):
+        if not fav_stocks_config_path.exists():
+            self.fav_stocks = []
+        else:
+            with open(fav_stocks_config_path, 'r', encoding='utf-8') as f:
+                self.fav_stocks = json.load(f)
+
         rows = self.table.selectedIndexes()
         rows_to_un_fav = []
         for row in rows:
@@ -742,10 +747,13 @@ class Choose(QWidget):
             json.dump(self.fav_stocks, f, indent=4, ensure_ascii=False)
         self.fav_stock_changed_signal.emit()
 
-        with open(fav_stocks_config_path, 'r', encoding='utf-8') as f:
-            self.fav_stocks = json.load(f)
-
     def on_remove(self):
+        if not fav_stocks_config_path.exists():
+            self.fav_stocks = []
+        else:
+            with open(fav_stocks_config_path, 'r', encoding='utf-8') as f:
+                self.fav_stocks = json.load(f)
+
         rows = self.table.selectedIndexes()
         rows_to_remove = []
         for row in rows:
@@ -767,9 +775,6 @@ class Choose(QWidget):
         with open(fav_stocks_config_path, 'w', encoding='utf-8') as f:
             json.dump(self.fav_stocks, f, indent=4, ensure_ascii=False)
         self.fav_stock_changed_signal.emit()
-
-        with open(fav_stocks_config_path, 'r', encoding='utf-8') as f:
-            self.fav_stocks = json.load(f)
 
     def on_custom_add(self):
         custom_add_dlg = CustomAddDialog(self)
