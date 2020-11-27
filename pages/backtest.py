@@ -85,7 +85,7 @@ class Backtest(QWidget):
         self.backtest_fav_check.toggled.connect(self.on_option_change)
         self.backtest_all_check.toggled.connect(self.on_option_change)
 
-        self.btn_backtest = QPushButton('开始回测')
+        self.btn_add_pool = QPushButton('加入回测池')
 
         op_g_box.addWidget(self.start_date_label, 0, 0)
         op_g_box.addWidget(self.start_date, 1, 0)
@@ -101,7 +101,7 @@ class Backtest(QWidget):
         op_g_box.addWidget(self.tax_input, 1, 5)
         op_g_box.addWidget(self.backtest_fav_check, 0, 6)
         op_g_box.addWidget(self.backtest_all_check, 1, 6)
-        op_g_box.addWidget(self.btn_backtest, 0, 7)
+        op_g_box.addWidget(self.btn_add_pool, 0, 7)
         self.op_group_box.setLayout(op_g_box)
 
         result_h_box = QHBoxLayout()
@@ -140,7 +140,7 @@ class Backtest(QWidget):
 
         self.setLayout(main_v_box)
 
-        self.btn_backtest.clicked.connect(self.on_backtest)
+        self.btn_add_pool.clicked.connect(self.on_backtest)
         self.table.itemSelectionChanged.connect(self.on_row_changed)
         self.k_move_slot = pg.SignalProxy(self.k_plt.scene().sigMouseMoved,
                                           rateLimit=60,
