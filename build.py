@@ -11,7 +11,7 @@ setup(
          './pages/about.py', './pages/backtest.py', './pages/choose.py',
          './pages/config.py', './pages/license.py', './pages/main_win.py',
          './pages/nav.py', './pages/watch.py',
-         './strategies/base.py', './strategies/boll.py',
+         './strategies/common.py', './strategies/boll.py',
          './strategies/custom_watch.py', './strategies/dual_ma.py',
          './strategies/kdj.py', './strategies/macd.py', './strategies/rsi.py',
          './strategies/volume_increase.py', './strategies/wr.py',

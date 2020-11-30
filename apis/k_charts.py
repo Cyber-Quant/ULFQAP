@@ -266,25 +266,6 @@ class FetchDayK(QThread):
         return True
 
 
-def fetch_tencent_minute_k(code):
-    code = code.replace('.', '') + '.js'
-    url = 'http://data.gtimg.cn/flashdata/hushen/minute/'
-    url = url + code
-    res = requests.get(url).text
-    res_list = res.split('\\n\\\n')
-    k_charts = []
-    for item in res_list[2:-1]:
-        item_list = item.split(' ')
-        k_chart = {
-            'time': item_list[0],
-            'price': float(item_list[1]),
-            'volume': int(item_list[2]),
-        }
-
-        k_charts.append(k_chart)
-    return k_charts
-
-
 def fetch_sina_minute_k(code, period):
     code = code.replace('.', '')
     url = 'http://money.finance.sina.com.cn/quotes_service/api/' \
@@ -296,7 +277,7 @@ def fetch_sina_minute_k(code, period):
     k_charts = []
     for item in items:
         k_chart = {
-            'day': item['day'],
+            'date': item['day'],
             'open': float(item['open']),
             'close': float(item['close']),
             'high': float(item['high']),
@@ -311,43 +292,41 @@ def fetch_sina_minute_k(code, period):
     return k_charts
 
 
-def fetch_tencent_week_k(code):
+def fetch_tencent_k(code, period):
     code = code.replace('.', '') + '.js'
-    url = 'http://data.gtimg.cn/flashdata/hushen/latest/weekly/'
+    if period == '1':
+        url = 'http://data.gtimg.cn/flashdata/hushen/minute/'
+    elif period == 'w':
+        url = 'http://data.gtimg.cn/flashdata/hushen/latest/weekly/'
+    elif period == 'm':
+        url = 'http://data.gtimg.cn/flashdata/hushen/monthly/'
     url = url + code
     res = requests.get(url).text
     res_list = res.split('\\n\\\n')
     k_charts = []
     for item in res_list[2:-1]:
         item_list = item.split(' ')
+        if period == '1':
+            date = item_list[0]
+            _open = float(item_list[1])
+            close = float(item_list[1])
+            high = float(item_list[1])
+            low = float(item_list[1])
+            vol = int(item_list[2])
+        else:
+            date = item_list[0]
+            _open = float(item_list[1])
+            close = float(item_list[2])
+            high = float(item_list[3])
+            low = float(item_list[4])
+            vol = int(item_list[5])
         k_chart = {
-            'date': item_list[0],
-            'open': float(item_list[1]),
-            'close': float(item_list[2]),
-            'high': float(item_list[3]),
-            'low': float(item_list[4]),
-            'volume': int(item_list[5]),
-        }
-        k_charts.append(k_chart)
-    return k_charts
-
-
-def fetch_tencent_month_k(code):
-    code = code.replace('.', '') + '.js'
-    url = 'http://data.gtimg.cn/flashdata/hushen/monthly/'
-    url = url + code
-    res = requests.get(url).text
-    res_list = res.split('\\n\\\n')
-    k_charts = []
-    for item in res_list[2:-1]:
-        item_list = item.split(' ')
-        k_chart = {
-            'date': item_list[0],
-            'open': float(item_list[1]),
-            'close': float(item_list[2]),
-            'high': float(item_list[3]),
-            'low': float(item_list[4]),
-            'volume': int(item_list[5]),
+            'date': date,
+            'open': _open,
+            'close': close,
+            'high': high,
+            'low': low,
+            'volume': vol,
         }
         k_charts.append(k_chart)
     return k_charts

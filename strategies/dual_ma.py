@@ -6,7 +6,7 @@ from qtpy.QtGui import *
 from qtpy.QtCore import *
 
 from conf.conf import strategies_config_path, DEFAULT_K_LIMIT
-from strategies.base import get_latest_n_desc_data
+from strategies.common import get_latest_batch_data
 
 
 class DualMAInfo:
@@ -49,11 +49,9 @@ class DualMAChoose(QThread):
             self.k = 3
 
     def _get_short_period_data(self, code):
-        rows = get_latest_n_desc_data(code, self.m)
-        data = []
-        for row in rows:
-            data.append(row.close)
-        return data
+        date, _open, close, high, low, volume, ma_price, ma_volume = \
+            get_latest_batch_data(code, self.m)
+        return close
 
     def _calc_short_period_ma(self, code):
         data = self._get_short_period_data(code)
@@ -61,11 +59,9 @@ class DualMAChoose(QThread):
         return ma
 
     def _get_long_period_data(self, code):
-        rows = get_latest_n_desc_data(code, self.n)
-        data = []
-        for row in rows:
-            data.append(row.close)
-        return data
+        date, _open, close, high, low, volume, ma_price, ma_volume = \
+            get_latest_batch_data(code, self.n)
+        return close
 
     def _calc_long_period_ma(self, code):
         data = self._get_long_period_data(code)
@@ -125,11 +121,9 @@ class DualMABacktest(QThread):
             self.k = 3
 
     def _get_batch_close_data(self, code):
-        rows = get_latest_n_desc_data(code, DEFAULT_K_LIMIT)
-        data = []
-        for row in rows:
-            data.append(row.close)
-        return data[::-1]
+        date, _open, close, high, low, volume, ma_price, ma_volume = \
+            get_latest_batch_data(code, DEFAULT_K_LIMIT)
+        return close
 
     def _calc_batch_ma(self, code, period):
         data = self._get_batch_close_data(code)
@@ -154,22 +148,9 @@ class DualMABacktest(QThread):
         return long_period_mas
 
     def _get_batch_data(self, code):
-        rows = get_latest_n_desc_data(code, DEFAULT_K_LIMIT)
-        _open = []
-        close = []
-        high = []
-        low = []
-        volume = []
-        date = []
-        for row in rows:
-            _open.append(row.open)
-            close.append(row.close)
-            high.append(row.high)
-            low.append(row.low)
-            volume.append(row.volume)
-            date.append(row.date)
-        return _open[::-1], close[::-1], high[::-1], low[::-1], \
-               volume[::-1], date[::-1]
+        date, _open, close, high, low, volume, ma_price, ma_volume = \
+            get_latest_batch_data(code, DEFAULT_K_LIMIT)
+        return _open, close, high, low, volume, date
 
     def backtest(self, code, init_money, fee, pass_fee, tax):
         opens, closes, highs, lows, volumes, dates = \
@@ -294,11 +275,9 @@ class DualMA:
             self.k = 3
 
     def _get_batch_close_data(self, code):
-        rows = get_latest_n_desc_data(code, DEFAULT_K_LIMIT)
-        data = []
-        for row in rows:
-            data.append(row.close)
-        return data[::-1]
+        date, _open, close, high, low, volume, ma_price, ma_volume = \
+            get_latest_batch_data(code, DEFAULT_K_LIMIT)
+        return close
 
     def _calc_batch_ma(self, code, period):
         data = self._get_batch_close_data(code)
@@ -323,22 +302,9 @@ class DualMA:
         return long_period_mas
 
     def _get_batch_data(self, code):
-        rows = get_latest_n_desc_data(code, DEFAULT_K_LIMIT)
-        _open = []
-        close = []
-        high = []
-        low = []
-        volume = []
-        date = []
-        for row in rows:
-            _open.append(row.open)
-            close.append(row.close)
-            high.append(row.high)
-            low.append(row.low)
-            volume.append(row.volume)
-            date.append(row.date)
-        return _open[::-1], close[::-1], high[::-1], low[::-1], \
-               volume[::-1], date[::-1]
+        date, _open, close, high, low, volume, ma_price, ma_volume = \
+            get_latest_batch_data(code, DEFAULT_K_LIMIT)
+        return _open, close, high, low, volume, date
 
     def backtest(self, code, init_money, fee, pass_fee, tax):
         opens, closes, highs, lows, volumes, dates = \

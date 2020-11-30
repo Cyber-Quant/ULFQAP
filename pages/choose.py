@@ -6,11 +6,10 @@ from qtpy.QtWidgets import *
 from qtpy.QtGui import *
 from qtpy.QtCore import *
 
-from apis.k_charts import fetch_tencent_week_k, fetch_tencent_month_k
 from conf.conf import fav_stocks_config_path, apply_strategies_config_path, \
     DEFAULT_K_LIMIT
 from db.models import AStockInfo
-from strategies.base import get_latest_n_desc_data
+from strategies.common import get_latest_batch_data
 from strategies.boll import BOLL, BOLLChoose, BOLLInfo
 from strategies.dual_ma import DualMA, DualMAChoose, DualMAInfo
 from strategies.kdj import KDJ, KDJChoose, KDJInfo
@@ -290,86 +289,43 @@ class Choose(QWidget):
             return
 
         self.kline_data = []
-        if self.current_kline_period == 'd':
-            data = get_latest_n_desc_data(code, DEFAULT_K_LIMIT,
-                                          period=self.current_kline_period)
-        elif self.current_kline_period == 'w':
-            data = fetch_tencent_week_k(code)
-        elif self.current_kline_period == 'm':
-            data = fetch_tencent_month_k(code)
-        _open = []
-        _close = []
-        _high = []
-        _low = []
-        if self.current_kline_period == 'd':
-            for item in data[::-1]:
-                _open.append(item.open)
-                _close.append(item.close)
-                _high.append(item.high)
-                _low.append(item.low)
-        else:
-            for item in data:
-                _open.append(item['open'])
-                _close.append(item['close'])
-                _high.append(item['high'])
-                _low.append(item['low'])
+        date, _open, close, high, low, volume, ma_price, ma_volume = \
+            get_latest_batch_data(code, DEFAULT_K_LIMIT,
+                                  period=self.current_kline_period)
 
         _macd = MACD()
-        macd, dif, dea = _macd.calc_macd(_close)
+        macd, dif, dea = _macd.calc_macd(close)
 
         _kdj = KDJ()
-        k, d, j = _kdj.calc_kdj(_close, _high, _low)
+        k, d, j = _kdj.calc_kdj(close, high, low)
 
         _rsi = RSI()
-        fast_rsi, slow_rsi = _rsi.calc_rsi(_close)
+        fast_rsi, slow_rsi = _rsi.calc_rsi(close)
 
         _wr = WR()
-        wr = _wr.calc_williams(_close, _high, _low)
+        wr = _wr.calc_williams(close, high, low)
 
-        if self.current_kline_period == 'd':
-            for i, item in enumerate(data[::-1]):
-                obj = {
-                    'id': i,
-                    'date': item.date.strftime('%Y-%m-%d'),
-                    'code': item.code,
-                    'open': item.open,
-                    'close': item.close,
-                    'high': item.high,
-                    'low': item.low,
-                    'volume': item.volume,
-                    'dif': dif[i],
-                    'dea': dea[i],
-                    'macd': macd[i],
-                    'k': k[i],
-                    'd': d[i],
-                    'j': j[i],
-                    'slow_rsi': slow_rsi[i],
-                    'fast_rsi': fast_rsi[i],
-                    'wr': wr[i]
-                }
-                self.kline_data.append(obj)
-        else:
-            for i, item in enumerate(data):
-                obj = {
-                    'id': i,
-                    'date': item['date'],
-                    'code': code,
-                    'open': item['open'],
-                    'close': item['close'],
-                    'high': item['high'],
-                    'low': item['low'],
-                    'volume': item['volume'],
-                    'dif': dif[i],
-                    'dea': dea[i],
-                    'macd': macd[i],
-                    'k': k[i],
-                    'd': d[i],
-                    'j': j[i],
-                    'slow_rsi': slow_rsi[i],
-                    'fast_rsi': fast_rsi[i],
-                    'wr': wr[i]
-                }
-                self.kline_data.append(obj)
+        for i in range(len(close)):
+            obj = {
+                'id': i,
+                'date': date[i],
+                'code': code,
+                'open': _open[i],
+                'close': close[i],
+                'high': high[i],
+                'low': low[i],
+                'volume': volume[i],
+                'dif': dif[i],
+                'dea': dea[i],
+                'macd': macd[i],
+                'k': k[i],
+                'd': d[i],
+                'j': j[i],
+                'slow_rsi': slow_rsi[i],
+                'fast_rsi': fast_rsi[i],
+                'wr': wr[i]
+            }
+            self.kline_data.append(obj)
         self._render_all_plots()
 
     def _render_all_plots(self):

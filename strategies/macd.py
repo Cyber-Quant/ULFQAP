@@ -5,7 +5,7 @@ from qtpy.QtGui import *
 from qtpy.QtCore import *
 
 from conf.conf import strategies_config_path, DEFAULT_K_LIMIT
-from strategies.base import get_latest_n_desc_data
+from strategies.common import get_latest_batch_data
 
 
 class MACDInfo:
@@ -51,11 +51,9 @@ class MACDChoose(QThread):
             self.k = 9
 
     def _get_batch_close_data(self, code):
-        rows = get_latest_n_desc_data(code, DEFAULT_K_LIMIT)
-        data = []
-        for row in rows:
-            data.append(row.close)
-        return data[::-1]
+        date, _open, close, high, low, volume, ma_price, ma_volume = \
+            get_latest_batch_data(code, DEFAULT_K_LIMIT)
+        return close
 
     def _calc_ema(self, data, period):
         emas = data.copy()
@@ -169,22 +167,9 @@ class MACDBacktest(QThread):
         return macd, dif, dea
 
     def _get_batch_data(self, code):
-        rows = get_latest_n_desc_data(code, DEFAULT_K_LIMIT)
-        _open = []
-        close = []
-        high = []
-        low = []
-        volume = []
-        date = []
-        for row in rows:
-            _open.append(row.open)
-            close.append(row.close)
-            high.append(row.high)
-            low.append(row.low)
-            volume.append(row.volume)
-            date.append(row.date)
-        return _open[::-1], close[::-1], high[::-1], low[::-1], \
-               volume[::-1], date[::-1]
+        date, _open, close, high, low, volume, ma_price, ma_volume = \
+            get_latest_batch_data(code, DEFAULT_K_LIMIT)
+        return _open, close, high, low, volume, date
 
     def backtest(self, code, init_money, fee, pass_fee, tax):
         opens, closes, highs, lows, volumes, dates = \
@@ -338,22 +323,9 @@ class MACD:
         return macd, dif, dea
 
     def _get_batch_data(self, code):
-        rows = get_latest_n_desc_data(code, DEFAULT_K_LIMIT)
-        _open = []
-        close = []
-        high = []
-        low = []
-        volume = []
-        date = []
-        for row in rows:
-            _open.append(row.open)
-            close.append(row.close)
-            high.append(row.high)
-            low.append(row.low)
-            volume.append(row.volume)
-            date.append(row.date)
-        return _open[::-1], close[::-1], high[::-1], low[::-1], \
-               volume[::-1], date[::-1]
+        _open, close, high, low, volume, date, ma_price, ma_volume = \
+            get_latest_batch_data(code, DEFAULT_K_LIMIT)
+        return _open, close, high, low, volume, date
 
     def backtest(self, code, init_money, fee, pass_fee, tax):
         opens, closes, highs, lows, volumes, dates = \

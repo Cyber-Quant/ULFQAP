@@ -7,9 +7,10 @@ from pyqtgraph.dockarea import *
 from qtpy.QtCore import *
 from qtpy.QtWidgets import *
 
-from apis.k_charts import fetch_tencent_minute_k, fetch_sina_minute_k
+from apis.k_charts import fetch_tencent_k, fetch_sina_minute_k
 from conf.conf import fav_stocks_config_path, apply_strategies_config_path, \
     bundle_dir
+from strategies.common import get_latest_batch_data
 from strategies.boll import BOLL, BOLLInfo, BOLLWatch
 from strategies.custom_watch import CustomWatch
 from strategies.kdj import KDJ
@@ -333,56 +334,46 @@ class Watch(QWidget):
             return
 
         self.kline_data = []
-        if self.current_kline_period == '1':
-            self.kline_data = fetch_tencent_minute_k(code)
-        else:
-            data = fetch_sina_minute_k(self.current_kline_code,
-                                       self.current_kline_period)
-            _open = []
-            _close = []
-            _high = []
-            _low = []
-            for item in data:
-                _open.append(item['open'])
-                _close.append(item['close'])
-                _high.append(item['high'])
-                _low.append(item['low'])
 
-            _macd = MACD()
-            macd, dif, dea = _macd.calc_macd(_close)
+        limit_place_holder = 0
+        date, _open, close, high, low, volume, ma_price, ma_volume = \
+            get_latest_batch_data(code, limit_place_holder,
+                                  period=self.current_kline_period)
 
-            _kdj = KDJ()
-            k, d, j = _kdj.calc_kdj(_close, _high, _low)
+        _macd = MACD()
+        macd, dif, dea = _macd.calc_macd(close)
 
-            _rsi = RSI()
-            fast_rsi, slow_rsi = _rsi.calc_rsi(_close)
+        _kdj = KDJ()
+        k, d, j = _kdj.calc_kdj(close, high, low)
 
-            _wr = WR()
-            wr = _wr.calc_williams(_close, _high, _low)
+        _rsi = RSI()
+        fast_rsi, slow_rsi = _rsi.calc_rsi(close)
 
-            for i, item in enumerate(data):
-                obj = {
-                    'id': i,
-                    'date': item['day'],
-                    'open': item['open'],
-                    'close': item['close'],
-                    'high': item['high'],
-                    'low': item['low'],
-                    'volume': item['volume'],
-                    'dif': dif[i],
-                    'dea': dea[i],
-                    'macd': macd[i],
-                    'k': k[i],
-                    'd': d[i],
-                    'j': j[i],
-                    'slow_rsi': slow_rsi[i],
-                    'fast_rsi': fast_rsi[i],
-                    'wr': wr[i]
-                }
-                if self.current_kline_period != '60':
-                    obj['ma_price'] = item['ma_price']
-                    obj['ma_volume'] = item['ma_volume']
-                self.kline_data.append(obj)
+        _wr = WR()
+        wr = _wr.calc_williams(close, high, low)
+
+        for i in range(len(close)):
+            obj = {
+                'id': i,
+                'date': date[i],
+                'open': _open[i],
+                'close': close[i],
+                'high': high[i],
+                'low': low[i],
+                'volume': volume[i],
+                'ma_price': ma_price[i],
+                'ma_volume': ma_volume[i],
+                'dif': dif[i],
+                'dea': dea[i],
+                'macd': macd[i],
+                'k': k[i],
+                'd': d[i],
+                'j': j[i],
+                'slow_rsi': slow_rsi[i],
+                'fast_rsi': fast_rsi[i],
+                'wr': wr[i]
+            }
+            self.kline_data.append(obj)
         self._render_all_plots()
 
     def _render_all_plots(self):
@@ -397,7 +388,7 @@ class Watch(QWidget):
             prices = []
             volumes = []
             for item in self.kline_data:
-                prices.append(item['price'])
+                prices.append(item['close'])
                 volumes.append(item['volume'])
             y_min = min(prices)
             y_max = max(prices)
@@ -619,34 +610,22 @@ class Watch(QWidget):
     def _emit_info(self, mouse_point):
         index = int(mouse_point.x())
         if -1 < index < len(self.kline_data):
-            if self.current_kline_period == '1':
-                self.info_label.setHtml(
-                    "<p style='color:white'><strong>日期：{0}</strong></p>"
-                    "<p style='color:white'>价格：{1}</p>"
-                    "<p style='color:white'>量：{2}</p>".format(
-                        self.kline_data[index]['time'],
-                        self.kline_data[index]['price'],
-                        self.kline_data[index]['volume']))
-                self.kline_info_signal.emit(self.kline_data[index]['time'],
-                                            self.kline_data[index]['price'],
-                                            self.kline_data[index]['volume'])
-            else:
-                self.info_label.setHtml(
-                    "<p style='color:white'><strong>日期：{0}</strong></p>"
-                    "<p style='color:white'>开：{1}</p>"
-                    "<p style='color:white'>收：{2}</p>"
-                    "<p style='color:white'>高：{3}</p>"
-                    "<p style='color:white'>低：{4}</p>"
-                    "<p style='color:white'>量：{5}</p>".format(
-                        self.kline_data[index]['date'],
-                        self.kline_data[index]['open'],
-                        self.kline_data[index]['close'],
-                        self.kline_data[index]['high'],
-                        self.kline_data[index]['low'],
-                        self.kline_data[index]['volume']))
-                self.kline_info_signal.emit(self.kline_data[index]['date'],
-                                            self.kline_data[index]['close'],
-                                            self.kline_data[index]['volume'])
+            self.info_label.setHtml(
+                "<p style='color:white'><strong>日期：{0}</strong></p>"
+                "<p style='color:white'>开：{1}</p>"
+                "<p style='color:white'>收：{2}</p>"
+                "<p style='color:white'>高：{3}</p>"
+                "<p style='color:white'>低：{4}</p>"
+                "<p style='color:white'>量：{5}</p>".format(
+                    self.kline_data[index]['date'],
+                    self.kline_data[index]['open'],
+                    self.kline_data[index]['close'],
+                    self.kline_data[index]['high'],
+                    self.kline_data[index]['low'],
+                    self.kline_data[index]['volume']))
+            self.kline_info_signal.emit(self.kline_data[index]['date'],
+                                        self.kline_data[index]['close'],
+                                        self.kline_data[index]['volume'])
             self.info_label.setPos(mouse_point.x(), mouse_point.y())
 
     def on_kline_info_changed(self, _time, price, volume):

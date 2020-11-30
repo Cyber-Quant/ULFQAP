@@ -5,7 +5,7 @@ from qtpy.QtGui import *
 from qtpy.QtCore import *
 
 from conf.conf import strategies_config_path, DEFAULT_K_LIMIT
-from strategies.base import get_latest_n_desc_data
+from strategies.common import get_latest_batch_data
 
 
 class KDJInfo:
@@ -45,15 +45,9 @@ class KDJChoose(QThread):
             self.m = 9
 
     def _get_batch_data(self, code):
-        rows = get_latest_n_desc_data(code, DEFAULT_K_LIMIT)
-        closes = []
-        highs = []
-        lows = []
-        for row in rows:
-            closes.append(row.close)
-            highs.append(row.high)
-            lows.append(row.low)
-        return closes[::-1], highs[::-1], lows[::-1]
+        date, _open, close, high, low, volume, ma_price, ma_volume = \
+            get_latest_batch_data(code, DEFAULT_K_LIMIT)
+        return close, high, low
 
     def _calc_kdj(self, code):
         closes, highs, lows = self._get_batch_data(code)
@@ -185,22 +179,9 @@ class KDJBacktest(QThread):
         return k, d, j
 
     def _get_batch_data(self, code):
-        rows = get_latest_n_desc_data(code, DEFAULT_K_LIMIT)
-        _open = []
-        close = []
-        high = []
-        low = []
-        volume = []
-        date = []
-        for row in rows:
-            _open.append(row.open)
-            close.append(row.close)
-            high.append(row.high)
-            low.append(row.low)
-            volume.append(row.volume)
-            date.append(row.date)
-        return _open[::-1], close[::-1], high[::-1], low[::-1], \
-               volume[::-1], date[::-1]
+        date, _open, close, high, low, volume, ma_price, ma_volume = \
+            get_latest_batch_data(code, DEFAULT_K_LIMIT)
+        return _open, close, high, low, volume, date
 
     def backtest(self, code, init_money, fee, pass_fee, tax):
         opens, closes, highs, lows, volumes, dates = \
@@ -358,22 +339,9 @@ class KDJ:
         return k, d, j
 
     def _get_batch_data(self, code):
-        rows = get_latest_n_desc_data(code, DEFAULT_K_LIMIT)
-        _open = []
-        close = []
-        high = []
-        low = []
-        volume = []
-        date = []
-        for row in rows:
-            _open.append(row.open)
-            close.append(row.close)
-            high.append(row.high)
-            low.append(row.low)
-            volume.append(row.volume)
-            date.append(row.date)
-        return _open[::-1], close[::-1], high[::-1], low[::-1], \
-               volume[::-1], date[::-1]
+        date, _open, close, high, low, volume, ma_price, ma_volume = \
+            get_latest_batch_data(code, DEFAULT_K_LIMIT)
+        return _open, close, high, low, volume, date
 
     def backtest(self, code, init_money, fee, pass_fee, tax):
         opens, closes, highs, lows, volumes, dates = \

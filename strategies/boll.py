@@ -8,7 +8,7 @@ from qtpy.QtCore import *
 
 from apis.realtime_price import fetch_sina_realtime_price
 from conf.conf import strategies_config_path, DEFAULT_K_LIMIT
-from strategies.base import get_latest_n_desc_data
+from strategies.common import get_latest_batch_data
 
 
 class BOLLInfo:
@@ -63,15 +63,9 @@ class BOLLChoose(QThread):
             self.open_up = False
 
     def _get_batch_data(self, code, days):
-        rows = get_latest_n_desc_data(code, days + self.m)
-        close = []
-        high = []
-        low = []
-        for row in rows:
-            close.append(row.close)
-            high.append(row.close)
-            low.append(row.close)
-        return close[::-1], high[::-1], low[::-1]
+        date, _open, close, high, low, volume, ma_price, ma_volume = \
+            get_latest_batch_data(code, days + self.m)
+        return close, high, low
 
     def _calc_batch_std(self, data):
         stds = []
@@ -190,11 +184,9 @@ class BOLLWatch(QThread):
             self.n = 3
 
     def _get_close_data(self, code):
-        rows = get_latest_n_desc_data(code, self.m)
-        data = []
-        for row in rows:
-            data.append(row.close)
-        return data
+        date, _open, close, high, low, volume, ma_price, ma_volume = \
+            get_latest_batch_data(code, self.m)
+        return close
 
     def _calc_std(self, code):
         data = self._get_close_data(code)
@@ -271,11 +263,9 @@ class BOLLBacktest(QThread):
             self.n = 3
 
     def _get_close_data(self, code):
-        rows = get_latest_n_desc_data(code, self.m)
-        data = []
-        for row in rows:
-            data.append(row.close)
-        return data
+        date, _open, close, high, low, volume, ma_price, ma_volume = \
+            get_latest_batch_data(code, self.m)
+        return close
 
     def _calc_std(self, code):
         data = self._get_close_data(code)
@@ -300,11 +290,9 @@ class BOLLBacktest(QThread):
         return up
 
     def _get_batch_close_data(self, code):
-        rows = get_latest_n_desc_data(code, DEFAULT_K_LIMIT)
-        data = []
-        for row in rows:
-            data.append(row.close)
-        return data[::-1]
+        date, _open, close, high, low, volume, ma_price, ma_volume = \
+            get_latest_batch_data(code, DEFAULT_K_LIMIT)
+        return close
 
     def _calc_batch_std(self, code):
         data = self._get_batch_close_data(code)
@@ -349,22 +337,9 @@ class BOLLBacktest(QThread):
         return ups
 
     def _get_batch_data(self, code):
-        rows = get_latest_n_desc_data(code, DEFAULT_K_LIMIT)
-        _open = []
-        close = []
-        high = []
-        low = []
-        volume = []
-        date = []
-        for row in rows:
-            _open.append(row.open)
-            close.append(row.close)
-            high.append(row.high)
-            low.append(row.low)
-            volume.append(row.volume)
-            date.append(row.date)
-        return _open[::-1], close[::-1], high[::-1], low[::-1], \
-               volume[::-1], date[::-1]
+        date, _open, close, high, low, volume, ma_price, ma_volume = \
+            get_latest_batch_data(code, DEFAULT_K_LIMIT)
+        return _open, close, high, low, volume, date
 
     def backtest(self, code, init_money, fee, pass_fee, tax):
         opens, closes, highs, lows, volumes, dates = \
@@ -483,11 +458,9 @@ class BOLL:
             self.n = 3
 
     def _get_close_data(self, code):
-        rows = get_latest_n_desc_data(code, self.m)
-        data = []
-        for row in rows:
-            data.append(row.close)
-        return data
+        date, _open, close, high, low, volume, ma_price, ma_volume = \
+            get_latest_batch_data(code, self.m)
+        return close
 
     def _calc_std(self, code):
         data = self._get_close_data(code)
@@ -512,11 +485,9 @@ class BOLL:
         return up
 
     def _get_batch_close_data(self, code):
-        rows = get_latest_n_desc_data(code, DEFAULT_K_LIMIT)
-        data = []
-        for row in rows:
-            data.append(row.close)
-        return data[::-1]
+        date, _open, close, high, low, volume, ma_price, ma_volume = \
+            get_latest_batch_data(code, DEFAULT_K_LIMIT)
+        return close
 
     def _calc_batch_std(self, code):
         data = self._get_batch_close_data(code)
@@ -561,22 +532,9 @@ class BOLL:
         return ups
 
     def _get_batch_data(self, code):
-        rows = get_latest_n_desc_data(code, DEFAULT_K_LIMIT)
-        _open = []
-        close = []
-        high = []
-        low = []
-        volume = []
-        date = []
-        for row in rows:
-            _open.append(row.open)
-            close.append(row.close)
-            high.append(row.high)
-            low.append(row.low)
-            volume.append(row.volume)
-            date.append(row.date)
-        return _open[::-1], close[::-1], high[::-1], low[::-1], \
-               volume[::-1], date[::-1]
+        date, _open, close, high, low, volume, ma_price, ma_volume = \
+            get_latest_batch_data(code, DEFAULT_K_LIMIT)
+        return _open, close, high, low, volume, date
 
     def backtest(self, code, init_money, fee, pass_fee, tax):
         opens, closes, highs, lows, volumes, dates = \
