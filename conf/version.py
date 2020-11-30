@@ -6,4 +6,4 @@ name = SOFT_NAME
 channel = DEV
 major = 0
 minor = 4
-fix = 0
+fix = 13
