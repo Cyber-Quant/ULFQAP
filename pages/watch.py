@@ -1,4 +1,3 @@
-import easyquotation
 import json
 import pyqtgraph as pg
 import time
@@ -8,7 +7,7 @@ from pyqtgraph.dockarea import *
 from qtpy.QtCore import *
 from qtpy.QtWidgets import *
 
-from apis.k_charts import fetch_sina_minute_k
+from apis.k_charts import fetch_tencent_minute_k, fetch_sina_minute_k
 from conf.conf import fav_stocks_config_path, apply_strategies_config_path, \
     bundle_dir
 from strategies.boll import BOLL, BOLLInfo, BOLLWatch
@@ -335,24 +334,8 @@ class Watch(QWidget):
 
         self.kline_data = []
         if self.current_kline_period == '1':
-            quotation = easyquotation.use('timekline')
-            code = code[3:]
-            # TODO: a new thread, fetch new data every minute.
-            data = quotation.real([code], prefix=True)
-            if code[0] == '6':
-                prefix = 'sh'
-            else:
-                prefix = 'sz'
-            top_key = prefix + code + '.js'
-            for obj in data[top_key]['time_data']:
-                item = {
-                    'time': obj[0],
-                    'price': float(obj[1]),
-                    'volume': int(obj[2])
-                }
-                self.kline_data.append(item)
+            self.kline_data = fetch_tencent_minute_k(code)
         else:
-            self.kline_data = []
             data = fetch_sina_minute_k(self.current_kline_code,
                                        self.current_kline_period)
             _open = []

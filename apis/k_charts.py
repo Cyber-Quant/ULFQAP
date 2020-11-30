@@ -559,6 +559,25 @@ class FetchMonthK(QThread):
         return True
 
 
+def fetch_tencent_minute_k(code):
+    code = code.replace('.', '') + '.js'
+    url = 'http://data.gtimg.cn/flashdata/hushen/minute/'
+    url = url + code
+    res = requests.get(url).text
+    res_list = res.split('\\n\\\n')
+    k_charts = []
+    for item in res_list[2:-1]:
+        item_list = item.split(' ')
+        k_chart = {
+            'time': item_list[0],
+            'price': float(item_list[1]),
+            'volume': int(item_list[2]),
+        }
+
+        k_charts.append(k_chart)
+    return k_charts
+
+
 def fetch_sina_minute_k(code, period):
     code = code.replace('.', '')
     url = 'http://money.finance.sina.com.cn/quotes_service/api/' \
