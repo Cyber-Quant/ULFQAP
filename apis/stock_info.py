@@ -13,10 +13,6 @@ def save_last_updated_date(new_trading_day, flag):
         key = 'index_update_date'
     elif flag == 'd':
         key = 'day_k_update_date'
-    elif flag == 'w':
-        key = 'week_k_update_date'
-    elif flag == 'm':
-        key = 'month_k_update_date'
     if not global_config_path.exists():
         data = {key: new_trading_day}
     else:
@@ -43,8 +39,6 @@ def reset_last_updated_date():
     date = '1970-01-01'
     save_last_updated_date(date, 'i')
     save_last_updated_date(date, 'd')
-    save_last_updated_date(date, 'w')
-    save_last_updated_date(date, 'm')
 
 
 def reset_stock_info():
@@ -90,10 +84,6 @@ def get_last_updated_date(flag):
         key = 'index_update_date'
     elif flag == 'd':
         key = 'day_k_update_date'
-    elif flag == 'w':
-        key = 'week_k_update_date'
-    elif flag == 'm':
-        key = 'month_k_update_date'
 
     if not global_config_path.exists():
         return '1970-01-01'

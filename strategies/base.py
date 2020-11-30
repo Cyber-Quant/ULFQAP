@@ -1,4 +1,4 @@
-from db.models import AStockDayLine, AStockWeekLine, AStockMonthLine
+from db.models import AStockDayLine
 
 
 def get_latest_n_desc_data(code, limit, period='d'):
@@ -6,14 +6,6 @@ def get_latest_n_desc_data(code, limit, period='d'):
         rows = AStockDayLine.select().where(
             AStockDayLine.code == code).order_by(
             AStockDayLine.date.desc()).limit(limit)
-    elif period == 'w':
-        rows = AStockWeekLine.select().where(
-            AStockWeekLine.code == code).order_by(
-            AStockWeekLine.date.desc()).limit(limit)
-    elif period == 'm':
-        rows = AStockMonthLine.select().where(
-            AStockMonthLine.code == code).order_by(
-            AStockMonthLine.date.desc()).limit(limit)
     return rows
 
 

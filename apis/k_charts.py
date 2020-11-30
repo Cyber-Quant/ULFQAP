@@ -9,62 +9,18 @@ from apis.stock_info import AStockInfo, fetch_all_code, \
     reset_stock_info, fetch_last_trading_day, \
     fetch_stock_info
 from conf.conf import DEFAULT_K_LIMIT
-from db.models import AStockDayLine, AStockWeekLine, AStockMonthLine
+from db.models import AStockDayLine
 from db.ops import create_table, drop_table
 
 
 def reset_k_line_data():
     drop_table(AStockDayLine)
-    drop_table(AStockWeekLine)
-    drop_table(AStockMonthLine)
     create_table(AStockDayLine)
-    create_table(AStockWeekLine)
-    create_table(AStockMonthLine)
 
 
 def _fetch_day_line_data(code, start_date, end_date):
     fields = 'date,code,open,high,low,close,preclose,volume,amount,adjustflag,turn,tradestatus,pctChg,peTTM,psTTM,pcfNcfTTM,pbMRQ,isST'
     frequency = 'd'
-    rs = bs.query_history_k_data_plus(code,
-                                      fields,
-                                      start_date=start_date,
-                                      end_date=end_date,
-                                      frequency=frequency, adjustflag='3')
-    if rs.error_code != '0' or rs.error_msg != 'success':
-        return int(rs.error_code), rs.error_msg
-
-    data_list = []
-    while (rs.error_code == '0') & rs.next():
-        data = rs.get_row_data()
-        if len(data) > 0:
-            data_list.append(data)
-
-    return 0, data_list
-
-
-def _fetch_week_line_data(code, start_date, end_date):
-    fields = 'date,code,open,high,low,close,volume,amount,adjustflag,turn,pctChg'
-    frequency = 'w'
-    rs = bs.query_history_k_data_plus(code,
-                                      fields,
-                                      start_date=start_date,
-                                      end_date=end_date,
-                                      frequency=frequency, adjustflag='3')
-    if rs.error_code != '0' or rs.error_msg != 'success':
-        return int(rs.error_code), rs.error_msg
-
-    data_list = []
-    while (rs.error_code == '0') & rs.next():
-        data = rs.get_row_data()
-        if len(data) > 0:
-            data_list.append(data)
-
-    return 0, data_list
-
-
-def _fetch_month_line_data(code, start_date, end_date):
-    fields = 'date,code,open,high,low,close,volume,amount,adjustflag,turn,pctChg'
-    frequency = 'm'
     rs = bs.query_history_k_data_plus(code,
                                       fields,
                                       start_date=start_date,
@@ -111,73 +67,6 @@ def fetch_day_line_data(code, start_date, end_date):
             return -1, day_newer_data
         day_data_list = day_data_list + day_newer_data
     return 0, day_data_list
-
-
-# TODO: Using asc()/desc().get() to reduce SQL query.
-def fetch_week_line_data(code, start_date, end_date):
-    charts = AStockWeekLine.select().where(
-        AStockWeekLine.code == code).order_by(
-        AStockWeekLine.date.asc())
-    if charts.count() == 0:
-        week_ret, week_data = _fetch_week_line_data(code, start_date, end_date)
-        if week_ret != 0:
-            return -1, week_data
-        else:
-            return 0, week_data
-
-    week_data_list = []
-    if datetime.datetime.strptime(start_date, '%Y-%m-%d') < charts[0].date:
-        new_end_date = charts[0].date + datetime.timedelta(-1)
-        new_end_date_str = new_end_date.strftime('%Y-%m-%d')
-        week_ret, week_older_data = _fetch_week_line_data(code, start_date,
-                                                          new_end_date_str)
-        if week_ret != 0:
-            return -1, week_older_data
-        week_data_list = week_data_list + week_older_data
-    if datetime.datetime.strptime(end_date, '%Y-%m-%d') > charts[-1].date:
-        new_start_date = charts[-1].date + datetime.timedelta(1)
-        new_start_date_str = new_start_date.strftime('%Y-%m-%d')
-        week_ret, week_newer_data = _fetch_week_line_data(code,
-                                                          new_start_date_str,
-                                                          end_date)
-        if week_ret != 0:
-            return -1, week_newer_data
-        week_data_list = week_data_list + week_newer_data
-    return 0, week_data_list
-
-
-# TODO: Using asc()/desc().get() to reduce SQL query.
-def fetch_month_line_data(code, start_date, end_date):
-    charts = AStockMonthLine.select().where(
-        AStockMonthLine.code == code).order_by(
-        AStockMonthLine.date.asc())
-    if charts.count() == 0:
-        month_ret, month_data = _fetch_month_line_data(code, start_date,
-                                                       end_date)
-        if month_ret != 0:
-            return -1, month_data
-        else:
-            return 0, month_data
-
-    month_data_list = []
-    if datetime.datetime.strptime(start_date, '%Y-%m-%d') < charts[0].date:
-        new_end_date = charts[0].date + datetime.timedelta(-1)
-        new_end_date_str = new_end_date.strftime('%Y-%m-%d')
-        month_ret, month_older_data = _fetch_month_line_data(code, start_date,
-                                                             new_end_date_str)
-        if month_ret != 0:
-            return -1, month_older_data
-        month_data_list = month_data_list + month_older_data
-    if datetime.datetime.strptime(end_date, '%Y-%m-%d') > charts[-1].date:
-        new_start_date = charts[-1].date + datetime.timedelta(1)
-        new_start_date_str = new_start_date.strftime('%Y-%m-%d')
-        month_ret, month_newer_data = _fetch_month_line_data(code,
-                                                             new_start_date_str,
-                                                             end_date)
-        if month_ret != 0:
-            return -1, month_newer_data
-        month_data_list = month_data_list + month_newer_data
-    return 0, month_data_list
 
 
 def store_day_line_data(day_data_list):
@@ -259,114 +148,6 @@ def store_day_line_data(day_data_list):
 
     day_query = AStockDayLine.insert_many(day_records)
     day_query.execute()
-
-
-def store_week_line_data(week_data_list):
-    week_records = []
-    for week_data in week_data_list:
-        if week_data[2] == '':
-            _open = 0.0
-        else:
-            _open = float(week_data[2])
-        if week_data[3] == '':
-            high = 0.0
-        else:
-            high = float(week_data[3])
-        if week_data[4] == '':
-            low = 0.0
-        else:
-            low = float(week_data[4])
-        if week_data[5] == '':
-            close = 0.0
-        else:
-            close = float(week_data[5])
-        if week_data[6] == '':
-            volume = 0
-        else:
-            volume = int(week_data[6])
-        if week_data[7] == '':
-            amount = 0.0
-        else:
-            amount = float(week_data[7])
-        if week_data[9] == '':
-            turn = 0.0
-        else:
-            turn = float(week_data[9])
-        if week_data[10] == '':
-            pct_chg = 0.0
-        else:
-            pct_chg = float(week_data[10])
-        record = {
-            'date': datetime.datetime.strptime(week_data[0], '%Y-%m-%d'),
-            'code': week_data[1],
-            'open': _open,
-            'high': high,
-            'low': low,
-            'close': close,
-            'volume': volume,
-            'amount': amount,
-            'adjust_flag': int(week_data[8]),
-            'turn': turn,
-            'pct_chg': pct_chg
-        }
-        week_records.append(record)
-
-    week_query = AStockWeekLine.insert_many(week_records)
-    week_query.execute()
-
-
-def store_month_line_data(month_data_list):
-    month_records = []
-    for month_data in month_data_list:
-        if month_data[2] == '':
-            _open = 0.0
-        else:
-            _open = float(month_data[2])
-        if month_data[3] == '':
-            high = 0.0
-        else:
-            high = float(month_data[3])
-        if month_data[4] == '':
-            low = 0.0
-        else:
-            low = float(month_data[4])
-        if month_data[5] == '':
-            close = 0.0
-        else:
-            close = float(month_data[5])
-        if month_data[6] == '':
-            volume = 0
-        else:
-            volume = int(month_data[6])
-        if month_data[7] == '':
-            amount = 0.0
-        else:
-            amount = float(month_data[7])
-        if month_data[9] == '':
-            turn = 0.0
-        else:
-            turn = float(month_data[9])
-        if month_data[10] == '':
-            pct_chg = 0.0
-        else:
-            pct_chg = float(month_data[10])
-        record = {
-            'date': datetime.datetime.strptime(month_data[0], '%Y-%m-%d'),
-            'code': month_data[1],
-            'open': _open,
-            'high': high,
-            'low': low,
-            'close': close,
-            'volume': volume,
-            'amount': amount,
-            'adjust_flag': int(month_data[8]),
-            'turn': turn,
-            'pct_chg': pct_chg
-        }
-        month_records.append(record)
-
-    month_query = AStockMonthLine.insert_many(month_records)
-    month_query.execute()
 
 
 def get_code_list():
@@ -481,80 +262,6 @@ class FetchDayK(QThread):
                 j += 1
                 self.sig_fetch_day_k.emit(j)
         self.sig_fetch_day_k_done.emit()
-        bs.logout()
-        return True
-
-
-class FetchWeekK(QThread):
-    sig_fetch_week_k = Signal(int)
-    sig_fetch_week_k_done = Signal()
-    err_signal = Signal(str)
-
-    def __init__(self, s_date, e_date, code_list, parent=None):
-        super(FetchWeekK, self).__init__(parent)
-        self.s_date = s_date
-        self.e_date = e_date
-        self.stock_code_list = code_list
-
-    def run(self):
-        lg = bs.login()
-        if lg.error_code != '0' or lg.error_msg != 'success':
-            return lg.error_msg
-
-        self.sig_fetch_week_k.emit(1)
-        stock_num = len(self.stock_code_list)
-        total_num = int(stock_num / 100 * 110)
-        step = int(total_num / 100)
-        i = 0
-        j = 0
-        for code in self.stock_code_list:
-            i += 1
-            ret, data = fetch_week_line_data(code, self.s_date, self.e_date)
-            if ret != 0:
-                self.err_signal.emit(data)
-                return False
-            store_week_line_data(data)
-            if i % step == 0:
-                j += 1
-                self.sig_fetch_week_k.emit(j)
-        self.sig_fetch_week_k_done.emit()
-        bs.logout()
-        return True
-
-
-class FetchMonthK(QThread):
-    sig_fetch_month_k = Signal(int)
-    sig_fetch_month_k_done = Signal()
-    err_signal = Signal(str)
-
-    def __init__(self, s_date, e_date, code_list, parent=None):
-        super(FetchMonthK, self).__init__(parent)
-        self.s_date = s_date
-        self.e_date = e_date
-        self.stock_code_list = code_list
-
-    def run(self):
-        lg = bs.login()
-        if lg.error_code != '0' or lg.error_msg != 'success':
-            return lg.error_msg
-
-        self.sig_fetch_month_k.emit(1)
-        stock_num = len(self.stock_code_list)
-        total_num = int(stock_num / 100 * 110)
-        step = int(total_num / 100)
-        i = 0
-        j = 0
-        for code in self.stock_code_list:
-            i += 1
-            ret, data = fetch_month_line_data(code, self.s_date, self.e_date)
-            if ret != 0:
-                self.err_signal.emit(data)
-                return False
-            store_month_line_data(data)
-            if i % step == 0:
-                j += 1
-                self.sig_fetch_month_k.emit(j)
-        self.sig_fetch_month_k_done.emit()
         bs.logout()
         return True
 

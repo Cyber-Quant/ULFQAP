@@ -45,39 +45,3 @@ class AStockDayLine(BaseModel):
 
     class Meta:
         db_table = 'a_stock_day_line'
-
-
-class AStockWeekLine(BaseModel):
-    id = BigAutoField()
-    date = DateTimeField()
-    code = CharField()
-    open = FloatField()
-    high = FloatField()
-    low = FloatField()
-    close = FloatField()
-    volume = IntegerField()
-    amount = FloatField()
-    adjust_flag = IntegerField()
-    turn = FloatField()
-    pct_chg = FloatField()
-
-    class Meta:
-        db_table = 'a_stock_week_line'
-
-
-class AStockMonthLine(BaseModel):
-    id = BigAutoField()
-    date = DateTimeField()
-    code = CharField()
-    open = FloatField()
-    high = FloatField()
-    low = FloatField()
-    close = FloatField()
-    volume = IntegerField()
-    amount = FloatField()
-    adjust_flag = IntegerField()
-    turn = FloatField()
-    pct_chg = FloatField()
-
-    class Meta:
-        db_table = 'a_stock_month_line'

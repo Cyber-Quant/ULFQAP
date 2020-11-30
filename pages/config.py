@@ -4,7 +4,7 @@ import datetime
 from qtpy.QtCore import *
 from qtpy.QtWidgets import *
 
-from apis.k_charts import FetchDayK, FetchWeekK, FetchMonthK, UpdateStockInfo, \
+from apis.k_charts import FetchDayK, UpdateStockInfo, \
     get_code_list, reset_k_line_data
 from apis.stock_info import save_last_updated_date
 from apis.stock_info import need_update, reset_last_updated_date, \
@@ -23,10 +23,6 @@ class Config(QWidget):
         self.index_date = None
         self.day_s_date = None
         self.day_e_date = None
-        self.week_s_date = None
-        self.week_e_date = None
-        self.month_s_date = None
-        self.month_e_date = None
         self.code_list = None
 
         self.progress_bar = QProgressBar()
@@ -35,12 +31,8 @@ class Config(QWidget):
         up_h_box = QHBoxLayout()
         self.btn_up_stock_info = QPushButton('更新股票信息')
         self.btn_up_day_k = QPushButton('更新日K')
-        self.btn_up_week_k = QPushButton('更新周K')
-        self.btn_up_month_k = QPushButton('更新月K')
         up_h_box.addWidget(self.btn_up_stock_info)
         up_h_box.addWidget(self.btn_up_day_k)
-        up_h_box.addWidget(self.btn_up_week_k)
-        up_h_box.addWidget(self.btn_up_month_k)
         up_h_box.addStretch()
         self.up_group_box.setLayout(up_h_box)
 
@@ -69,15 +61,11 @@ class Config(QWidget):
 
         self.btn_up_range_stock_info = QPushButton('按日期更新股票信息')
         self.btn_up_range_day_k = QPushButton('按日期更新日K')
-        self.btn_up_range_week_k = QPushButton('按日期更新周K')
-        self.btn_up_range_month_k = QPushButton('按日期更新月K')
 
         range_up_h_box.addWidget(self.start_date)
         range_up_h_box.addWidget(self.end_date)
         range_up_h_box.addWidget(self.btn_up_range_stock_info)
         range_up_h_box.addWidget(self.btn_up_range_day_k)
-        range_up_h_box.addWidget(self.btn_up_range_week_k)
-        range_up_h_box.addWidget(self.btn_up_range_month_k)
         range_up_h_box.addStretch()
         self.range_up_group_box.setLayout(range_up_h_box)
 
@@ -98,39 +86,27 @@ class Config(QWidget):
 
         self.btn_up_stock_info.clicked.connect(self.on_up_stock_info)
         self.btn_up_day_k.clicked.connect(self.on_up_day_k)
-        self.btn_up_week_k.clicked.connect(self.on_up_week_k)
-        self.btn_up_month_k.clicked.connect(self.on_up_month_k)
         self.btn_reset.clicked.connect(self.on_reset)
         self.btn_up_range_stock_info.clicked.connect(
             self.on_up_custom_stock_info)
         self.btn_up_range_day_k.clicked.connect(self.on_up_custom_day_k)
-        self.btn_up_range_week_k.clicked.connect(self.on_up_custom_week_k)
-        self.btn_up_range_month_k.clicked.connect(self.on_up_custom_month_k)
         self.btn_about.clicked.connect(self.on_about)
 
     def enable_all(self):
         self.btn_up_stock_info.setEnabled(True)
         self.btn_up_day_k.setEnabled(True)
-        self.btn_up_week_k.setEnabled(True)
-        self.btn_up_month_k.setEnabled(True)
         self.btn_reset.setEnabled(True)
         self.btn_up_range_stock_info.setEnabled(True)
         self.btn_up_range_day_k.setEnabled(True)
-        self.btn_up_range_week_k.setEnabled(True)
-        self.btn_up_range_month_k.setEnabled(True)
         self.start_date.setEnabled(True)
         self.end_date.setEnabled(True)
 
     def disable_all(self):
         self.btn_up_stock_info.setDisabled(True)
         self.btn_up_day_k.setDisabled(True)
-        self.btn_up_week_k.setDisabled(True)
-        self.btn_up_month_k.setDisabled(True)
         self.btn_reset.setDisabled(True)
         self.btn_up_range_stock_info.setDisabled(True)
         self.btn_up_range_day_k.setDisabled(True)
-        self.btn_up_range_week_k.setDisabled(True)
-        self.btn_up_range_month_k.setDisabled(True)
         self.start_date.setDisabled(True)
         self.end_date.setDisabled(True)
 
@@ -148,69 +124,11 @@ class Config(QWidget):
         reset_k_line_data()
         reset_last_updated_date()
 
-    def complete_month_k_progress(self):
-        self.set_progress_bar(100)
-        self.enable_all()
-        save_last_updated_date(self.month_e_date, 'm')
-        self.code_list = []
-        self.progress_bar.reset()
-
-    def _up_month_k(self):
-        self.code_list = get_code_list()
-        self.fmk = FetchMonthK(self.month_s_date, self.month_e_date,
-                               self.code_list)
-        self.fmk.sig_fetch_month_k.connect(self.set_progress_bar)
-        self.fmk.sig_fetch_month_k_done.connect(
-            self.complete_month_k_progress)
-        self.fmk.err_signal.connect(self.show_warning)
-        self.fmk.start()
-
-    def on_up_month_k(self):
-        self.progress_bar.reset()
-        self.disable_all()
-
-        if self.month_s_date is None or self.month_e_date is None:
-            self.prepare_date_range('m')
-
-        if self.month_s_date is not None and self.month_e_date is not None:
-            self._up_month_k()
-        else:
-            QMessageBox.warning(self, '警告', '月K更新失败，请重试',
-                                QMessageBox.Ok, QMessageBox.Ok)
-
-    def complete_week_k_progress(self):
-        self.set_progress_bar(100)
-        self.enable_all()
-        save_last_updated_date(self.week_e_date, 'w')
-        self.progress_bar.reset()
-
-    def _up_week_k(self):
-        self.code_list = get_code_list()
-        self.fwk = FetchWeekK(self.week_s_date, self.week_e_date,
-                              self.code_list)
-        self.fwk.sig_fetch_week_k.connect(self.set_progress_bar)
-        self.fwk.sig_fetch_week_k_done.connect(
-            self.complete_week_k_progress)
-        self.fwk.err_signal.connect(self.show_warning)
-        self.fwk.start()
-
-    def on_up_week_k(self):
-        self.progress_bar.reset()
-        self.disable_all()
-
-        if self.week_s_date is None or self.week_e_date is None:
-            self.prepare_date_range('w')
-
-        if self.week_s_date is not None and self.week_e_date is not None:
-            self._up_week_k()
-        else:
-            QMessageBox.warning(self, '警告', '周K更新失败，请重试',
-                                QMessageBox.Ok, QMessageBox.Ok)
-
     def complete_day_k_progress(self):
         self.set_progress_bar(100)
         self.enable_all()
         save_last_updated_date(self.day_e_date, 'd')
+        self.code_list = []
         self.progress_bar.reset()
 
     def _up_day_k(self):
@@ -294,26 +212,12 @@ class Config(QWidget):
                                                     '%Y-%m-%d')
             day_s_date = datetime.datetime.strptime(day_s_date_str,
                                                     '%Y-%m-%d')
-            week_s_date = day_s_date - datetime.timedelta(days=365 * 5)
-            week_e_date = day_e_date
-            month_s_date = day_s_date - datetime.timedelta(days=365 * 21)
-            month_e_date = day_e_date
             if day_s_date_str == '1970-01-01':
                 day_s_date = day_e_date - datetime.timedelta(days=365)
-
             day_s_date_str = day_s_date.strftime('%Y-%m-%d')
             day_e_date_str = day_e_date.strftime('%Y-%m-%d')
-            week_s_date_str = week_s_date.strftime('%Y-%m-%d')
-            week_e_date_str = week_e_date.strftime('%Y-%m-%d')
-            month_s_date_str = month_s_date.strftime('%Y-%m-%d')
-            month_e_date_str = month_e_date.strftime('%Y-%m-%d')
-
             self.day_s_date = day_s_date_str
             self.day_e_date = day_e_date_str
-            self.week_s_date = week_s_date_str
-            self.week_e_date = week_e_date_str
-            self.month_s_date = month_s_date_str
-            self.month_e_date = month_e_date_str
         elif ret == -1:
             QMessageBox.information(self, '提示', '目前还没有更新的数据',
                                     QMessageBox.Ok, QMessageBox.Ok)
@@ -324,14 +228,6 @@ class Config(QWidget):
             QMessageBox.warning(self, '警告', ret,
                                 QMessageBox.Ok, QMessageBox.Ok)
             return False
-
-    def on_up_custom_month_k(self):
-        self.custom_date_range()
-        self.on_up_month_k()
-
-    def on_up_custom_week_k(self):
-        self.custom_date_range()
-        self.on_up_week_k()
 
     def on_up_custom_day_k(self):
         self.custom_date_range()
@@ -346,17 +242,8 @@ class Config(QWidget):
 
         day_s_date = self.start_date.date().toPython()
         day_e_date = self.end_date.date().toPython()
-        week_s_date = day_s_date - datetime.timedelta(days=365 * 5)
-        week_e_date = day_e_date
-        month_s_date = day_s_date - datetime.timedelta(days=365 * 21)
-        month_e_date = day_e_date
-
         self.day_s_date = day_s_date.strftime('%Y-%m-%d')
         self.day_e_date = day_e_date.strftime('%Y-%m-%d')
-        self.week_s_date = week_s_date.strftime('%Y-%m-%d')
-        self.week_e_date = week_e_date.strftime('%Y-%m-%d')
-        self.month_s_date = month_s_date.strftime('%Y-%m-%d')
-        self.month_e_date = month_e_date.strftime('%Y-%m-%d')
 
     def on_about(self):
         about = About(self)
