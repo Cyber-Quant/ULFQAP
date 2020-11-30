@@ -21,7 +21,6 @@ class Plots(QWidget):
 
         self.current_kline_code = None
         self.current_indicatrix_name = None
-        self.current_kline_period = 'd'
 
         self.kline_data = []
         self.k_v_line = pg.InfiniteLine(angle=90, movable=False)
@@ -153,6 +152,8 @@ class Plots(QWidget):
                 'high': high[i],
                 'low': low[i],
                 'volume': volume[i],
+                'ma_price': ma_price[i],
+                'ma_volume': ma_volume[i],
                 'dif': dif[i],
                 'dea': dea[i],
                 'macd': macd[i],
@@ -168,121 +169,156 @@ class Plots(QWidget):
 
     def _render_all_plots(self):
         self.k_plt.plotItem.clear()
-        uni_index = []
 
-        k_data = []
-        lows = []
-        highs = []
-        k_axis = []
+        if self.current_kline_period == '1':
+            self.vol_plt.plotItem.clear()
+            self.kdj_plt.plotItem.clear()
+            self.macd_plt.plotItem.clear()
+            self.rsi_plt.plotItem.clear()
+            self.wr_plt.plotItem.clear()
 
-        volumes = []
+            prices = []
+            volumes = []
+            for item in self.kline_data:
+                prices.append(item['close'])
+                volumes.append(item['volume'])
+            y_min = min(prices)
+            y_max = max(prices)
+            axis = zip(range(len(self.times)), self.times)
+            self.k_plt.getAxis('bottom').setTicks([axis])
+            self.k_plt.plot(prices, pen='y')
+            self.k_plt.showGrid(True, True)
+            self.k_plt.setYRange(y_min, y_max)
+            self.k_plt.addItem(self.k_v_line, ignoreBounds=True)
+            self.k_plt.addItem(self.k_h_line, ignoreBounds=True)
+            self.k_plt.addItem(self.info_label)
+        else:
+            uni_index = []
 
-        difs = []
-        deas = []
-        red_macds = []
-        green_macds = []
-        red_macds_index = []
-        green_macds_index = []
+            k_data = []
+            lows = []
+            highs = []
+            k_axis = []
 
-        k = []
-        d = []
-        j = []
+            volumes = []
 
-        slow_rsis = []
-        fast_rsis = []
+            difs = []
+            deas = []
+            red_macds = []
+            green_macds = []
+            red_macds_index = []
+            green_macds_index = []
 
-        wrs = []
+            k = []
+            d = []
+            j = []
 
-        for item in self.kline_data:
-            uni_index.append(item['id'])
+            slow_rsis = []
+            fast_rsis = []
 
-            (i, _open, close, high, low) = (
-                item['id'], item['open'], item['close'], item['high'],
-                item['low'])
-            k_data.append((i, _open, close, high, low))
-            lows.append(item['low'])
-            highs.append(item['high'])
-            k_axis.append(item['date'])
+            wrs = []
 
-            volumes.append(item['volume'])
+            for item in self.kline_data:
+                uni_index.append(item['id'])
 
-            difs.append(item['dif'])
-            deas.append(item['dea'])
-            if item['macd'] >= 0:
-                red_macds.append(item['macd'])
-                red_macds_index.append(item['id'])
-            else:
-                green_macds.append(item['macd'])
-                green_macds_index.append(item['id'])
+                (i, _open, close, high, low) = (
+                    item['id'], item['open'], item['close'], item['high'],
+                    item['low'])
+                k_data.append((i, _open, close, high, low))
+                lows.append(item['low'])
+                highs.append(item['high'])
+                k_axis.append(item['date'])
 
-            k.append(item['k'])
-            d.append(item['d'])
-            j.append(item['j'])
+                volumes.append(item['volume'])
 
-            slow_rsis.append(item['slow_rsi'])
-            fast_rsis.append(item['fast_rsi'])
+                difs.append(item['dif'])
+                deas.append(item['dea'])
+                if item['macd'] >= 0:
+                    red_macds.append(item['macd'])
+                    red_macds_index.append(item['id'])
+                else:
+                    green_macds.append(item['macd'])
+                    green_macds_index.append(item['id'])
 
-            wrs.append(item['wr'])
+                k.append(item['k'])
+                d.append(item['d'])
+                j.append(item['j'])
 
-        axis = zip(range(len(k_axis)), k_axis)
-        item = CandlestickItem(k_data)
-        y_min = min(lows)
-        y_max = max(highs)
-        self.k_plt.getAxis('bottom').setTicks([axis])
-        self.k_plt.addItem(item)
-        self.k_plt.showGrid(True, True)
-        self.k_plt.setYRange(y_min, y_max)
-        self.k_plt.addItem(self.k_v_line, ignoreBounds=True)
-        self.k_plt.addItem(self.k_h_line, ignoreBounds=True)
-        self.k_plt.addItem(self.info_label)
+                slow_rsis.append(item['slow_rsi'])
+                fast_rsis.append(item['fast_rsi'])
 
-        uni_width = (k_data[1][0] - k_data[0][0]) / 3.0
+                wrs.append(item['wr'])
 
-        self.vol_plt.plotItem.clear()
-        volume_bar = pg.BarGraphItem(x=uni_index, height=volumes,
-                                     width=uni_width,
-                                     pen='b')
-        self.vol_plt.addItem(volume_bar)
-        self.vol_plt.addItem(self.vol_v_line, ignoreBounds=True)
-        self.vol_plt.addItem(self.vol_h_line, ignoreBounds=True)
+            if self.current_kline_period != '60':
+                ma_prices = []
+                ma_volumes = []
+                for item in self.kline_data:
+                    ma_prices.append(item['ma_price'])
+                    ma_volumes.append(item['ma_volume'])
+                self.k_plt.plot(ma_prices, pen='y')
 
-        self.macd_plt.plotItem.clear()
-        red_macd_bar = pg.BarGraphItem(x=red_macds_index, height=red_macds,
-                                       width=uni_width,
-                                       pen='r')
-        green_macd_bar = pg.BarGraphItem(x=green_macds_index,
-                                         height=green_macds,
+            axis = zip(range(len(k_axis)), k_axis)
+            item = CandlestickItem(k_data)
+            y_min = min(lows)
+            y_max = max(highs)
+            self.k_plt.getAxis('bottom').setTicks([axis])
+            self.k_plt.addItem(item)
+            self.k_plt.showGrid(True, True)
+            self.k_plt.setYRange(y_min, y_max)
+            self.k_plt.addItem(self.k_v_line, ignoreBounds=True)
+            self.k_plt.addItem(self.k_h_line, ignoreBounds=True)
+            self.k_plt.addItem(self.info_label)
+
+            uni_width = (k_data[1][0] - k_data[0][0]) / 3.0
+
+            self.vol_plt.plotItem.clear()
+            volume_bar = pg.BarGraphItem(x=uni_index, height=volumes,
                                          width=uni_width,
-                                         pen='g')
-        self.macd_plt.addItem(red_macd_bar)
-        self.macd_plt.addItem(green_macd_bar)
-        self.macd_plt.plot(difs, pen='w')
-        self.macd_plt.plot(deas, pen='y')
-        self.macd_plt.addItem(self.macd_v_line, ignoreBounds=True)
-        self.macd_plt.addItem(self.macd_h_line, ignoreBounds=True)
+                                         pen='b')
+            self.vol_plt.addItem(volume_bar)
+            self.vol_plt.addItem(self.vol_v_line, ignoreBounds=True)
+            self.vol_plt.addItem(self.vol_h_line, ignoreBounds=True)
 
-        self.kdj_plt.plotItem.clear()
-        self.kdj_plt.plot(k, pen='r')
-        self.kdj_plt.plot(d, pen='b')
-        self.kdj_plt.plot(j, pen='y')
-        self.kdj_plt.addItem(self.kdj_v_line, ignoreBounds=True)
-        self.kdj_plt.addItem(self.kdj_h_line, ignoreBounds=True)
+            self.macd_plt.plotItem.clear()
+            red_macd_bar = pg.BarGraphItem(x=red_macds_index, height=red_macds,
+                                           width=uni_width,
+                                           pen='r')
+            green_macd_bar = pg.BarGraphItem(x=green_macds_index,
+                                             height=green_macds,
+                                             width=uni_width,
+                                             pen='g')
+            self.macd_plt.addItem(red_macd_bar)
+            self.macd_plt.addItem(green_macd_bar)
+            self.macd_plt.plot(difs, pen='w')
+            self.macd_plt.plot(deas, pen='y')
+            self.macd_plt.addItem(self.macd_v_line, ignoreBounds=True)
+            self.macd_plt.addItem(self.macd_h_line, ignoreBounds=True)
 
-        self.rsi_plt.plotItem.clear()
-        self.rsi_plt.plot(slow_rsis, pen='b')
-        self.rsi_plt.plot(fast_rsis, pen='y')
-        self.rsi_plt.addItem(self.rsi_v_line, ignoreBounds=True)
-        self.rsi_plt.addItem(self.rsi_h_line, ignoreBounds=True)
+            self.kdj_plt.plotItem.clear()
+            self.kdj_plt.plot(k, pen='r')
+            self.kdj_plt.plot(d, pen='b')
+            self.kdj_plt.plot(j, pen='y')
+            self.kdj_plt.addItem(self.kdj_v_line, ignoreBounds=True)
+            self.kdj_plt.addItem(self.kdj_h_line, ignoreBounds=True)
 
-        self.wr_plt.plotItem.clear()
-        self.wr_plt.plot(wrs, pen='w')
-        self.wr_plt.addItem(self.wr_v_line, ignoreBounds=True)
-        self.wr_plt.addItem(self.wr_h_line, ignoreBounds=True)
+            self.rsi_plt.plotItem.clear()
+            self.rsi_plt.plot(slow_rsis, pen='b')
+            self.rsi_plt.plot(fast_rsis, pen='y')
+            self.rsi_plt.addItem(self.rsi_v_line, ignoreBounds=True)
+            self.rsi_plt.addItem(self.rsi_h_line, ignoreBounds=True)
+
+            self.wr_plt.plotItem.clear()
+            self.wr_plt.plot(wrs, pen='w')
+            self.wr_plt.addItem(self.wr_v_line, ignoreBounds=True)
+            self.wr_plt.addItem(self.wr_h_line, ignoreBounds=True)
 
     def _emit_info(self, mouse_point):
         index = int(mouse_point.x())
         if -1 < index < len(self.kline_data):
-            volume = int(self.kline_data[index]['volume'] / 100)
+            if self.current_kline_period == 'd':
+                volume = int(self.kline_data[index]['volume'] / 100)
+            else:
+                volume = self.kline_data[index]['volume']
             self.info_label.setHtml(
                 "<p style='color:white'><strong>日期：{0}</strong></p>"
                 "<p style='color:white'>开：{1}</p>"
@@ -400,20 +436,25 @@ class Plots(QWidget):
                 self.current_indicatrix_name is None:
             return
 
+        closes = []
+        for item in self.kline_data:
+            closes.append(item['close'])
+
         # NEW STRATEGIES #
+        # if self.current_kline_period == 'd' or \
+        #         self.current_kline_period == 'w' or \
+        #         self.current_kline_period == 'm':
         if self.current_indicatrix_name == self.dual_ma_info.name:
             dual_ma = DualMA()
-            short_period_mas = dual_ma.calc_short_period_ma(
-                self.current_kline_code)
-            long_period_mas = dual_ma.calc_long_period_ma(
-                self.current_kline_code)
+            short_period_mas = dual_ma.calc_short_period_ma(closes)
+            long_period_mas = dual_ma.calc_long_period_ma(closes)
             data = [short_period_mas, long_period_mas]
             pen_colors = ['r', 'b']
         elif self.current_indicatrix_name == self.boll_info.name:
             boll = BOLL()
-            ups = boll.calc_batch_up(self.current_kline_code)
-            middles = boll.calc_batch_middle(self.current_kline_code)
-            downs = boll.calc_batch_down(self.current_kline_code)
+            ups = boll.calc_batch_up(closes)
+            middles = boll.calc_batch_middle(closes)
+            downs = boll.calc_batch_down(closes)
             data = [ups, middles, downs]
             pen_colors = ['r', 'w', 'b']
         else:

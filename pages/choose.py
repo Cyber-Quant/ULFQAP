@@ -14,7 +14,6 @@ from strategies.rsi import RSIChoose, RSIInfo
 from strategies.volume_increase import VolumeIncreaseChoose, VolumeIncreaseInfo
 from strategies.wr import WRChoose, WRInfo
 from utils.custom_add_dialog import CustomAddDialog
-
 from widgets.plots import Plots
 
 
@@ -31,6 +30,8 @@ class Choose(Plots):
         self.stocks_to_be_chosen = []
         self.stocks_pre_chose = []
         self.apply_strategies = []
+
+        self.current_kline_period = 'd'
 
         self.choose_thread = None
         # TODO: make strategies plugin
@@ -159,7 +160,6 @@ class Choose(Plots):
         self.btn_choose.clicked.connect(self.on_choose)
         self.btn_stop_choose.clicked.connect(self.on_stop_choose)
         self.table.customContextMenuRequested.connect(self.open_pool_ops_menu)
-
         self.table.itemSelectionChanged.connect(self.on_row_changed)
         self.kline_info_signal.connect(self.on_kline_info_changed)
 
