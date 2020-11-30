@@ -8,7 +8,7 @@ from pyqtgraph.dockarea import *
 from qtpy.QtCore import *
 from qtpy.QtWidgets import *
 
-from apis.k_charts import fetch_tencent_minute_k
+from apis.k_charts import fetch_sina_minute_k
 from conf.conf import fav_stocks_config_path, apply_strategies_config_path, \
     bundle_dir
 from strategies.boll import BOLL, BOLLInfo, BOLLWatch
@@ -353,8 +353,8 @@ class Watch(QWidget):
                 self.kline_data.append(item)
         else:
             self.kline_data = []
-            data = fetch_tencent_minute_k(self.current_kline_code,
-                                          self.current_kline_period)
+            data = fetch_sina_minute_k(self.current_kline_code,
+                                       self.current_kline_period)
             _open = []
             _close = []
             _high = []

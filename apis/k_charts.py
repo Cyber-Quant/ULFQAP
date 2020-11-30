@@ -559,7 +559,7 @@ class FetchMonthK(QThread):
         return True
 
 
-def fetch_tencent_minute_k(code, period):
+def fetch_sina_minute_k(code, period):
     code = code.replace('.', '')
     url = 'http://money.finance.sina.com.cn/quotes_service/api/' \
           'json_v2.php/CN_MarketData.getKLineData?symbol='
