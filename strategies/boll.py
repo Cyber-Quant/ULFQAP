@@ -51,9 +51,7 @@ class BOLL:
             self.rebound = False
             self.open_up = False
 
-    def _calc_batch_std(self, code):
-        date, _open, close, high, low, volume, ma_price, ma_volume = \
-            get_latest_batch_data(code, DEFAULT_K_LIMIT)
+    def _calc_batch_std(self, close):
         stds = []
         for i in range(len(close)):
             if i < self.m:
@@ -64,9 +62,7 @@ class BOLL:
         stds = _stds + stds
         return stds
 
-    def calc_batch_middle(self, code):
-        date, _open, close, high, low, volume, ma_price, ma_volume = \
-            get_latest_batch_data(code, DEFAULT_K_LIMIT)
+    def calc_batch_middle(self, close):
         middles = []
         for i in range(len(close)):
             if i < self.m:
@@ -77,18 +73,18 @@ class BOLL:
         middles = _middles + middles
         return middles
 
-    def calc_batch_down(self, code):
-        stds = self._calc_batch_std(code)
-        middles = self.calc_batch_middle(code)
+    def calc_batch_down(self, close):
+        stds = self._calc_batch_std(close)
+        middles = self.calc_batch_middle(close)
         downs = []
         for i, middle in enumerate(middles):
             down = middle - self.k * stds[i]
             downs.append(down)
         return downs
 
-    def calc_batch_up(self, code):
-        stds = self._calc_batch_std(code)
-        middles = self.calc_batch_middle(code)
+    def calc_batch_up(self, close):
+        stds = self._calc_batch_std(close)
+        middles = self.calc_batch_middle(close)
         ups = []
         for i, middle in enumerate(middles):
             up = middle + self.k * stds[i]
@@ -98,8 +94,8 @@ class BOLL:
     def backtest(self, code, init_money, fee, pass_fee, tax):
         dates, opens, closes, highs, lows, volumes, ma_price, ma_volume = \
             get_latest_batch_data(code, DEFAULT_K_LIMIT)
-        ups = self.calc_batch_up(code)
-        downs = self.calc_batch_down(code)
+        ups = self.calc_batch_up(closes)
+        downs = self.calc_batch_down(closes)
         start = self.m
         buy_prices = []
         buy_dates = []

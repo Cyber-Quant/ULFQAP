@@ -37,9 +37,7 @@ class DualMA:
             self.n = 55
             self.k = 3
 
-    def _calc_batch_ma(self, code, period):
-        date, _open, close, high, low, volume, ma_price, ma_volume = \
-            get_latest_batch_data(code, DEFAULT_K_LIMIT)
+    def _calc_batch_ma(self, close, period):
         mas = []
         for i in range(len(close)):
             if i < period - 1:
@@ -48,14 +46,14 @@ class DualMA:
             mas.append(ma)
         return mas
 
-    def calc_short_period_ma(self, code):
-        short_period_mas = self._calc_batch_ma(code, self.m)
+    def calc_short_period_ma(self, close):
+        short_period_mas = self._calc_batch_ma(close, self.m)
         _short_period_mas = [0] * self.m
         short_period_mas = _short_period_mas + short_period_mas
         return short_period_mas
 
-    def calc_long_period_ma(self, code):
-        long_period_mas = self._calc_batch_ma(code, self.n)
+    def calc_long_period_ma(self, close):
+        long_period_mas = self._calc_batch_ma(close, self.n)
         _long_period_mas = [0] * self.n
         long_period_mas = _long_period_mas + long_period_mas
         return long_period_mas
@@ -63,8 +61,8 @@ class DualMA:
     def backtest(self, code, init_money, fee, pass_fee, tax):
         dates, opens, closes, highs, lows, volumes, ma_price, ma_volume = \
             get_latest_batch_data(code, DEFAULT_K_LIMIT)
-        slow_mas = self.calc_long_period_ma(code)
-        fast_mas = self.calc_short_period_ma(code)
+        slow_mas = self.calc_long_period_ma(closes)
+        fast_mas = self.calc_short_period_ma(closes)
         if self.m > self.n:
             start = self.m
         else:
@@ -148,8 +146,10 @@ class DualMA:
                closing_index_slices, closing_price_slices
 
     def choose(self, code):
-        sma = self.calc_short_period_ma(code)[-1]
-        lma = self.calc_long_period_ma(code)[-1]
+        dates, opens, closes, highs, lows, volumes, ma_price, ma_volume = \
+            get_latest_batch_data(code, DEFAULT_K_LIMIT)
+        sma = self.calc_short_period_ma(closes)[-1]
+        lma = self.calc_long_period_ma(closes)[-1]
         if round((abs(sma - lma) / lma), 3) * 100 <= self.k:
             return True
         else:
