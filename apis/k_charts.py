@@ -604,6 +604,48 @@ def fetch_sina_minute_k(code, period):
     return k_charts
 
 
+def fetch_tencent_week_k(code):
+    code = code.replace('.', '') + '.js'
+    url = 'http://data.gtimg.cn/flashdata/hushen/latest/weekly/'
+    url = url + code
+    res = requests.get(url).text
+    res_list = res.split('\\n\\\n')
+    k_charts = []
+    for item in res_list[2:-1]:
+        item_list = item.split(' ')
+        k_chart = {
+            'date': item_list[0],
+            'open': float(item_list[1]),
+            'close': float(item_list[2]),
+            'high': float(item_list[3]),
+            'low': float(item_list[4]),
+            'volume': int(item_list[5]),
+        }
+        k_charts.append(k_chart)
+    return k_charts
+
+
+def fetch_tencent_month_k(code):
+    code = code.replace('.', '') + '.js'
+    url = 'http://data.gtimg.cn/flashdata/hushen/monthly/'
+    url = url + code
+    res = requests.get(url).text
+    res_list = res.split('\\n\\\n')
+    k_charts = []
+    for item in res_list[2:-1]:
+        item_list = item.split(' ')
+        k_chart = {
+            'date': item_list[0],
+            'open': float(item_list[1]),
+            'close': float(item_list[2]),
+            'high': float(item_list[3]),
+            'low': float(item_list[4]),
+            'volume': int(item_list[5]),
+        }
+        k_charts.append(k_chart)
+    return k_charts
+
+
 if __name__ == '__main__':
     lg = bs.login()
     if lg.error_code != '0' or lg.error_msg != 'success':

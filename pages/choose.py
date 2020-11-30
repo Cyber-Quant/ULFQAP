@@ -6,6 +6,7 @@ from qtpy.QtWidgets import *
 from qtpy.QtGui import *
 from qtpy.QtCore import *
 
+from apis.k_charts import fetch_tencent_week_k, fetch_tencent_month_k
 from conf.conf import fav_stocks_config_path, apply_strategies_config_path, \
     DEFAULT_K_LIMIT
 from db.models import AStockInfo
@@ -120,7 +121,7 @@ class Choose(QWidget):
         self.low_label = QLabel('低')
         self.low_input = QLineEdit()
         self.low_input.setDisabled(True)
-        self.volume_label = QLabel('成交量')
+        self.volume_label = QLabel('量')
         self.volume_input = QLineEdit()
         self.volume_input.setDisabled(True)
         info_g_box.addWidget(self.date_label, 0, 0)
@@ -289,17 +290,29 @@ class Choose(QWidget):
             return
 
         self.kline_data = []
-        data = get_latest_n_desc_data(code, DEFAULT_K_LIMIT,
-                                      period=self.current_kline_period)
+        if self.current_kline_period == 'd':
+            data = get_latest_n_desc_data(code, DEFAULT_K_LIMIT,
+                                          period=self.current_kline_period)
+        elif self.current_kline_period == 'w':
+            data = fetch_tencent_week_k(code)
+        elif self.current_kline_period == 'm':
+            data = fetch_tencent_month_k(code)
         _open = []
         _close = []
         _high = []
         _low = []
-        for item in data[::-1]:
-            _open.append(item.open)
-            _close.append(item.close)
-            _high.append(item.high)
-            _low.append(item.low)
+        if self.current_kline_period == 'd':
+            for item in data[::-1]:
+                _open.append(item.open)
+                _close.append(item.close)
+                _high.append(item.high)
+                _low.append(item.low)
+        else:
+            for item in data:
+                _open.append(item['open'])
+                _close.append(item['close'])
+                _high.append(item['high'])
+                _low.append(item['low'])
 
         _macd = MACD()
         macd, dif, dea = _macd.calc_macd(_close)
@@ -313,27 +326,50 @@ class Choose(QWidget):
         _wr = WR()
         wr = _wr.calc_williams(_close, _high, _low)
 
-        for i, item in enumerate(data[::-1]):
-            obj = {
-                'id': i,
-                'date': item.date.strftime('%Y-%m-%d'),
-                'code': item.code,
-                'open': item.open,
-                'close': item.close,
-                'high': item.high,
-                'low': item.low,
-                'volume': item.volume,
-                'dif': dif[i],
-                'dea': dea[i],
-                'macd': macd[i],
-                'k': k[i],
-                'd': d[i],
-                'j': j[i],
-                'slow_rsi': slow_rsi[i],
-                'fast_rsi': fast_rsi[i],
-                'wr': wr[i]
-            }
-            self.kline_data.append(obj)
+        if self.current_kline_period == 'd':
+            for i, item in enumerate(data[::-1]):
+                obj = {
+                    'id': i,
+                    'date': item.date.strftime('%Y-%m-%d'),
+                    'code': item.code,
+                    'open': item.open,
+                    'close': item.close,
+                    'high': item.high,
+                    'low': item.low,
+                    'volume': item.volume,
+                    'dif': dif[i],
+                    'dea': dea[i],
+                    'macd': macd[i],
+                    'k': k[i],
+                    'd': d[i],
+                    'j': j[i],
+                    'slow_rsi': slow_rsi[i],
+                    'fast_rsi': fast_rsi[i],
+                    'wr': wr[i]
+                }
+                self.kline_data.append(obj)
+        else:
+            for i, item in enumerate(data):
+                obj = {
+                    'id': i,
+                    'date': item['date'],
+                    'code': code,
+                    'open': item['open'],
+                    'close': item['close'],
+                    'high': item['high'],
+                    'low': item['low'],
+                    'volume': item['volume'],
+                    'dif': dif[i],
+                    'dea': dea[i],
+                    'macd': macd[i],
+                    'k': k[i],
+                    'd': d[i],
+                    'j': j[i],
+                    'slow_rsi': slow_rsi[i],
+                    'fast_rsi': fast_rsi[i],
+                    'wr': wr[i]
+                }
+                self.kline_data.append(obj)
         self._render_all_plots()
 
     def _render_all_plots(self):
@@ -455,11 +491,11 @@ class Choose(QWidget):
             volume = int(self.kline_data[index]['volume'] / 100)
             self.info_label.setHtml(
                 "<p style='color:white'><strong>日期：{0}</strong></p>"
-                "<p style='color:white'>开盘：{1}</p>"
-                "<p style='color:white'>最高：{2}</p>"
-                "<p style='color:white'>最低：{3}</p>"
-                "<p style='color:white'>收盘：{4}</p>"
-                "<p style='color:white'>成交量：{5}</p>".format(
+                "<p style='color:white'>开：{1}</p>"
+                "<p style='color:white'>高：{2}</p>"
+                "<p style='color:white'>低：{3}</p>"
+                "<p style='color:white'>收：{4}</p>"
+                "<p style='color:white'>量：{5}</p>".format(
                     self.kline_data[index]['date'],
                     self.kline_data[index]['open'],
                     self.kline_data[index]['high'],
