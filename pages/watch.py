@@ -7,7 +7,6 @@ from pyqtgraph.dockarea import *
 from qtpy.QtCore import *
 from qtpy.QtWidgets import *
 
-from apis.k_charts import fetch_tencent_k, fetch_sina_minute_k
 from conf.conf import fav_stocks_config_path, apply_strategies_config_path, \
     bundle_dir
 from strategies.common import get_latest_batch_data

@@ -21,19 +21,8 @@ class WRInfo:
         self.watch_flag = False
 
 
-# TODO: Separate common code
-# TODO: Use numpy to speedup
-class WRChoose(QThread):
-    progress_signal = Signal(int, str, str)
-
-    def __init__(self, stocks, parent=None):
-        super(WRChoose, self).__init__(parent)
-        self.codes = []
-        self.names = []
-        for stock in stocks:
-            self.codes.append(stock['code'])
-            self.names.append(stock['name'])
-
+class WR:
+    def __init__(self):
         self.config_path = strategies_config_path.joinpath('wr.json')
         if self.config_path.exists():
             with open(self.config_path, 'r', encoding='utf-8') as f:
@@ -46,54 +35,115 @@ class WRChoose(QThread):
             self.n = 85
             self.k = 15
 
-    def _get_batch_data(self, code):
-        date, _open, close, high, low, volume, ma_price, ma_volume = \
-            get_latest_batch_data(code, DEFAULT_K_LIMIT)
-        return close, high, low
-
-    def _calc_williams(self, code):
-        closes, highs, lows = self._get_batch_data(code)
-        williams = []
-        for i, data in enumerate(closes):
-            if i < self.m:
+    def calc_williams(self, close, high, low):
+        period = self.m
+        wr = []
+        for i, data in enumerate(close):
+            if i < period:
                 continue
-            high_slice = highs[i - self.m + 1:i + 1]
-            low_slice = lows[i - self.m + 1:i + 1]
-            a = max(high_slice) - closes[i]
+            high_slice = high[i - period + 1:i + 1]
+            low_slice = low[i - period + 1:i + 1]
+            a = max(high_slice) - close[i]
             b = max(high_slice) - min(low_slice)
             # When the stock is suspend, the ohlc keep the same value
             # Save the same prices
             if b == 0:
                 b = 0.01
-            williams.append(a / b * 100)
-        _williams = [0] * self.m
-        williams = _williams + williams
-        return williams
+            wr.append(a / b * 100)
+        empty_fill = [0] * period
+        wr = empty_fill + wr
+        return wr
+
+    def backtest(self, code, init_money, fee, pass_fee, tax):
+        dates, opens, closes, highs, lows, volumes, ma_price, ma_volume = \
+            get_latest_batch_data(code, DEFAULT_K_LIMIT)
+        wrs = self.calc_williams(closes, highs, lows)
+        start = self.m
+        buy_prices = []
+        buy_dates = []
+        buy_index = []
+        sell_prices = []
+        sell_dates = []
+        sell_index = []
+        drawdowns = []
+        old_state = 's'
+        for i in range(len(closes)):
+            if i < start:
+                continue
+            if wrs[i] > self.n:
+                state = 'b'
+                if state != old_state:
+                    buy_prices.append(closes[i])
+                    buy_dates.append(dates[i])
+                    buy_index.append(i)
+                    old_state = state
+            elif wrs[i] < self.k:
+                state = 's'
+                if state != old_state:
+                    sell_prices.append(closes[i])
+                    sell_dates.append(dates[i])
+                    sell_index.append(i)
+                    old_state = state
+        if len(sell_prices) < len(buy_prices):
+            sell_prices.append(closes[-1])
+            sell_dates.append(dates[-1])
+            sell_index.append(len(buy_prices))
+
+        money = init_money
+        opening_index_slices = []
+        opening_price_slices = []
+        closing_index_slices = []
+        closing_price_slices = []
+        for i in range(len(buy_prices)):
+            hands = int(money * (1 - fee) / buy_prices[i] / 100)
+            left_money = money - hands * buy_prices[i] * 100
+            sell_money = hands * sell_prices[i] * (1 - tax - pass_fee) * 100
+            money = sell_money + left_money
+
+            old_close = buy_prices[i]
+            for close in closes[buy_index[i]:sell_index[i] + 1]:
+                if close < old_close:
+                    old_close = close
+            drawdown = buy_prices[i] - old_close / buy_prices[i] * 100
+            drawdowns.append(drawdown)
+            if i == 0:
+                first_start = 0
+            else:
+                first_start = sell_index[i - 1]
+            closing_index = []
+            closing_price = []
+            for idx in range(first_start, buy_index[i] + 1):
+                closing_index.append(idx)
+                closing_price.append(closes[idx])
+            closing_index_slices.append(closing_index)
+            closing_price_slices.append(closing_price)
+            opening_index = []
+            opening_price = []
+            for idx in range(buy_index[i], sell_index[i] + 1):
+                opening_index.append(idx)
+                opening_price.append(closes[idx])
+            if opening_index:
+                opening_index_slices.append(opening_index)
+                opening_price_slices.append(opening_price)
+
+        _return = (money - init_money) / init_money * 100
+        max_drawdown = max(drawdowns)
+
+        return _return, max_drawdown, \
+               opens, closes, highs, lows, volumes, dates, \
+               opening_index_slices, opening_price_slices, \
+               closing_index_slices, closing_price_slices
 
     def choose(self, code):
-        williams = self._calc_williams(code)
-        if williams[-1] > self.n:
+        date, _open, close, high, low, volume, ma_price, ma_volume = \
+            get_latest_batch_data(code, DEFAULT_K_LIMIT)
+        wr = self.calc_williams(close, high, low)
+        if wr[-1] > self.n:
             return True
         else:
             return False
 
-    def run(self):
-        step = int(len(self.codes) / 100) + 1
-        i = 0
-        j = 0
-        for code in self.codes:
-            i += 1
-            ret = self.choose(code)
-            if not ret:
-                continue
-            self.progress_signal.emit(j, code, self.names[i - 1])
-            if i % step == 0:
-                j += 1
-        self.progress_signal.emit(100, '', '')
 
-
-# TODO: Separate common code
-# TODO: Use numpy to speedup
 class WRBacktest(QThread):
     progress_signal = Signal(int, str, str, float, float)
 
@@ -109,122 +159,9 @@ class WRBacktest(QThread):
             self.codes.append(stock['code'])
             self.names.append(stock['name'])
 
-        self.config_path = strategies_config_path.joinpath('wr.json')
-        if self.config_path.exists():
-            with open(self.config_path, 'r', encoding='utf-8') as f:
-                data = json.load(f)
-                self.m = data['m']
-                self.n = data['n']
-                self.k = data['k']
-        else:
-            self.m = 30
-            self.n = 85
-            self.k = 15
-
-    def calc_williams(self, closes, highs, lows):
-        williams = []
-        for i, data in enumerate(closes):
-            if i < self.m:
-                continue
-            high_slice = highs[i - self.m + 1:i + 1]
-            low_slice = lows[i - self.m + 1:i + 1]
-            a = max(high_slice) - closes[i]
-            b = max(high_slice) - min(low_slice)
-            # When the stock is suspend, the ohlc keep the same value
-            # Save the same prices
-            if b == 0:
-                b = 0.01
-            williams.append(a / b * 100)
-        _williams = [0] * self.m
-        williams = _williams + williams
-        return williams
-
-    def _get_batch_data(self, code):
-        date, _open, close, high, low, volume, ma_price, ma_volume = \
-            get_latest_batch_data(code, DEFAULT_K_LIMIT)
-        return _open, close, high, low, volume, date
-
-    def backtest(self, code, init_money, fee, pass_fee, tax):
-        opens, closes, highs, lows, volumes, dates = \
-            self._get_batch_data(code)
-        wrs = self.calc_williams(closes, highs, lows)
-        start = self.m
-        buy_prices = []
-        buy_dates = []
-        buy_index = []
-        sell_prices = []
-        sell_dates = []
-        sell_index = []
-        drawdowns = []
-        old_state = 's'
-        for i in range(len(closes)):
-            if i < start:
-                continue
-            if wrs[i] > self.n:
-                state = 'b'
-                if state != old_state:
-                    buy_prices.append(closes[i])
-                    buy_dates.append(dates[i])
-                    buy_index.append(i)
-                    old_state = state
-            elif wrs[i] < self.k:
-                state = 's'
-                if state != old_state:
-                    sell_prices.append(closes[i])
-                    sell_dates.append(dates[i])
-                    sell_index.append(i)
-                    old_state = state
-        if len(sell_prices) < len(buy_prices):
-            sell_prices.append(closes[-1])
-            sell_dates.append(dates[-1])
-            sell_index.append(len(buy_prices))
-
-        money = init_money
-        opening_index_slices = []
-        opening_price_slices = []
-        closing_index_slices = []
-        closing_price_slices = []
-        for i in range(len(buy_prices)):
-            hands = int(money * (1 - fee) / buy_prices[i] / 100)
-            left_money = money - hands * buy_prices[i] * 100
-            sell_money = hands * sell_prices[i] * (1 - tax - pass_fee) * 100
-            money = sell_money + left_money
-
-            old_close = buy_prices[i]
-            for close in closes[buy_index[i]:sell_index[i] + 1]:
-                if close < old_close:
-                    old_close = close
-            drawdown = buy_prices[i] - old_close / buy_prices[i] * 100
-            drawdowns.append(drawdown)
-            if i == 0:
-                first_start = 0
-            else:
-                first_start = sell_index[i - 1]
-            closing_index = []
-            closing_price = []
-            for idx in range(first_start, buy_index[i] + 1):
-                closing_index.append(idx)
-                closing_price.append(closes[idx])
-            closing_index_slices.append(closing_index)
-            closing_price_slices.append(closing_price)
-            opening_index = []
-            opening_price = []
-            for idx in range(buy_index[i], sell_index[i] + 1):
-                opening_index.append(idx)
-                opening_price.append(closes[idx])
-            if opening_index:
-                opening_index_slices.append(opening_index)
-                opening_price_slices.append(opening_price)
-
-        _return = (money - init_money) / init_money * 100
-        max_drawdown = max(drawdowns)
-
-        return _return, max_drawdown, \
-               opens, closes, highs, lows, volumes, dates, \
-               opening_index_slices, opening_price_slices, \
-               closing_index_slices, closing_price_slices
-
     def run(self):
+        wr = WR()
+
         step = int(len(self.codes) / 100) + 1
         i = 0
         j = 0
@@ -234,8 +171,8 @@ class WRBacktest(QThread):
             opens, closes, highs, lows, volumes, dates, \
             opening_index_slices, opening_price_slices, \
             closing_index_slices, closing_price_slices = \
-                self.backtest(code, self.init_money, self.fee, self.pass_fee,
-                              self.tax)
+                wr.backtest(code, self.init_money, self.fee, self.pass_fee,
+                            self.tax)
             self.progress_signal.emit(j, code, self.names[i - 1],
                                       _return, max_drawdown)
             if i % step == 0:
@@ -243,124 +180,32 @@ class WRBacktest(QThread):
         self.progress_signal.emit(100, '', '', 0.0, 0.0)
 
 
-# TODO: Separate common code
-# TODO: Use numpy to speedup
-class WR:
-    def __init__(self):
-        self.config_path = strategies_config_path.joinpath('wr.json')
-        if self.config_path.exists():
-            with open(self.config_path, 'r', encoding='utf-8') as f:
-                data = json.load(f)
-                self.m = data['m']
-                self.n = data['n']
-                self.k = data['k']
-        else:
-            self.m = 30
-            self.n = 85
-            self.k = 15
+class WRChoose(QThread):
+    progress_signal = Signal(int, str, str)
 
-    def calc_williams(self, closes, highs, lows):
-        williams = []
-        for i, data in enumerate(closes):
-            if i < self.m:
+    def __init__(self, stocks, parent=None):
+        super(WRChoose, self).__init__(parent)
+        self.codes = []
+        self.names = []
+        for stock in stocks:
+            self.codes.append(stock['code'])
+            self.names.append(stock['name'])
+
+    def run(self):
+        wr = WR()
+
+        step = int(len(self.codes) / 100) + 1
+        i = 0
+        j = 0
+        for code in self.codes:
+            i += 1
+            ret = wr.choose(code)
+            if not ret:
                 continue
-            high_slice = highs[i - self.m + 1:i + 1]
-            low_slice = lows[i - self.m + 1:i + 1]
-            a = max(high_slice) - closes[i]
-            b = max(high_slice) - min(low_slice)
-            # When the stock is suspend, the ohlc keep the same value
-            # Save the same prices
-            if b == 0:
-                b = 0.01
-            williams.append(a / b * 100)
-        _williams = [0] * self.m
-        williams = _williams + williams
-        return williams
-
-    def _get_batch_data(self, code):
-        date, _open, close, high, low, volume, ma_price, ma_volume = \
-            get_latest_batch_data(code, DEFAULT_K_LIMIT)
-        return _open, close, high, low, volume, date
-
-    def backtest(self, code, init_money, fee, pass_fee, tax):
-        opens, closes, highs, lows, volumes, dates = \
-            self._get_batch_data(code)
-        wrs = self.calc_williams(closes, highs, lows)
-        start = self.m
-        buy_prices = []
-        buy_dates = []
-        buy_index = []
-        sell_prices = []
-        sell_dates = []
-        sell_index = []
-        drawdowns = []
-        old_state = 's'
-        for i in range(len(closes)):
-            if i < start:
-                continue
-            if wrs[i] > self.n:
-                state = 'b'
-                if state != old_state:
-                    buy_prices.append(closes[i])
-                    buy_dates.append(dates[i])
-                    buy_index.append(i)
-                    old_state = state
-            elif wrs[i] < self.k:
-                state = 's'
-                if state != old_state:
-                    sell_prices.append(closes[i])
-                    sell_dates.append(dates[i])
-                    sell_index.append(i)
-                    old_state = state
-        if len(sell_prices) < len(buy_prices):
-            sell_prices.append(closes[-1])
-            sell_dates.append(dates[-1])
-            sell_index.append(len(buy_prices))
-
-        money = init_money
-        opening_index_slices = []
-        opening_price_slices = []
-        closing_index_slices = []
-        closing_price_slices = []
-        for i in range(len(buy_prices)):
-            hands = int(money * (1 - fee) / buy_prices[i] / 100)
-            left_money = money - hands * buy_prices[i] * 100
-            sell_money = hands * sell_prices[i] * (1 - tax - pass_fee) * 100
-            money = sell_money + left_money
-
-            old_close = buy_prices[i]
-            for close in closes[buy_index[i]:sell_index[i] + 1]:
-                if close < old_close:
-                    old_close = close
-            drawdown = buy_prices[i] - old_close / buy_prices[i] * 100
-            drawdowns.append(drawdown)
-            if i == 0:
-                first_start = 0
-            else:
-                first_start = sell_index[i - 1]
-            closing_index = []
-            closing_price = []
-            for idx in range(first_start, buy_index[i] + 1):
-                closing_index.append(idx)
-                closing_price.append(closes[idx])
-            closing_index_slices.append(closing_index)
-            closing_price_slices.append(closing_price)
-            opening_index = []
-            opening_price = []
-            for idx in range(buy_index[i], sell_index[i] + 1):
-                opening_index.append(idx)
-                opening_price.append(closes[idx])
-            if opening_index:
-                opening_index_slices.append(opening_index)
-                opening_price_slices.append(opening_price)
-
-        _return = (money - init_money) / init_money * 100
-        max_drawdown = max(drawdowns)
-
-        return _return, max_drawdown, \
-               opens, closes, highs, lows, volumes, dates, \
-               opening_index_slices, opening_price_slices, \
-               closing_index_slices, closing_price_slices
+            self.progress_signal.emit(j, code, self.names[i - 1])
+            if i % step == 0:
+                j += 1
+        self.progress_signal.emit(100, '', '')
 
 
 # TODO: line color, different usage of this strategy
