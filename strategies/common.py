@@ -24,19 +24,8 @@ def get_latest_batch_data(code, limit, period='d'):
             volume.append(row.volume)
             ma_price.append(0)
             ma_volume.append(0)
-    elif period == 'w' or period == 'm':
+    elif period == '1' or period == 'w' or period == 'm':
         data = fetch_tencent_k(code, period)
-        for item in data:
-            date.append(item['date'])
-            _open.append(item['open'])
-            close.append(item['close'])
-            high.append(item['high'])
-            low.append(item['low'])
-            volume.append(item['volume'])
-            ma_price.append(0)
-            ma_volume.append(0)
-    elif period == '1':
-        data = fetch_tencent_k(code, '1')
         for item in data:
             date.append(item['date'])
             _open.append(item['open'])

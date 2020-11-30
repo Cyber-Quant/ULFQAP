@@ -307,14 +307,28 @@ def fetch_tencent_k(code, period):
     for item in res_list[2:-1]:
         item_list = item.split(' ')
         if period == '1':
-            date = item_list[0]
+            now = datetime.datetime.now()
+            year = now.year
+            month = now.month
+            day = now.day
+            _date = datetime.datetime(year, month, day,
+                                      int(item_list[0][:2], 10),
+                                      int(item_list[0][2:], 10),
+                                      0, 0)
+            data_str = _date.strftime('%Y-%m-%d %H:%M:%S')
+            date = data_str
             _open = float(item_list[1])
             close = float(item_list[1])
             high = float(item_list[1])
             low = float(item_list[1])
             vol = int(item_list[2])
         else:
-            date = item_list[0]
+            year = int('20' + item_list[0][:2], 10)
+            month = int(item_list[0][2:4], 10)
+            day = int(item_list[0][4:], 10)
+            _date = datetime.datetime(year, month, day, 0, 0, 0, 0)
+            data_str = _date.strftime('%Y-%m-%d')
+            date = data_str
             _open = float(item_list[1])
             close = float(item_list[2])
             high = float(item_list[3])

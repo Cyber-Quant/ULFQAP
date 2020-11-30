@@ -109,18 +109,20 @@ class Backtest(QWidget):
 
         result_h_box = QHBoxLayout()
         self.table = QTableWidget()
-        headers = ['', '收益率', '最大回撤']
+        headers = ['代码', '股票', '收益率', '最大回撤']
         self.table.setColumnCount(len(headers))
         self.table.setHorizontalHeaderLabels(headers)
         self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.table.verticalHeader().setVisible(False)
+        self.table.horizontalHeader().setSectionResizeMode(
+            QHeaderView.ResizeToContents)
         self.table.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.table.setSelectionMode(QAbstractItemView.ExtendedSelection)
         self.table.setSortingEnabled(True)
         self.table.setContextMenuPolicy(Qt.CustomContextMenu)
         self.table.setMinimumWidth(220)
-        self.table.setMaximumWidth(250)
+        self.table.setMaximumWidth(300)
 
         left_v_box = QVBoxLayout()
         left_v_box.addWidget(self.table)
@@ -171,9 +173,10 @@ class Backtest(QWidget):
             max_drawdown_str = str(round(max_drawdown, 2))
             row = self.table.rowCount()
             self.table.insertRow(row)
-            self.table.setItem(row, 0, QTableWidgetItem(name))
-            self.table.setItem(row, 1, QTableWidgetItem(return_str))
-            self.table.setItem(row, 2, QTableWidgetItem(max_drawdown_str))
+            self.table.setItem(row, 0, QTableWidgetItem(code))
+            self.table.setItem(row, 1, QTableWidgetItem(name))
+            self.table.setItem(row, 2, QTableWidgetItem(return_str))
+            self.table.setItem(row, 3, QTableWidgetItem(max_drawdown_str))
 
     def on_option_change(self):
         check = self.sender()
@@ -334,7 +337,7 @@ class Backtest(QWidget):
         if self.k_plt.sceneBoundingRect().contains(pos):
             mouse_point = self.k_plt.plotItem.vb.mapSceneToView(pos)
             index = int(mouse_point.x())
-            if -1 < index < len(self.closes):
+            if self.closes is not None and -1 < index < len(self.closes):
                 self.info_label.setHtml(
                     "<p style='color:white'><strong>日期：{0}</strong></p>"
                     "<p style='color:white'>开盘：{1}</p>"
