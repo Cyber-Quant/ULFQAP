@@ -623,7 +623,7 @@ class Watch(QWidget):
                 self.info_label.setHtml(
                     "<p style='color:white'><strong>日期：{0}</strong></p>"
                     "<p style='color:white'>价格：{1}</p>"
-                    "<p style='color:white'>成交量：{2}</p>".format(
+                    "<p style='color:white'>量：{2}</p>".format(
                         self.kline_data[index]['time'],
                         self.kline_data[index]['price'],
                         self.kline_data[index]['volume']))
@@ -644,10 +644,10 @@ class Watch(QWidget):
                         self.kline_data[index]['high'],
                         self.kline_data[index]['low'],
                         self.kline_data[index]['volume']))
+                self.kline_info_signal.emit(self.kline_data[index]['date'],
+                                            self.kline_data[index]['close'],
+                                            self.kline_data[index]['volume'])
             self.info_label.setPos(mouse_point.x(), mouse_point.y())
-            self.kline_info_signal.emit(self.kline_data[index]['date'],
-                                        self.kline_data[index]['close'],
-                                        self.kline_data[index]['volume'])
 
     def on_kline_info_changed(self, _time, price, volume):
         self.time_input.setText(_time)
