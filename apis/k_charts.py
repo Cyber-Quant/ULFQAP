@@ -8,7 +8,7 @@ from qtpy.QtCore import *
 from apis.stock_info import AStockInfo, fetch_all_code, \
     reset_stock_info, fetch_last_trading_day, \
     fetch_stock_info
-from conf.conf import DEFAULT_K_LIMIT
+from conf.conf import DEFAULT_K_LIMIT, FIRST_DAY
 from db.models import AStockDayLine
 from db.ops import create_table, drop_table
 
@@ -38,28 +38,19 @@ def _fetch_day_line_data(code, start_date, end_date):
     return 0, data_list
 
 
-# TODO: Using asc()/desc().get() to reduce SQL query.
-def fetch_day_line_data(code, start_date, end_date):
+def fetch_day_line_data(code, end_date):
     charts = AStockDayLine.select().where(AStockDayLine.code == code).order_by(
-        AStockDayLine.date.asc())
+        AStockDayLine.date.desc())
     if charts.count() == 0:
-        day_ret, day_data = _fetch_day_line_data(code, start_date, end_date)
+        day_ret, day_data = _fetch_day_line_data(code, FIRST_DAY, end_date)
         if day_ret != 0:
             return -1, day_data
         else:
             return 0, day_data
 
     day_data_list = []
-    if datetime.datetime.strptime(start_date, '%Y-%m-%d') < charts[0].date:
-        new_end_date = charts[0].date + datetime.timedelta(-1)
-        new_end_date_str = new_end_date.strftime('%Y-%m-%d')
-        day_ret, day_older_data = _fetch_day_line_data(code, start_date,
-                                                       new_end_date_str)
-        if day_ret != 0:
-            return -1, day_older_data
-        day_data_list = day_data_list + day_older_data
-    if datetime.datetime.strptime(end_date, '%Y-%m-%d') > charts[-1].date:
-        new_start_date = charts[-1].date + datetime.timedelta(1)
+    if datetime.datetime.strptime(end_date, '%Y-%m-%d') > charts[0].date:
+        new_start_date = charts[0].date + datetime.timedelta(1)
         new_start_date_str = new_start_date.strftime('%Y-%m-%d')
         day_ret, day_newer_data = _fetch_day_line_data(code, new_start_date_str,
                                                        end_date)
@@ -238,9 +229,8 @@ class FetchDayK(QThread):
     sig_fetch_day_k_done = Signal()
     err_signal = Signal(str)
 
-    def __init__(self, s_date, e_date, code_list, parent=None):
+    def __init__(self, e_date, code_list, parent=None):
         super(FetchDayK, self).__init__(parent)
-        self.s_date = s_date
         self.e_date = e_date
         self.stock_code_list = code_list
 
@@ -257,7 +247,7 @@ class FetchDayK(QThread):
         j = 0
         for code in self.stock_code_list:
             i += 1
-            ret, data = fetch_day_line_data(code, self.s_date, self.e_date)
+            ret, data = fetch_day_line_data(code, self.e_date)
             if ret != 0:
                 self.err_signal.emit(data)
                 return False

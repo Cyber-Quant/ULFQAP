@@ -2,7 +2,8 @@ import baostock as bs
 import datetime
 import json
 
-from conf.conf import global_config_path, DAY_K_READY_HOUR, DAY_K_READY_MINUTE
+from conf.conf import global_config_path, DAY_K_READY_HOUR, \
+    DAY_K_READY_MINUTE, FIRST_DAY
 from db.models import AStockInfo
 from db.ops import create_table, drop_table
 
@@ -21,11 +22,11 @@ def save_last_updated_date(new_trading_day, flag):
             if key in data:
                 saved_date = data[key]
             else:
-                saved_date = '1970-01-01'
+                saved_date = FIRST_DAY
             new_date = datetime.datetime.strptime(new_trading_day, '%Y-%m-%d')
             old_date = datetime.datetime.strptime(saved_date, '%Y-%m-%d')
-            if new_trading_day == '1970-01-01':
-                data[key] = '1970-01-01'
+            if new_trading_day == FIRST_DAY:
+                data[key] = FIRST_DAY
             elif old_date >= new_date:
                 data[key] = saved_date
             else:
@@ -36,7 +37,7 @@ def save_last_updated_date(new_trading_day, flag):
 
 
 def reset_last_updated_date():
-    date = '1970-01-01'
+    date = FIRST_DAY
     save_last_updated_date(date, 'i')
     save_last_updated_date(date, 'd')
 
@@ -86,14 +87,14 @@ def get_last_updated_date(flag):
         key = 'day_k_update_date'
 
     if not global_config_path.exists():
-        return '1970-01-01'
+        return FIRST_DAY
     else:
         with open(global_config_path, 'r', encoding='utf-8') as f:
             data = json.load(f)
             if key in data:
                 stored_date = data[key]
             else:
-                stored_date = '1970-01-01'
+                stored_date = FIRST_DAY
         return stored_date
 
 
