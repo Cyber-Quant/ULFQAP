@@ -124,6 +124,10 @@ def store_day_line_data(day_data_list):
             pbMRQ = 0.0
         else:
             pbMRQ = float(day_data[16])
+        if day_data[17] == '':
+            is_st = 0
+        else:
+            is_st = int(day_data[17])
         record = {
             'date': datetime.datetime.strptime(day_data[0], '%Y-%m-%d'),
             'code': day_data[1],
@@ -142,7 +146,7 @@ def store_day_line_data(day_data_list):
             'psTTM': psTTM,
             'pcf_ncfTTM': pcf_ncfTTM,
             'pbMRQ': pbMRQ,
-            'is_st': int(day_data[17])
+            'is_st': is_st
         }
         day_records.append(record)
 
