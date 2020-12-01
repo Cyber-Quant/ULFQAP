@@ -1,10 +1,11 @@
+import datetime
 import json
 
 from qtpy.QtWidgets import *
 from qtpy.QtGui import *
 from qtpy.QtCore import *
 
-from conf.conf import strategies_config_path, DEFAULT_K_LIMIT
+from conf.conf import strategies_config_path
 from strategies.common import get_latest_batch_data
 
 
@@ -75,9 +76,9 @@ class RSI:
         slow_rsi = self._calc_rsi(closes, self.n)
         return fast_rsi, slow_rsi
 
-    def backtest(self, code, init_money, fee, pass_fee, tax):
+    def backtest(self, code, s_date, e_date, init_money, fee, pass_fee, tax):
         dates, opens, closes, highs, lows, volumes, ma_price, ma_volume = \
-            get_latest_batch_data(code, DEFAULT_K_LIMIT)
+            get_latest_batch_data(code, s_date=s_date, e_date=e_date)
         fast_rsi = self._calc_rsi(closes, self.m)
         slow_rsi = self._calc_rsi(closes, self.n)
         if self.m > self.n:
@@ -166,8 +167,10 @@ class RSI:
                closing_index_slices, closing_price_slices
 
     def choose(self, code):
-        fast_rsi = self._calc_rsi(code, self.m)
-        slow_rsi = self._calc_rsi(code, self.n)
+        dates, opens, closes, highs, lows, volumes, ma_price, ma_volume = \
+            get_latest_batch_data(code)
+        fast_rsi = self._calc_rsi(closes, self.m)
+        slow_rsi = self._calc_rsi(closes, self.n)
         if (slow_rsi[-1] < 50 and fast_rsi[-1] < 50) and \
                 (fast_rsi[-1] >= slow_rsi[-1] and fast_rsi[-2] < slow_rsi[-2]):
             return True
@@ -178,10 +181,13 @@ class RSI:
 class RSIBacktest(QThread):
     progress_signal = Signal(int, str, str, float, float)
 
-    def __init__(self, stocks, init_money, fee, pass_fee, tax, parent=None):
+    def __init__(self, stocks, s_date, e_date, init_money, fee, pass_fee, tax,
+                 parent=None):
         super(RSIBacktest, self).__init__(parent)
         self.codes = []
         self.names = []
+        self.s_date = datetime.datetime.strptime(s_date, '%Y-%m-%d')
+        self.e_date = datetime.datetime.strptime(e_date, '%Y-%m-%d')
         self.init_money = init_money
         self.fee = fee
         self.pass_fee = pass_fee
@@ -202,8 +208,8 @@ class RSIBacktest(QThread):
             opens, closes, highs, lows, volumes, dates, \
             opening_index_slices, opening_price_slices, \
             closing_index_slices, closing_price_slices = \
-                rsi.backtest(code, self.init_money, self.fee, self.pass_fee,
-                             self.tax)
+                rsi.backtest(code, s_date, e_date, self.init_money,
+                             self.fee, self.pass_fee, self.tax)
             self.progress_signal.emit(j, code, self.names[i - 1],
                                       _return, max_drawdown)
             if i % step == 0:

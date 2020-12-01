@@ -3,7 +3,6 @@ import pyqtgraph as pg
 from pyqtgraph.dockarea import *
 from qtpy.QtWidgets import *
 
-from conf.conf import DEFAULT_K_LIMIT
 from strategies.common import get_latest_batch_data
 from strategies.boll import BOLL
 from strategies.dual_ma import DualMA
@@ -127,8 +126,7 @@ class Plots(QWidget):
 
         self.kline_data = []
         date, _open, close, high, low, volume, ma_price, ma_volume = \
-            get_latest_batch_data(code, DEFAULT_K_LIMIT,
-                                  period=self.current_kline_period)
+            get_latest_batch_data(code, period=self.current_kline_period)
 
         _macd = MACD()
         macd, dif, dea = _macd.calc_macd(close)

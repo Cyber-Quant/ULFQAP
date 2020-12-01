@@ -7,7 +7,7 @@ from qtpy.QtGui import *
 from qtpy.QtCore import *
 
 from apis.realtime_price import fetch_sina_realtime_price
-from conf.conf import strategies_config_path, DEFAULT_K_LIMIT
+from conf.conf import strategies_config_path
 from strategies.common import get_latest_batch_data
 
 
@@ -93,7 +93,7 @@ class BOLL:
 
     def backtest(self, code, init_money, fee, pass_fee, tax):
         dates, opens, closes, highs, lows, volumes, ma_price, ma_volume = \
-            get_latest_batch_data(code, DEFAULT_K_LIMIT)
+            get_latest_batch_data(code)
         ups = self.calc_batch_up(closes)
         downs = self.calc_batch_down(closes)
         start = self.m
@@ -174,7 +174,7 @@ class BOLL:
 
     def choose(self, code):
         dates, opens, closes, highs, lows, volumes, ma_price, ma_volume = \
-            get_latest_batch_data(code, DEFAULT_K_LIMIT)
+            get_latest_batch_data(code)
         ups = self.calc_batch_up(closes)[:-self.j]
         downs = self.calc_batch_down(closes)[:-self.j]
         middles = self.calc_batch_middle(closes)[:-self.j]
@@ -290,7 +290,7 @@ class BOLLWatch(QThread):
 
     def _get_close_data(self, code):
         date, _open, close, high, low, volume, ma_price, ma_volume = \
-            get_latest_batch_data(code, self.m)
+            get_latest_batch_data(code, limit=self.m)
         return close
 
     def _calc_std(self, code):

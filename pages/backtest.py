@@ -5,7 +5,8 @@ from qtpy.QtWidgets import *
 from qtpy.QtGui import *
 from qtpy.QtCore import *
 
-from conf.conf import fav_stocks_config_path, DEFAULT_K_LIMIT
+from conf.conf import fav_stocks_config_path, FIRST_DAY_YEAR, \
+    FIRST_DAY_MONTH, FIRST_DAY_DAY
 from db.models import AStockInfo
 from strategies.boll import BOLL, BOLLBacktest, BOLLInfo
 from strategies.dual_ma import DualMA, DualMABacktest, DualMAInfo
@@ -42,9 +43,11 @@ class Backtest(QWidget):
         self.start_date = QDateTimeEdit()
         self.start_date.setCalendarPopup(True)
         self.start_date.setDisplayFormat('yyyy-MM-dd')
-        self.start_date.setMinimumDate(QDate.currentDate().addDays(-3650))
-        self.start_date.setMaximumDate(QDate.currentDate().addDays(-1))
-        self.start_date.setDate(QDate.currentDate().addDays(-365))
+        self.start_date.setMinimumDate(QDate(FIRST_DAY_YEAR, FIRST_DAY_MONTH,
+                                             FIRST_DAY_DAY))
+        self.start_date.setMaximumDate(QDate.currentDate().addDays(-365))
+        self.start_date.setDate(QDate(FIRST_DAY_YEAR, FIRST_DAY_MONTH,
+                                      FIRST_DAY_DAY))
 
         self.end_date_label = QLabel('结束日期')
         self.end_date = QDateTimeEdit()
@@ -197,11 +200,11 @@ class Backtest(QWidget):
         for i in reversed(range(rows)):
             self.table.removeRow(i)
 
+        stocks = []
         if self.backtest_option == 'fav':
             with open(fav_stocks_config_path, 'r', encoding='utf-8') as f:
                 stocks = json.load(f)
         elif self.backtest_option == 'all':
-            stocks = []
             rows = AStockInfo.select()
             for row in rows:
                 if row.type == 1:
@@ -213,6 +216,8 @@ class Backtest(QWidget):
             self.enable_all()
             return
 
+        s_date = self.start_date.date().toString('yyyy-MM-dd')
+        e_date = self.end_date.date().toString('yyyy-MM-dd')
         init_money = float(self.init_money_input.text()) * 10000
         fee = float(self.fee_input.text()) / 10000
         pass_fee = float(self.pass_fee_input.text()) / 10000
@@ -225,23 +230,29 @@ class Backtest(QWidget):
         rsi_info = RSIInfo()
         wr_info = WRInfo()
         if self.current_strategy_name == boll_info.name:
-            self.backtest_thread = BOLLBacktest(stocks, init_money, fee,
+            self.backtest_thread = BOLLBacktest(stocks, s_date, e_date,
+                                                init_money, fee,
                                                 pass_fee, tax)
         elif self.current_strategy_name == dual_ma_info.name:
-            self.backtest_thread = DualMABacktest(stocks, init_money, fee,
+            self.backtest_thread = DualMABacktest(stocks, s_date, e_date,
+                                                  init_money, fee,
                                                   pass_fee, tax)
         elif self.current_strategy_name == kdj_info.name:
-            self.backtest_thread = KDJBacktest(stocks, init_money, fee,
+            self.backtest_thread = KDJBacktest(stocks, s_date, e_date,
+                                               init_money, fee,
                                                pass_fee, tax)
         elif self.current_strategy_name == macd_info.name:
-            self.backtest_thread = MACDBacktest(stocks, init_money, fee,
+            self.backtest_thread = MACDBacktest(stocks, s_date, e_date,
+                                                init_money, fee,
                                                 pass_fee, tax)
         elif self.current_strategy_name == rsi_info.name:
-            self.backtest_thread = RSIBacktest(stocks, init_money, fee,
+            self.backtest_thread = RSIBacktest(stocks, s_date, e_date,
+                                               init_money, fee,
                                                pass_fee, tax)
         elif self.current_strategy_name == wr_info.name:
-            self.backtest_thread = WRBacktest(stocks, init_money, fee, pass_fee,
-                                              tax)
+            self.backtest_thread = WRBacktest(stocks, s_date, e_date,
+                                              init_money, fee,
+                                              pass_fee, tax)
         else:
             QMessageBox.warning(self, '警告', '该策略不支持回测，请换一个策略',
                                 QMessageBox.Ok, QMessageBox.Ok)

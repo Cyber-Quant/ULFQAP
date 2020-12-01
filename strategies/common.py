@@ -1,8 +1,10 @@
 from db.models import AStockDayLine
 from apis.k_charts import fetch_sina_minute_k, fetch_tencent_k
+from conf.conf import DEFAULT_K_LIMIT
 
 
-def get_latest_batch_data(code, limit, period='d'):
+def get_latest_batch_data(code, limit=DEFAULT_K_LIMIT, period='d',
+                          s_date=None, e_date=None):
     date = []
     _open = []
     close = []
@@ -12,9 +14,16 @@ def get_latest_batch_data(code, limit, period='d'):
     ma_price = []
     ma_volume = []
     if period == 'd':
-        rows = AStockDayLine.select().where(
-            AStockDayLine.code == code).order_by(
-            AStockDayLine.date.desc()).limit(limit)
+        if s_date is not None and e_date is not None:
+            rows = AStockDayLine.select().where(
+                AStockDayLine.code == code,
+                AStockDayLine.date >= s_date,
+                AStockDayLine.date <= e_date).order_by(
+                AStockDayLine.date.desc())
+        else:
+            rows = AStockDayLine.select().where(
+                AStockDayLine.code == code).order_by(
+                AStockDayLine.date.desc()).limit(limit)
         for row in rows[::-1]:
             date.append(row.date.strftime('%Y-%m-%d'))
             _open.append(row.open)
