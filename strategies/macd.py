@@ -6,7 +6,7 @@ from qtpy.QtGui import *
 from qtpy.QtCore import *
 
 from conf.conf import strategies_config_path
-from strategies.common import get_latest_batch_data, calc_wpct
+from strategies.common import get_latest_batch_data, calc_wpct, calc_batch_ema
 
 
 class MACDInfo:
@@ -40,19 +40,9 @@ class MACD:
             self.n = 26
             self.k = 9
 
-    def _calc_ema(self, data, period):
-        emas = data.copy()
-        for i in range(len(data)):
-            if i == 0:
-                emas[i] = data[i]
-            if i > 0:
-                emas[i] = ((period - 1) * emas[i - 1] + 2 * data[i]) / (
-                        period + 1)
-        return emas
-
     def calc_macd(self, closes):
-        fast_ema = self._calc_ema(closes, self.m)
-        slow_ema = self._calc_ema(closes, self.n)
+        fast_ema = calc_batch_ema(closes, self.m)
+        slow_ema = calc_batch_ema(closes, self.n)
         dif = []
         for i, data in enumerate(fast_ema):
             dif.append(fast_ema[i] - slow_ema[i])

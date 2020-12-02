@@ -1,3 +1,5 @@
+import numpy as np
+
 from db.models import AStockDayLine
 from apis.k_charts import fetch_sina_minute_k, fetch_tencent_k
 from conf.conf import DEFAULT_K_LIMIT
@@ -74,3 +76,24 @@ def calc_wpct(buy_prices, sell_prices):
             winning_count += 1
     wpct = winning_count / count * 100
     return wpct
+
+
+def calc_batch_ma(close, period):
+    mas = []
+    for i in range(len(close)):
+        if i < period - 1:
+            continue
+        ma = np.mean(close[i - period + 1: i + 1])
+        mas.append(ma)
+    return mas
+
+
+def calc_batch_ema(data, period):
+    emas = data.copy()
+    for i in range(len(data)):
+        if i == 0:
+            emas[i] = data[i]
+        if i > 0:
+            emas[i] = ((period - 1) * emas[i - 1] + 2 * data[i]) / (
+                    period + 1)
+    return emas
