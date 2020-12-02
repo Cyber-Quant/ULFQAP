@@ -247,6 +247,7 @@ class Nav(QWidget):
         self.stacked_window.addWidget(self.choose)
 
         self.backtest = Backtest()
+        self.backtest.fav_stock_changed_signal.connect(self.on_refresh_fav_table)
         self.stacked_window.addWidget(self.backtest)
 
         self.config = Config()

@@ -66,6 +66,8 @@ def get_latest_batch_data(code, limit=DEFAULT_K_LIMIT, period='d',
 
 def calc_wpct(buy_prices, sell_prices):
     count = len(buy_prices)
+    if count == 0:
+        return 0.0
     winning_count = 0
     for i in range(count):
         if buy_prices[i] < sell_prices[i]:

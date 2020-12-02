@@ -19,10 +19,13 @@ from strategies.wr import WR, WRBacktest, WRInfo
 
 
 class Backtest(QWidget):
+    fav_stock_changed_signal = Signal()
+
     def __init__(self, parent=None):
         super(Backtest, self).__init__(parent)
         self.setWindowTitle('回测')
 
+        self.fav_stocks = None
         self.backtest_thread = None
         self.backtest_option = 'fav'
         self.current_strategy_name = None
@@ -126,8 +129,8 @@ class Backtest(QWidget):
         self.table.setSelectionMode(QAbstractItemView.ExtendedSelection)
         self.table.setSortingEnabled(True)
         self.table.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.table.setMinimumWidth(220)
-        self.table.setMaximumWidth(350)
+        self.table.setMinimumWidth(300)
+        self.table.setMaximumWidth(400)
 
         left_v_box = QVBoxLayout()
         left_v_box.addWidget(self.table)
@@ -148,6 +151,7 @@ class Backtest(QWidget):
 
         self.btn_backtest.clicked.connect(self.on_backtest)
         self.btn_stop_backtest.clicked.connect(self.on_stop_backtest)
+        self.table.customContextMenuRequested.connect(self.open_ops_menu)
         self.table.itemSelectionChanged.connect(self.on_row_changed)
         self.k_move_slot = pg.SignalProxy(self.k_plt.scene().sigMouseMoved,
                                           rateLimit=60,
@@ -255,17 +259,18 @@ class Backtest(QWidget):
                                                init_money, fee,
                                                pass_fee, tax)
         elif self.current_strategy_name == stairs_info.name:
-            self.backtest_thread = StairsInfo(stocks, s_date, e_date,
-                                              init_money, fee,
-                                              pass_fee, tax)
+            self.backtest_thread = StairsBacktest(stocks, s_date, e_date,
+                                                  init_money, fee,
+                                                  pass_fee, tax)
         elif self.current_strategy_name == wr_info.name:
             self.backtest_thread = WRBacktest(stocks, s_date, e_date,
                                               init_money, fee,
                                               pass_fee, tax)
         else:
-            QMessageBox.warning(self, '警告', '该策略不支持回测，请换一个策略',
+            QMessageBox.warning(self, '警告', '该策略不支持回测，请换一个',
                                 QMessageBox.Ok, QMessageBox.Ok)
             self.enable_all()
+            return
         self.backtest_thread.progress_signal.connect(
             self.set_progress_bar)
         self.backtest_thread.start()
@@ -378,6 +383,34 @@ class Backtest(QWidget):
                 self.info_label.setPos(mouse_point.x(), mouse_point.y())
             self.k_v_line.setPos(mouse_point.x())
             self.k_h_line.setPos(mouse_point.y())
+
+    def open_ops_menu(self, position):
+        pop_menu = QMenu()
+        fav_action = QAction('加入自选', self)
+        pop_menu.addAction(fav_action)
+
+        fav_action.triggered.connect(self.on_fav)
+        pop_menu.exec_(self.table.mapToGlobal(position))
+
+    def on_fav(self):
+        if not fav_stocks_config_path.exists():
+            self.fav_stocks = []
+        else:
+            with open(fav_stocks_config_path, 'r', encoding='utf-8') as f:
+                self.fav_stocks = json.load(f)
+
+        rows = self.table.selectedIndexes()
+        for row in rows:
+            fav = {
+                'code': self.table.item(row.row(), 0).text(),
+                'name': self.table.item(row.row(), 1).text()
+            }
+            if fav not in self.fav_stocks:
+                self.fav_stocks.append(fav)
+
+        with open(fav_stocks_config_path, 'w', encoding='utf-8') as f:
+            json.dump(self.fav_stocks, f, indent=4, ensure_ascii=False)
+        self.fav_stock_changed_signal.emit()
 
 
 if __name__ == '__main__':
