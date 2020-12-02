@@ -209,7 +209,7 @@ class RSIBacktest(QThread):
             opens, closes, highs, lows, volumes, dates, \
             opening_index_slices, opening_price_slices, \
             closing_index_slices, closing_price_slices = \
-                rsi.backtest(code, s_date, e_date, self.init_money,
+                rsi.backtest(code, self.s_date, self.e_date, self.init_money,
                              self.fee, self.pass_fee, self.tax)
             self.progress_signal.emit(j, code, self.names[i - 1],
                                       wpct, _return, max_drawdown)

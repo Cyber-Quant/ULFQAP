@@ -49,7 +49,7 @@ class Stairs:
             if i == start:
                 continue
             if self._choose(dates, opens, closes, highs, lows, volumes,
-                            ma_price, ma_volume):
+                            ma_price, ma_volume, bt_idx=i):
                 state = 'b'
                 if state != old_state:
                     buy_prices.append(closes[i])
@@ -115,13 +115,13 @@ class Stairs:
                closing_index_slices, closing_price_slices
 
     def _choose(self, dates, opens, closes, highs, lows, volumes, ma_price,
-                ma_volume):
+                ma_volume, bt_idx=0):
         stairs = []
         for i in range(self.m):
-            if closes[-self.m + i] > opens[-self.m + i]:
-                stairs.append(closes[-self.m + i])
+            if closes[bt_idx - self.m + i] > opens[bt_idx - self.m + i]:
+                stairs.append(closes[bt_idx - self.m + i])
             else:
-                stairs.append(opens[-self.m + i])
+                stairs.append(opens[bt_idx - self.m + i])
 
         for i in range(1, self.m):
             if stairs[i] > stairs[i - 1]:
