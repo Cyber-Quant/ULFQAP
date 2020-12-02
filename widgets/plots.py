@@ -439,9 +439,6 @@ class Plots(QWidget):
             closes.append(item['close'])
 
         # NEW STRATEGIES #
-        # if self.current_kline_period == 'd' or \
-        #         self.current_kline_period == 'w' or \
-        #         self.current_kline_period == 'm':
         if self.current_indicatrix_name == self.dual_ma_info.name:
             dual_ma = DualMA()
             short_period_mas = dual_ma.calc_short_period_ma(closes)
