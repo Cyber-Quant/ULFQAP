@@ -130,7 +130,7 @@ class Nav(QWidget):
         strategy_fav_v_box = QVBoxLayout()
         strategy_fav_v_box.setContentsMargins(0, 10, 0, 10)
         self.strategy_table = QTableWidget()
-        headers = ['盯', '策略', '选股', '盯盘']
+        headers = ['应用', '策略', '选股', '盯盘']
         self.strategy_table.setColumnCount(len(headers))
         self.strategy_table.setHorizontalHeaderLabels(headers)
         self.strategy_table.setColumnWidth(0, 37)
