@@ -1,3 +1,4 @@
+import datetime
 import json
 import numpy as np
 import time
@@ -91,9 +92,9 @@ class BOLL:
             ups.append(up)
         return ups
 
-    def backtest(self, code, init_money, fee, pass_fee, tax):
+    def backtest(self, code, s_date, e_date, init_money, fee, pass_fee, tax):
         dates, opens, closes, highs, lows, volumes, ma_price, ma_volume = \
-            get_latest_batch_data(code)
+            get_latest_batch_data(code, s_date=s_date, e_date=e_date)
         ups = self.calc_batch_up(closes)
         downs = self.calc_batch_down(closes)
         start = self.m
@@ -214,10 +215,13 @@ class BOLL:
 class BOLLBacktest(QThread):
     progress_signal = Signal(int, str, str, float, float)
 
-    def __init__(self, stocks, init_money, fee, pass_fee, tax, parent=None):
+    def __init__(self, stocks, s_date, e_date, init_money, fee, pass_fee, tax,
+                 parent=None):
         super(BOLLBacktest, self).__init__(parent)
         self.codes = []
         self.names = []
+        self.s_date = datetime.datetime.strptime(s_date, '%Y-%m-%d')
+        self.e_date = datetime.datetime.strptime(e_date, '%Y-%m-%d')
         self.init_money = init_money
         self.fee = fee
         self.pass_fee = pass_fee
@@ -238,8 +242,8 @@ class BOLLBacktest(QThread):
             opens, closes, highs, lows, volumes, dates, \
             opening_index_slices, opening_price_slices, \
             closing_index_slices, closing_price_slices = \
-                boll.backtest(code, self.init_money, self.fee, self.pass_fee,
-                              self.tax)
+                boll.backtest(code, self.s_date, self.e_date, self.init_money,
+                              self.fee, self.pass_fee, self.tax)
             self.progress_signal.emit(j, code, self.names[i - 1],
                                       _return, max_drawdown)
             if i % step == 0:
