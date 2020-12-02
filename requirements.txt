@@ -7,7 +7,7 @@ idna==2.10
 loguru==0.5.3
 macholib==1.14
 notify-py==0.3.0
-numpy==1.19.4
+numpy==1.19.3
 pandas==1.1.4
 peewee==3.14.0
 pyinstaller==4.1
