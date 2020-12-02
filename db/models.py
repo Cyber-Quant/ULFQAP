@@ -24,8 +24,8 @@ class AStockInfo(BaseModel):
 
 class AStockDayLine(BaseModel):
     id = BigAutoField()
-    date = DateTimeField()
-    code = CharField()
+    date = DateTimeField(index=True)
+    code = CharField(index=True)
     open = FloatField()
     high = FloatField()
     low = FloatField()
@@ -45,3 +45,6 @@ class AStockDayLine(BaseModel):
 
     class Meta:
         db_table = 'a_stock_day_line'
+        indexes = (
+            (('code', 'date'), False),
+        )
