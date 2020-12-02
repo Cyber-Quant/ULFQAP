@@ -19,7 +19,7 @@ class MACDInfo:
         DIF线：快速EMA - 慢速EMA
         DEA线：9(k)日DIF线的指数平滑移动平均线
         MACD柱：2倍DIF线与DEA线的差，红绿柱
-        股价上涨/下跌，但是DIF和DEA不跟随，即发生背离，认为可以做空/做多。
+        股价上涨/下跌，但是MACD红绿柱不跟随，即发生背离，认为可以做空/做多。
         两均线均在零轴下，DIF上穿过DEA，即认为上涨趋势。零轴上下穿则认为下跌。
         '''
         self.choose_flag = True
@@ -80,16 +80,15 @@ class MACD:
                 continue
             if i == start:
                 continue
-            if dif[i] < 0 and dea[i] < 0 and \
-                    dif[i - 1] < dea[i - 1] and dif[i] >= dea[i]:
+            if 0 > macd[i - 1] > macd[i - 2] and closes[i - 1] < closes[i - 2]:
                 state = 'b'
                 if state != old_state:
                     buy_prices.append(closes[i])
                     buy_dates.append(dates[i])
                     buy_index.append(i)
                     old_state = state
-            elif dif[i] > 0 and dea[i] > 0 and \
-                    dif[i - 1] >= dea[i - 1] and dif[i] < dea[i]:
+            elif 0 < macd[i - 1] < macd[i - 2] and \
+                    closes[i - 1] > closes[i - 2]:
                 state = 's'
                 if state != old_state:
                     sell_prices.append(closes[i])
@@ -151,8 +150,7 @@ class MACD:
         date, _open, close, high, low, volume, ma_price, ma_volume = \
             get_latest_batch_data(code)
         macd, dif, dea = self.calc_macd(close)
-        if dif[-1] < 0 and dea[-1] < 0 and \
-                macd[-1] >= 0 and macd[-2] < 0:
+        if 0 > macd[-1] > macd[-2] and close[-1] < close[-2]:
             return True
         else:
             return False
