@@ -62,3 +62,13 @@ def get_latest_batch_data(code, limit=DEFAULT_K_LIMIT, period='d',
             ma_price.append(_ma_price)
             ma_volume.append(_ma_volume)
     return date, _open, close, high, low, volume, ma_price, ma_volume
+
+
+def calc_wpct(buy_prices, sell_prices):
+    count = len(buy_prices)
+    winning_count = 0
+    for i in range(count):
+        if buy_prices[i] < sell_prices[i]:
+            winning_count += 1
+    wpct = winning_count / count * 100
+    return wpct

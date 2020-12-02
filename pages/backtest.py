@@ -112,7 +112,7 @@ class Backtest(QWidget):
 
         result_h_box = QHBoxLayout()
         self.table = QTableWidget()
-        headers = ['代码', '股票', '收益率', '最大回撤']
+        headers = ['代码', '股票', '胜率', '收益率', '最大回撤率']
         self.table.setColumnCount(len(headers))
         self.table.setHorizontalHeaderLabels(headers)
         self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
@@ -125,7 +125,7 @@ class Backtest(QWidget):
         self.table.setSortingEnabled(True)
         self.table.setContextMenuPolicy(Qt.CustomContextMenu)
         self.table.setMinimumWidth(220)
-        self.table.setMaximumWidth(300)
+        self.table.setMaximumWidth(350)
 
         left_v_box = QVBoxLayout()
         left_v_box.addWidget(self.table)
@@ -167,19 +167,21 @@ class Backtest(QWidget):
         self.start_date.setDisabled(True)
         self.end_date.setDisabled(True)
 
-    def set_progress_bar(self, value, code, name, _return, max_drawdown):
+    def set_progress_bar(self, value, code, name, wpct, _return, max_drawdown):
         self.progress_bar.setValue(value)
         if value == 100:
             self.enable_all()
         else:
+            wpct_str = str(round(wpct, 2))
             return_str = str(round(_return, 2))
             max_drawdown_str = str(round(max_drawdown, 2))
             row = self.table.rowCount()
             self.table.insertRow(row)
             self.table.setItem(row, 0, QTableWidgetItem(code))
             self.table.setItem(row, 1, QTableWidgetItem(name))
-            self.table.setItem(row, 2, QTableWidgetItem(return_str))
-            self.table.setItem(row, 3, QTableWidgetItem(max_drawdown_str))
+            self.table.setItem(row, 2, QTableWidgetItem(wpct_str))
+            self.table.setItem(row, 3, QTableWidgetItem(return_str))
+            self.table.setItem(row, 4, QTableWidgetItem(max_drawdown_str))
 
     def on_option_change(self):
         check = self.sender()

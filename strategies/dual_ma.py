@@ -7,7 +7,7 @@ from qtpy.QtGui import *
 from qtpy.QtCore import *
 
 from conf.conf import strategies_config_path
-from strategies.common import get_latest_batch_data
+from strategies.common import get_latest_batch_data, calc_wpct
 
 
 class DualMAInfo:
@@ -138,10 +138,11 @@ class DualMA:
                 opening_index_slices.append(opening_index)
                 opening_price_slices.append(opening_price)
 
+        wpct = calc_wpct(buy_prices, sell_prices)
         _return = (money - init_money) / init_money * 100
         max_drawdown = max(drawdowns)
 
-        return _return, max_drawdown, \
+        return wpct, _return, max_drawdown, \
                opens, closes, highs, lows, volumes, dates, \
                opening_index_slices, opening_price_slices, \
                closing_index_slices, closing_price_slices
@@ -158,7 +159,7 @@ class DualMA:
 
 
 class DualMABacktest(QThread):
-    progress_signal = Signal(int, str, str, float, float)
+    progress_signal = Signal(int, str, str, float, float, float)
 
     def __init__(self, stocks, s_date, e_date, init_money, fee, pass_fee, tax,
                  parent=None):
@@ -183,7 +184,7 @@ class DualMABacktest(QThread):
         j = 0
         for code in self.codes:
             i += 1
-            _return, max_drawdown, \
+            wpct, _return, max_drawdown, \
             opens, closes, highs, lows, volumes, dates, \
             opening_index_slices, opening_price_slices, \
             closing_index_slices, closing_price_slices = \
@@ -191,10 +192,10 @@ class DualMABacktest(QThread):
                                  self.init_money, self.fee, self.pass_fee,
                                  self.tax)
             self.progress_signal.emit(j, code, self.names[i - 1],
-                                      _return, max_drawdown)
+                                      wpct, _return, max_drawdown)
             if i % step == 0:
                 j += 1
-        self.progress_signal.emit(100, '', '', 0.0, 0.0)
+        self.progress_signal.emit(100, '', '', 0.0, 0.0, 0.0)
 
 
 class DualMAChoose(QThread):

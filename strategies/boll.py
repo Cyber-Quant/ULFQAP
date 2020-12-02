@@ -9,7 +9,7 @@ from qtpy.QtCore import *
 
 from apis.realtime_price import fetch_sina_realtime_price
 from conf.conf import strategies_config_path
-from strategies.common import get_latest_batch_data
+from strategies.common import get_latest_batch_data, calc_wpct
 
 
 class BOLLInfo:
@@ -165,10 +165,11 @@ class BOLL:
                 opening_index_slices.append(opening_index)
                 opening_price_slices.append(opening_price)
 
+        wpct = calc_wpct(buy_prices, sell_prices)
         _return = (money - init_money) / init_money * 100
         max_drawdown = max(drawdowns)
 
-        return _return, max_drawdown, \
+        return wpct, _return, max_drawdown, \
                opens, closes, highs, lows, volumes, dates, \
                opening_index_slices, opening_price_slices, \
                closing_index_slices, closing_price_slices
@@ -213,7 +214,7 @@ class BOLL:
 
 
 class BOLLBacktest(QThread):
-    progress_signal = Signal(int, str, str, float, float)
+    progress_signal = Signal(int, str, str, float, float, float)
 
     def __init__(self, stocks, s_date, e_date, init_money, fee, pass_fee, tax,
                  parent=None):
@@ -238,17 +239,17 @@ class BOLLBacktest(QThread):
         j = 0
         for code in self.codes:
             i += 1
-            _return, max_drawdown, \
+            wpct, _return, max_drawdown, \
             opens, closes, highs, lows, volumes, dates, \
             opening_index_slices, opening_price_slices, \
             closing_index_slices, closing_price_slices = \
                 boll.backtest(code, self.s_date, self.e_date, self.init_money,
                               self.fee, self.pass_fee, self.tax)
             self.progress_signal.emit(j, code, self.names[i - 1],
-                                      _return, max_drawdown)
+                                      wpct, _return, max_drawdown)
             if i % step == 0:
                 j += 1
-        self.progress_signal.emit(100, '', '', 0.0, 0.0)
+        self.progress_signal.emit(100, '', '', 0.0, 0.0, 0.0)
 
 
 class BOLLChoose(QThread):
