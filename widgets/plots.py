@@ -5,7 +5,6 @@ from qtpy.QtWidgets import *
 
 from strategies.common import get_latest_batch_data
 from strategies.boll import BOLL
-from strategies.dual_ma import DualMA
 from strategies.kdj import KDJ
 from strategies.macd import MACD
 from strategies.rsi import RSI
@@ -439,13 +438,7 @@ class Plots(QWidget):
             closes.append(item['close'])
 
         # NEW STRATEGIES #
-        if self.current_indicatrix_name == self.dual_ma_info.name:
-            dual_ma = DualMA()
-            short_period_mas = dual_ma.calc_short_period_ma(closes)
-            long_period_mas = dual_ma.calc_long_period_ma(closes)
-            data = [short_period_mas, long_period_mas]
-            pen_colors = ['r', 'b']
-        elif self.current_indicatrix_name == self.boll_info.name:
+        if self.current_indicatrix_name == self.boll_info.name:
             boll = BOLL()
             ups = boll.calc_batch_up(closes)
             middles = boll.calc_batch_middle(closes)

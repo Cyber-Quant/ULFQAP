@@ -7,7 +7,6 @@ from qtpy.QtCore import *
 from conf.conf import fav_stocks_config_path, apply_strategies_config_path
 from db.models import AStockInfo
 from strategies.boll import BOLLChoose, BOLLInfo
-from strategies.dual_ma import DualMAChoose, DualMAInfo
 from strategies.kdj import KDJChoose, KDJInfo
 from strategies.macd import MACDChoose, MACDInfo
 from strategies.rsi import RSIChoose, RSIInfo
@@ -38,7 +37,6 @@ class Choose(Plots):
         # TODO: make strategies plugin
         # NEW STRATEGIES #
         self.stairs_info = StairsInfo()
-        self.dual_ma_info = DualMAInfo()
         self.volume_increase_info = VolumeIncreaseInfo()
         self.wr_info = WRInfo()
         self.boll_info = BOLLInfo()
@@ -251,8 +249,6 @@ class Choose(Plots):
                 # NEW STRATEGIES #
                 if self.apply_strategies[0] == self.stairs_info.name:
                     self.choose_thread = StairsChoose(self.stocks_to_be_chosen)
-                elif self.apply_strategies[0] == self.dual_ma_info.name:
-                    self.choose_thread = DualMAChoose(self.stocks_to_be_chosen)
                 elif self.apply_strategies[0] == self.volume_increase_info.name:
                     self.choose_thread = VolumeIncreaseChoose(
                         self.stocks_to_be_chosen)

@@ -10,7 +10,6 @@ from conf.conf import fav_stocks_config_path, FIRST_DAY_YEAR, \
     FIRST_DAY_MONTH, FIRST_DAY_DAY
 from db.models import AStockInfo
 from strategies.boll import BOLL, BOLLBacktest, BOLLInfo
-from strategies.dual_ma import DualMA, DualMABacktest, DualMAInfo
 from strategies.kdj import KDJ, KDJBacktest, KDJInfo
 from strategies.macd import MACD, MACDBacktest, MACDInfo
 from strategies.rsi import RSI, RSIBacktest, RSIInfo
@@ -232,7 +231,6 @@ class Backtest(QWidget):
         tax = float(self.tax_input.text()) / 1000
         # NEW STRATEGIES #
         boll_info = BOLLInfo()
-        dual_ma_info = DualMAInfo()
         kdj_info = KDJInfo()
         macd_info = MACDInfo()
         rsi_info = RSIInfo()
@@ -242,10 +240,6 @@ class Backtest(QWidget):
             self.backtest_thread = BOLLBacktest(stocks, s_date, e_date,
                                                 init_money, fee,
                                                 pass_fee, tax)
-        elif self.current_strategy_name == dual_ma_info.name:
-            self.backtest_thread = DualMABacktest(stocks, s_date, e_date,
-                                                  init_money, fee,
-                                                  pass_fee, tax)
         elif self.current_strategy_name == kdj_info.name:
             self.backtest_thread = KDJBacktest(stocks, s_date, e_date,
                                                init_money, fee,
@@ -316,7 +310,6 @@ class Backtest(QWidget):
         tax = float(self.tax_input.text()) / 1000
         # NEW STRATEGIES #
         boll_info = BOLLInfo()
-        dual_ma_info = DualMAInfo()
         kdj_info = KDJInfo()
         macd_info = MACDInfo()
         rsi_info = RSIInfo()
@@ -324,8 +317,6 @@ class Backtest(QWidget):
         wr_info = WRInfo()
         if self.current_strategy_name == boll_info.name:
             backtest = BOLL()
-        elif self.current_strategy_name == dual_ma_info.name:
-            backtest = DualMA()
         elif self.current_strategy_name == kdj_info.name:
             backtest = KDJ()
         elif self.current_strategy_name == macd_info.name:

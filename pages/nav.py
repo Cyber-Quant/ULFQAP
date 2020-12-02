@@ -11,7 +11,6 @@ from pages.config import Config
 from pages.watch import Watch
 from pages.backtest import Backtest
 from strategies.boll import BOLLConfig, BOLLInfo
-from strategies.dual_ma import DualMAConfig, DualMAInfo
 from strategies.kdj import KDJConfig, KDJInfo
 from strategies.macd import MACDConfig, MACDInfo
 from strategies.rsi import RSIConfig, RSIInfo
@@ -67,7 +66,6 @@ class Nav(QWidget):
 
         # NEW STRATEGIES #
         self.stairs_info = StairsInfo()
-        self.dual_ma_info = DualMAInfo()
         self.volume_increase_info = VolumeIncreaseInfo()
         self.wr_info = WRInfo()
         self.boll_info = BOLLInfo()
@@ -78,9 +76,6 @@ class Nav(QWidget):
             {'name': self.stairs_info.name,
              'choose': 'Y' if self.stairs_info.choose_flag else 'N',
              'watch': 'Y' if self.stairs_info.watch_flag else 'N'},
-            {'name': self.dual_ma_info.name,
-             'choose': 'Y' if self.dual_ma_info.choose_flag else 'N',
-             'watch': 'Y' if self.dual_ma_info.watch_flag else 'N'},
             {'name': self.volume_increase_info.name,
              'choose': 'Y' if self.volume_increase_info.choose_flag else 'N',
              'watch': 'Y' if self.volume_increase_info.watch_flag else 'N'},
@@ -278,10 +273,6 @@ class Nav(QWidget):
         # NEW STRATEGIES #
         if name == self.stairs_info.name:
             cfg_dlg = StairsConfig(self)
-            cfg_dlg.show()
-            cfg_dlg.exec_()
-        if name == self.dual_ma_info.name:
-            cfg_dlg = DualMAConfig(self)
             cfg_dlg.show()
             cfg_dlg.exec_()
         if name == self.volume_increase_info.name:
