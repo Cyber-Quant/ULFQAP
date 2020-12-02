@@ -15,6 +15,7 @@ from strategies.dual_ma import DualMAConfig, DualMAInfo
 from strategies.kdj import KDJConfig, KDJInfo
 from strategies.macd import MACDConfig, MACDInfo
 from strategies.rsi import RSIConfig, RSIInfo
+from strategies.stairs import StairsConfig, StairsInfo
 from strategies.wr import WRConfig, WRInfo
 from strategies.volume_increase import VolumeIncreaseConfig, VolumeIncreaseInfo
 from utils.custom_add_dialog import CustomAddDialog
@@ -65,6 +66,7 @@ class Nav(QWidget):
                 self.custom_watch = json.load(f)
 
         # NEW STRATEGIES #
+        self.stairs_info = StairsInfo()
         self.dual_ma_info = DualMAInfo()
         self.volume_increase_info = VolumeIncreaseInfo()
         self.wr_info = WRInfo()
@@ -72,6 +74,32 @@ class Nav(QWidget):
         self.macd_info = MACDInfo()
         self.kdj_info = KDJInfo()
         self.rsi_info = RSIInfo()
+        self.strategies = [
+            {'name': self.stairs_info.name,
+             'choose': 'Y' if self.stairs_info.choose_flag else 'N',
+             'watch': 'Y' if self.stairs_info.watch_flag else 'N'},
+            {'name': self.dual_ma_info.name,
+             'choose': 'Y' if self.dual_ma_info.choose_flag else 'N',
+             'watch': 'Y' if self.dual_ma_info.watch_flag else 'N'},
+            {'name': self.volume_increase_info.name,
+             'choose': 'Y' if self.volume_increase_info.choose_flag else 'N',
+             'watch': 'Y' if self.volume_increase_info.watch_flag else 'N'},
+            {'name': self.wr_info.name,
+             'choose': 'Y' if self.wr_info.choose_flag else 'N',
+             'watch': 'Y' if self.wr_info.watch_flag else 'N'},
+            {'name': self.boll_info.name,
+             'choose': 'Y' if self.boll_info.choose_flag else 'N',
+             'watch': 'Y' if self.boll_info.watch_flag else 'N'},
+            {'name': self.macd_info.name,
+             'choose': 'Y' if self.macd_info.choose_flag else 'N',
+             'watch': 'Y' if self.macd_info.watch_flag else 'N'},
+            {'name': self.kdj_info.name,
+             'choose': 'Y' if self.kdj_info.choose_flag else 'N',
+             'watch': 'Y' if self.kdj_info.watch_flag else 'N'},
+            {'name': self.rsi_info.name,
+             'choose': 'Y' if self.rsi_info.choose_flag else 'N',
+             'watch': 'Y' if self.rsi_info.watch_flag else 'N'},
+        ]
 
         self.watch = None
         self.choose = None
@@ -125,225 +153,23 @@ class Nav(QWidget):
             self.open_strategy_table_menu)
         self.strategy_table.itemSelectionChanged.connect(
             self.on_strategy_table_row_changed)
+        self.strategy_table.setRowCount(len(self.strategies))
 
-        # NEW STRATEGIES #
-        row = self.strategy_table.rowCount()
-        self.strategy_table.insertRow(row)
-        self.dual_ma_apply_check = QCheckBox()
-        h_box = QHBoxLayout()
-        # h_box.setAlignment(Qt.AlignCenter)
-        h_box.addWidget(self.dual_ma_apply_check)
-        widget = QWidget()
-        widget.setLayout(h_box)
-        if self.dual_ma_info.name in self.apply_strategies:
-            self.dual_ma_apply_check.setChecked(True)
-        else:
-            self.dual_ma_apply_check.setChecked(False)
-        self.strategy_table.setCellWidget(row, 0, widget)
-        self.strategy_table.setItem(row, 1,
-                                    QTableWidgetItem(self.dual_ma_info.name))
-        self.dual_ma_apply_check.stateChanged.connect(self.update_watch_strategies)
-        if self.dual_ma_info.choose_flag:
-            choose_flag = 'Y'
-        else:
-            choose_flag = 'N'
-        item = QTableWidgetItem(choose_flag)
-        item.setTextAlignment(Qt.AlignCenter)
-        self.strategy_table.setItem(row, 2, item)
-        if self.dual_ma_info.watch_flag:
-            watch_flag = 'Y'
-        else:
-            watch_flag = 'N'
-        item = QTableWidgetItem(watch_flag)
-        item.setTextAlignment(Qt.AlignCenter)
-        self.strategy_table.setItem(row, 3, item)
-
-        row = self.strategy_table.rowCount()
-        self.strategy_table.insertRow(row)
-        self.volume_increase_apply_check = QCheckBox()
-        h_box = QHBoxLayout()
-        # h_box.setAlignment(Qt.AlignCenter)
-        h_box.addWidget(self.volume_increase_apply_check)
-        widget = QWidget()
-        widget.setLayout(h_box)
-        if self.volume_increase_info.name in self.apply_strategies:
-            self.volume_increase_apply_check.setChecked(True)
-        else:
-            self.volume_increase_apply_check.setChecked(False)
-        self.strategy_table.setCellWidget(row, 0, widget)
-        self.strategy_table.setItem(row, 1,
-                                    QTableWidgetItem(
-                                    self.volume_increase_info.name))
-        self.volume_increase_apply_check.stateChanged.connect(
-            self.update_watch_strategies)
-        if self.volume_increase_info.choose_flag:
-            choose_flag = 'Y'
-        else:
-            choose_flag = 'N'
-        item = QTableWidgetItem(choose_flag)
-        item.setTextAlignment(Qt.AlignCenter)
-        self.strategy_table.setItem(row, 2, item)
-        if self.volume_increase_info.watch_flag:
-            watch_flag = 'Y'
-        else:
-            watch_flag = 'N'
-        item = QTableWidgetItem(watch_flag)
-        item.setTextAlignment(Qt.AlignCenter)
-        self.strategy_table.setItem(row, 3, item)
-
-        row = self.strategy_table.rowCount()
-        self.strategy_table.insertRow(row)
-        self.wr_apply_check = QCheckBox()
-        h_box = QHBoxLayout()
-        # h_box.setAlignment(Qt.AlignCenter)
-        h_box.addWidget(self.wr_apply_check)
-        widget = QWidget()
-        widget.setLayout(h_box)
-        if self.wr_info.name in self.apply_strategies:
-            self.wr_apply_check.setChecked(True)
-        else:
-            self.wr_apply_check.setChecked(False)
-        self.strategy_table.setCellWidget(row, 0, widget)
-        self.strategy_table.setItem(row, 1,
-                                    QTableWidgetItem(self.wr_info.name))
-        self.wr_apply_check.stateChanged.connect(self.update_watch_strategies)
-        if self.wr_info.choose_flag:
-            choose_flag = 'Y'
-        else:
-            choose_flag = 'N'
-        item = QTableWidgetItem(choose_flag)
-        item.setTextAlignment(Qt.AlignCenter)
-        self.strategy_table.setItem(row, 2, item)
-        if self.wr_info.watch_flag:
-            watch_flag = 'Y'
-        else:
-            watch_flag = 'N'
-        item = QTableWidgetItem(watch_flag)
-        item.setTextAlignment(Qt.AlignCenter)
-        self.strategy_table.setItem(row, 3, item)
-
-        row = self.strategy_table.rowCount()
-        self.strategy_table.insertRow(row)
-        self.boll_apply_check = QCheckBox()
-        h_box = QHBoxLayout()
-        # h_box.setAlignment(Qt.AlignCenter)
-        h_box.addWidget(self.boll_apply_check)
-        widget = QWidget()
-        widget.setLayout(h_box)
-        if self.boll_info.name in self.apply_strategies:
-            self.boll_apply_check.setChecked(True)
-        else:
-            self.boll_apply_check.setChecked(False)
-        self.strategy_table.setCellWidget(row, 0, widget)
-        self.strategy_table.setItem(row, 1, QTableWidgetItem(self.boll_info.name))
-        self.boll_apply_check.stateChanged.connect(self.update_watch_strategies)
-        if self.boll_info.choose_flag:
-            choose_flag = 'Y'
-        else:
-            choose_flag = 'N'
-        item = QTableWidgetItem(choose_flag)
-        item.setTextAlignment(Qt.AlignCenter)
-        self.strategy_table.setItem(row, 2, item)
-        if self.boll_info.watch_flag:
-            watch_flag = 'Y'
-        else:
-            watch_flag = 'N'
-        item = QTableWidgetItem(watch_flag)
-        item.setTextAlignment(Qt.AlignCenter)
-        self.strategy_table.setItem(row, 3, item)
-
-        row = self.strategy_table.rowCount()
-        self.strategy_table.insertRow(row)
-        self.macd_apply_check = QCheckBox()
-        h_box = QHBoxLayout()
-        # h_box.setAlignment(Qt.AlignCenter)
-        h_box.addWidget(self.macd_apply_check)
-        widget = QWidget()
-        widget.setLayout(h_box)
-        if self.macd_info.name in self.apply_strategies:
-            self.macd_apply_check.setChecked(True)
-        else:
-            self.macd_apply_check.setChecked(False)
-        self.strategy_table.setCellWidget(row, 0, widget)
-        self.strategy_table.setItem(row, 1,
-                                    QTableWidgetItem(self.macd_info.name))
-        self.macd_apply_check.stateChanged.connect(self.update_watch_strategies)
-        if self.macd_info.choose_flag:
-            choose_flag = 'Y'
-        else:
-            choose_flag = 'N'
-        item = QTableWidgetItem(choose_flag)
-        item.setTextAlignment(Qt.AlignCenter)
-        self.strategy_table.setItem(row, 2, item)
-        if self.macd_info.watch_flag:
-            watch_flag = 'Y'
-        else:
-            watch_flag = 'N'
-        item = QTableWidgetItem(watch_flag)
-        item.setTextAlignment(Qt.AlignCenter)
-        self.strategy_table.setItem(row, 3, item)
-
-        row = self.strategy_table.rowCount()
-        self.strategy_table.insertRow(row)
-        self.kdj_apply_check = QCheckBox()
-        h_box = QHBoxLayout()
-        # h_box.setAlignment(Qt.AlignCenter)
-        h_box.addWidget(self.kdj_apply_check)
-        widget = QWidget()
-        widget.setLayout(h_box)
-        if self.kdj_info.name in self.apply_strategies:
-            self.kdj_apply_check.setChecked(True)
-        else:
-            self.kdj_apply_check.setChecked(False)
-        self.strategy_table.setCellWidget(row, 0, widget)
-        self.strategy_table.setItem(row, 1,
-                                    QTableWidgetItem(self.kdj_info.name))
-        self.kdj_apply_check.stateChanged.connect(self.update_watch_strategies)
-        if self.kdj_info.choose_flag:
-            choose_flag = 'Y'
-        else:
-            choose_flag = 'N'
-        item = QTableWidgetItem(choose_flag)
-        item.setTextAlignment(Qt.AlignCenter)
-        self.strategy_table.setItem(row, 2, item)
-        if self.kdj_info.watch_flag:
-            watch_flag = 'Y'
-        else:
-            watch_flag = 'N'
-        item = QTableWidgetItem(watch_flag)
-        item.setTextAlignment(Qt.AlignCenter)
-        self.strategy_table.setItem(row, 3, item)
-
-        row = self.strategy_table.rowCount()
-        self.strategy_table.insertRow(row)
-        self.rsi_apply_check = QCheckBox()
-        h_box = QHBoxLayout()
-        # h_box.setAlignment(Qt.AlignCenter)
-        h_box.addWidget(self.rsi_apply_check)
-        widget = QWidget()
-        widget.setLayout(h_box)
-        if self.rsi_info.name in self.apply_strategies:
-            self.rsi_apply_check.setChecked(True)
-        else:
-            self.rsi_apply_check.setChecked(False)
-        self.strategy_table.setCellWidget(row, 0, widget)
-        self.strategy_table.setItem(row, 1,
-                                    QTableWidgetItem(self.rsi_info.name))
-        self.rsi_apply_check.stateChanged.connect(self.update_watch_strategies)
-        if self.rsi_info.choose_flag:
-            choose_flag = 'Y'
-        else:
-            choose_flag = 'N'
-        item = QTableWidgetItem(choose_flag)
-        item.setTextAlignment(Qt.AlignCenter)
-        self.strategy_table.setItem(row, 2, item)
-        if self.rsi_info.watch_flag:
-            watch_flag = 'Y'
-        else:
-            watch_flag = 'N'
-        item = QTableWidgetItem(watch_flag)
-        item.setTextAlignment(Qt.AlignCenter)
-        self.strategy_table.setItem(row, 3, item)
+        for i, strategy in enumerate(self.strategies):
+            check = QCheckBox(parent=self.strategy_table)
+            if self.strategies[i]['name'] in self.apply_strategies:
+                check.setChecked(True)
+            check.clicked.connect(self.update_watch_strategies)
+            self.strategy_table.setCellWidget(i, 0, check)
+            item_name = QTableWidgetItem(self.strategies[i]['name'])
+            item_name.setTextAlignment(Qt.AlignCenter)
+            self.strategy_table.setItem(i, 1, item_name)
+            item_choose = QTableWidgetItem(self.strategies[i]['choose'])
+            item_choose.setTextAlignment(Qt.AlignCenter)
+            self.strategy_table.setItem(i, 2, item_choose)
+            item_watch = QTableWidgetItem(self.strategies[i]['watch'])
+            item_watch.setTextAlignment(Qt.AlignCenter)
+            self.strategy_table.setItem(i, 3, item_watch)
 
         self.fav_table = QTableWidget()
         headers = ['代码', '名称']
@@ -427,50 +253,12 @@ class Nav(QWidget):
         self.stacked_window.addWidget(self.config)
 
     def update_watch_strategies(self):
-        # NEW STRATEGIES #
-        if self.dual_ma_apply_check.isChecked() and \
-                self.dual_ma_info.name not in self.apply_strategies:
-            self.apply_strategies.append(self.dual_ma_info.name)
-        if self.volume_increase_apply_check.isChecked() and \
-                self.volume_increase_info.name not in self.apply_strategies:
-            self.apply_strategies.append(self.volume_increase_info.name)
-        if self.wr_apply_check.isChecked() and \
-                self.wr_info.name not in self.apply_strategies:
-            self.apply_strategies.append(self.wr_info.name)
-        if self.boll_apply_check.isChecked() and \
-                self.boll_info.name not in self.apply_strategies:
-            self.apply_strategies.append(self.boll_info.name)
-        if self.macd_apply_check.isChecked() and \
-                self.macd_info.name not in self.apply_strategies:
-            self.apply_strategies.append(self.macd_info.name)
-        if self.kdj_apply_check.isChecked() and \
-                self.kdj_info.name not in self.apply_strategies:
-            self.apply_strategies.append(self.kdj_info.name)
-        if self.rsi_apply_check.isChecked() and \
-                self.rsi_info.name not in self.apply_strategies:
-            self.apply_strategies.append(self.rsi_info.name)
-
-        if not self.dual_ma_apply_check.isChecked() and \
-                self.dual_ma_info.name in self.apply_strategies:
-            self.apply_strategies.remove(self.dual_ma_info.name)
-        if not self.volume_increase_apply_check.isChecked() and \
-                self.volume_increase_info.name in self.apply_strategies:
-            self.apply_strategies.remove(self.volume_increase_info.name)
-        if not self.wr_apply_check.isChecked() and \
-                self.wr_info.name in self.apply_strategies:
-            self.apply_strategies.remove(self.wr_info.name)
-        if not self.boll_apply_check.isChecked() and \
-                self.boll_info.name in self.apply_strategies:
-            self.apply_strategies.remove(self.boll_info.name)
-        if not self.macd_apply_check.isChecked() and \
-                self.macd_info.name in self.apply_strategies:
-            self.apply_strategies.remove(self.macd_info.name)
-        if not self.kdj_apply_check.isChecked() and \
-                self.kdj_info.name in self.apply_strategies:
-            self.apply_strategies.remove(self.kdj_info.name)
-        if not self.rsi_apply_check.isChecked() and \
-                self.rsi_info.name in self.apply_strategies:
-            self.apply_strategies.remove(self.rsi_info.name)
+        check = self.sender()
+        i = self.strategy_table.indexAt(check.pos()).row()
+        if check.isChecked():
+            self.apply_strategies.append(self.strategies[i]['name'])
+        elif self.strategies[i]['name'] in self.apply_strategies:
+            self.apply_strategies.remove(self.strategies[i]['name'])
 
         with open(apply_strategies_config_path, 'w', encoding='utf-8') as f:
             json.dump(self.apply_strategies, f, indent=4, ensure_ascii=False)
@@ -487,6 +275,10 @@ class Nav(QWidget):
         row = self.strategy_table.currentIndex().row()
         name = self.strategy_table.item(row, 1).text()
         # NEW STRATEGIES #
+        if name == self.stairs_info.name:
+            cfg_dlg = StairsConfig(self)
+            cfg_dlg.show()
+            cfg_dlg.exec_()
         if name == self.dual_ma_info.name:
             cfg_dlg = DualMAConfig(self)
             cfg_dlg.show()

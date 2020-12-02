@@ -11,6 +11,7 @@ from strategies.dual_ma import DualMAChoose, DualMAInfo
 from strategies.kdj import KDJChoose, KDJInfo
 from strategies.macd import MACDChoose, MACDInfo
 from strategies.rsi import RSIChoose, RSIInfo
+from strategies.stairs import StairsChoose, StairsInfo
 from strategies.volume_increase import VolumeIncreaseChoose, VolumeIncreaseInfo
 from strategies.wr import WRChoose, WRInfo
 from utils.custom_add_dialog import CustomAddDialog
@@ -36,6 +37,7 @@ class Choose(Plots):
         self.choose_thread = None
         # TODO: make strategies plugin
         # NEW STRATEGIES #
+        self.stairs_info = StairsInfo()
         self.dual_ma_info = DualMAInfo()
         self.volume_increase_info = VolumeIncreaseInfo()
         self.wr_info = WRInfo()
@@ -247,7 +249,9 @@ class Choose(Plots):
                 self.enable_all()
             elif len(self.apply_strategies) == 1:
                 # NEW STRATEGIES #
-                if self.apply_strategies[0] == self.dual_ma_info.name:
+                if self.apply_strategies[0] == self.stairs_info.name:
+                    self.choose_thread = StairsChoose(self.stocks_to_be_chosen)
+                elif self.apply_strategies[0] == self.dual_ma_info.name:
                     self.choose_thread = DualMAChoose(self.stocks_to_be_chosen)
                 elif self.apply_strategies[0] == self.volume_increase_info.name:
                     self.choose_thread = VolumeIncreaseChoose(

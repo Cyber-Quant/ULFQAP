@@ -1,3 +1,4 @@
+import datetime
 import json
 import pyqtgraph as pg
 
@@ -13,6 +14,7 @@ from strategies.dual_ma import DualMA, DualMABacktest, DualMAInfo
 from strategies.kdj import KDJ, KDJBacktest, KDJInfo
 from strategies.macd import MACD, MACDBacktest, MACDInfo
 from strategies.rsi import RSI, RSIBacktest, RSIInfo
+from strategies.stairs import Stairs, StairsBacktest, StairsInfo
 from strategies.wr import WR, WRBacktest, WRInfo
 
 
@@ -230,6 +232,7 @@ class Backtest(QWidget):
         kdj_info = KDJInfo()
         macd_info = MACDInfo()
         rsi_info = RSIInfo()
+        stairs_info = StairsInfo()
         wr_info = WRInfo()
         if self.current_strategy_name == boll_info.name:
             self.backtest_thread = BOLLBacktest(stocks, s_date, e_date,
@@ -251,6 +254,10 @@ class Backtest(QWidget):
             self.backtest_thread = RSIBacktest(stocks, s_date, e_date,
                                                init_money, fee,
                                                pass_fee, tax)
+        elif self.current_strategy_name == stairs_info.name:
+            self.backtest_thread = StairsInfo(stocks, s_date, e_date,
+                                              init_money, fee,
+                                              pass_fee, tax)
         elif self.current_strategy_name == wr_info.name:
             self.backtest_thread = WRBacktest(stocks, s_date, e_date,
                                               init_money, fee,
@@ -294,6 +301,10 @@ class Backtest(QWidget):
         self.current_strategy_name = strategy_name
         if self.current_code is None or self.current_strategy_name is None:
             return
+        s_date = self.start_date.date().toString('yyyy-MM-dd')
+        e_date = self.end_date.date().toString('yyyy-MM-dd')
+        s_date = datetime.datetime.strptime(s_date, '%Y-%m-%d')
+        e_date = datetime.datetime.strptime(e_date, '%Y-%m-%d')
         init_money = float(self.init_money_input.text()) * 10000
         fee = float(self.fee_input.text()) / 10000
         pass_fee = float(self.pass_fee_input.text()) / 10000
@@ -304,6 +315,7 @@ class Backtest(QWidget):
         kdj_info = KDJInfo()
         macd_info = MACDInfo()
         rsi_info = RSIInfo()
+        stairs_info = StairsInfo()
         wr_info = WRInfo()
         if self.current_strategy_name == boll_info.name:
             backtest = BOLL()
@@ -315,14 +327,16 @@ class Backtest(QWidget):
             backtest = MACD()
         elif self.current_strategy_name == rsi_info.name:
             backtest = RSI()
+        elif self.current_strategy_name == stairs_info.name:
+            backtest = Stairs()
         elif self.current_strategy_name == wr_info.name:
             backtest = WR()
-        _return, max_drawdown, \
+        wpct, _return, max_drawdown, \
         self.opens, self.closes, self.highs, self.lows, \
         self.volumes, self.dates, \
         opening_index_slices, opening_price_slices, \
         closing_index_slices, closing_price_slices = \
-            backtest.backtest(self.current_code,
+            backtest.backtest(self.current_code, s_date, e_date,
                               init_money, fee, pass_fee, tax)
 
         for i, obj in enumerate(opening_price_slices):
