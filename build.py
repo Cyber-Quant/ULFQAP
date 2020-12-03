@@ -11,10 +11,12 @@ setup(
          './pages/about.py', './pages/backtest.py', './pages/choose.py',
          './pages/config.py', './pages/license.py', './pages/main_win.py',
          './pages/nav.py', './pages/watch.py',
-         './strategies/common.py', './strategies/boll.py',
-         './strategies/custom_watch.py', './strategies/dual_ma.py',
+         './strategies/boll.py', './strategies/common.py',
+         './strategies/custom_watch.py', './strategies/dual_line.py',
          './strategies/kdj.py', './strategies/macd.py', './strategies/rsi.py',
+         './strategies/stairs.py', './strategies/turtle.py',
          './strategies/volume_increase.py', './strategies/wr.py',
-         './utils/candlestick.py', './utils/custom_add_dialog.py'
+         './utils/candlestick.py', './utils/custom_add_dialog.py',
+         './widgets/plots.py'
          ])
 )

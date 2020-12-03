@@ -12,6 +12,7 @@ from strategies.kdj import KDJChoose, KDJInfo
 from strategies.macd import MACDChoose, MACDInfo
 from strategies.rsi import RSIChoose, RSIInfo
 from strategies.stairs import StairsChoose, StairsInfo
+from strategies.turtle import TurtleChoose, TurtleInfo
 from strategies.volume_increase import VolumeIncreaseChoose, VolumeIncreaseInfo
 from strategies.wr import WRChoose, WRInfo
 from utils.custom_add_dialog import CustomAddDialog
@@ -39,6 +40,7 @@ class Choose(Plots):
         # NEW STRATEGIES #
         self.dual_line_info = DualLineInfo()
         self.stairs_info = StairsInfo()
+        self.turtle_info = TurtleInfo()
         self.volume_increase_info = VolumeIncreaseInfo()
         self.wr_info = WRInfo()
         self.boll_info = BOLLInfo()
@@ -254,6 +256,8 @@ class Choose(Plots):
                         self.stocks_to_be_chosen)
                 elif self.apply_strategies[0] == self.stairs_info.name:
                     self.choose_thread = StairsChoose(self.stocks_to_be_chosen)
+                elif self.apply_strategies[0] == self.turtle_info.name:
+                    self.choose_thread = TurtleChoose(self.stocks_to_be_chosen)
                 elif self.apply_strategies[0] == self.volume_increase_info.name:
                     self.choose_thread = VolumeIncreaseChoose(
                         self.stocks_to_be_chosen)

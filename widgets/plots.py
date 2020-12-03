@@ -9,6 +9,7 @@ from strategies.dual_line import DualLine
 from strategies.kdj import KDJ
 from strategies.macd import MACD
 from strategies.rsi import RSI
+from strategies.turtle import Turtle
 from strategies.wr import WR
 from utils.candlestick import CandlestickItem
 
@@ -435,8 +436,12 @@ class Plots(QWidget):
             return
 
         closes = []
+        highs = []
+        lows = []
         for item in self.kline_data:
             closes.append(item['close'])
+            highs.append(item['high'])
+            lows.append(item['low'])
 
         # NEW STRATEGIES #
         if self.current_indicatrix_name == self.boll_info.name:
@@ -445,12 +450,18 @@ class Plots(QWidget):
             middles = boll.calc_batch_middle(closes)
             downs = boll.calc_batch_down(closes)
             data = [ups, middles, downs]
-            pen_colors = ['r', 'w', 'b']
+            pen_colors = ['r', 'w', 'y']
         elif self.current_indicatrix_name == self.dual_line_info.name:
             dual_line = DualLine()
             ema = dual_line.calc_ema(closes)
             ma = dual_line.calc_ma(closes)
             data = [ema, ma]
+            pen_colors = ['r', 'y']
+        elif self.current_indicatrix_name == self.turtle_info.name:
+            turtle = Turtle()
+            ups = turtle.calc_batch_up(highs)
+            downs = turtle.calc_batch_down(lows)
+            data = [ups, downs]
             pen_colors = ['r', 'y']
         else:
             data = []

@@ -16,6 +16,7 @@ from strategies.kdj import KDJConfig, KDJInfo
 from strategies.macd import MACDConfig, MACDInfo
 from strategies.rsi import RSIConfig, RSIInfo
 from strategies.stairs import StairsConfig, StairsInfo
+from strategies.turtle import TurtleConfig, TurtleInfo
 from strategies.wr import WRConfig, WRInfo
 from strategies.volume_increase import VolumeIncreaseConfig, VolumeIncreaseInfo
 from utils.custom_add_dialog import CustomAddDialog
@@ -68,6 +69,7 @@ class Nav(QWidget):
         # NEW STRATEGIES #
         self.dual_line_info = DualLineInfo()
         self.stairs_info = StairsInfo()
+        self.turtle_info = TurtleInfo()
         self.volume_increase_info = VolumeIncreaseInfo()
         self.wr_info = WRInfo()
         self.boll_info = BOLLInfo()
@@ -75,30 +77,51 @@ class Nav(QWidget):
         self.kdj_info = KDJInfo()
         self.rsi_info = RSIInfo()
         self.strategies = [
-            {'name': self.dual_line_info.name,
-             'choose': 'Y' if self.dual_line_info.choose_flag else 'N',
-             'watch': 'Y' if self.dual_line_info.watch_flag else 'N'},
-            {'name': self.stairs_info.name,
-             'choose': 'Y' if self.stairs_info.choose_flag else 'N',
-             'watch': 'Y' if self.stairs_info.watch_flag else 'N'},
-            {'name': self.volume_increase_info.name,
-             'choose': 'Y' if self.volume_increase_info.choose_flag else 'N',
-             'watch': 'Y' if self.volume_increase_info.watch_flag else 'N'},
-            {'name': self.wr_info.name,
-             'choose': 'Y' if self.wr_info.choose_flag else 'N',
-             'watch': 'Y' if self.wr_info.watch_flag else 'N'},
-            {'name': self.boll_info.name,
-             'choose': 'Y' if self.boll_info.choose_flag else 'N',
-             'watch': 'Y' if self.boll_info.watch_flag else 'N'},
-            {'name': self.macd_info.name,
-             'choose': 'Y' if self.macd_info.choose_flag else 'N',
-             'watch': 'Y' if self.macd_info.watch_flag else 'N'},
-            {'name': self.kdj_info.name,
-             'choose': 'Y' if self.kdj_info.choose_flag else 'N',
-             'watch': 'Y' if self.kdj_info.watch_flag else 'N'},
-            {'name': self.rsi_info.name,
-             'choose': 'Y' if self.rsi_info.choose_flag else 'N',
-             'watch': 'Y' if self.rsi_info.watch_flag else 'N'},
+            {
+                'name': self.dual_line_info.name,
+                'choose': 'Y' if self.dual_line_info.choose_flag else 'N',
+                'watch': 'Y' if self.dual_line_info.watch_flag else 'N'
+            },
+            {
+                'name': self.stairs_info.name,
+                'choose': 'Y' if self.stairs_info.choose_flag else 'N',
+                'watch': 'Y' if self.stairs_info.watch_flag else 'N'
+            },
+            {
+                'name': self.turtle_info.name,
+                'choose': 'Y' if self.turtle_info.choose_flag else 'N',
+                'watch': 'Y' if self.turtle_info.watch_flag else 'N'
+            },
+            {
+                'name': self.volume_increase_info.name,
+                'choose': 'Y' if self.volume_increase_info.choose_flag else 'N',
+                'watch': 'Y' if self.volume_increase_info.watch_flag else 'N'
+            },
+            {
+                'name': self.wr_info.name,
+                'choose': 'Y' if self.wr_info.choose_flag else 'N',
+                'watch': 'Y' if self.wr_info.watch_flag else 'N'
+            },
+            {
+                'name': self.boll_info.name,
+                'choose': 'Y' if self.boll_info.choose_flag else 'N',
+                'watch': 'Y' if self.boll_info.watch_flag else 'N'
+            },
+            {
+                'name': self.macd_info.name,
+                'choose': 'Y' if self.macd_info.choose_flag else 'N',
+                'watch': 'Y' if self.macd_info.watch_flag else 'N'
+            },
+            {
+                'name': self.kdj_info.name,
+                'choose': 'Y' if self.kdj_info.choose_flag else 'N',
+                'watch': 'Y' if self.kdj_info.watch_flag else 'N'
+            },
+            {
+                'name': self.rsi_info.name,
+                'choose': 'Y' if self.rsi_info.choose_flag else 'N',
+                'watch': 'Y' if self.rsi_info.watch_flag else 'N'
+            }
         ]
 
         self.watch = None
@@ -283,6 +306,10 @@ class Nav(QWidget):
             cfg_dlg.exec_()
         if name == self.stairs_info.name:
             cfg_dlg = StairsConfig(self)
+            cfg_dlg.show()
+            cfg_dlg.exec_()
+        if name == self.turtle_info.name:
+            cfg_dlg = TurtleConfig(self)
             cfg_dlg.show()
             cfg_dlg.exec_()
         if name == self.volume_increase_info.name:
