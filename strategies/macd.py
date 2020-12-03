@@ -80,14 +80,19 @@ class MACD:
                 continue
             if i == start:
                 continue
-            if 0 > macd[i - 1] > macd[i - 2] and closes[i - 1] < closes[i - 2]:
+            if dif[i - 1] < 0 and dif[i - 2] < 0 and \
+                    dea[i - 1] < 0 and dea[i - 2] < 0 and \
+                    0 > macd[i - 1] > macd[i - 2] and \
+                    closes[i - 1] < closes[i - 2]:
                 state = 'b'
                 if state != old_state:
                     buy_prices.append(closes[i])
                     buy_dates.append(dates[i])
                     buy_index.append(i)
                     old_state = state
-            elif 0 < macd[i - 1] < macd[i - 2] and \
+            elif dif[i - 1] > 0 and dif[i - 2] > 0 and \
+                    dea[i - 1] > 0 and dea[i - 2] > 0 and \
+                    0 < macd[i - 1] < macd[i - 2] and \
                     closes[i - 1] > closes[i - 2]:
                 state = 's'
                 if state != old_state:
@@ -150,7 +155,8 @@ class MACD:
         date, _open, close, high, low, volume, ma_price, ma_volume = \
             get_latest_batch_data(code)
         macd, dif, dea = self.calc_macd(close)
-        if 0 > macd[-1] > macd[-2] and close[-1] < close[-2]:
+        if dif[-1] < 0 and dif[-2] < 0 and dea[-1] < 0 and dea[-2] < 0 \
+                and 0 > macd[-1] > macd[-2] and close[-1] < close[-2]:
             return True
         else:
             return False
