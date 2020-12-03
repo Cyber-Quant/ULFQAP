@@ -130,8 +130,8 @@ class Backtest(QWidget):
         self.table.setSelectionMode(QAbstractItemView.ExtendedSelection)
         self.table.setSortingEnabled(True)
         self.table.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.table.setMinimumWidth(300)
-        self.table.setMaximumWidth(400)
+        self.table.setMinimumWidth(370)
+        self.table.setMaximumWidth(500)
 
         left_v_box = QVBoxLayout()
         left_v_box.addWidget(self.table)
