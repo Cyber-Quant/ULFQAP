@@ -11,6 +11,7 @@ from pages.config import Config
 from pages.watch import Watch
 from pages.backtest import Backtest
 from strategies.boll import BOLLConfig, BOLLInfo
+from strategies.dual_line import DualLineConfig, DualLineInfo
 from strategies.kdj import KDJConfig, KDJInfo
 from strategies.macd import MACDConfig, MACDInfo
 from strategies.rsi import RSIConfig, RSIInfo
@@ -65,6 +66,7 @@ class Nav(QWidget):
                 self.custom_watch = json.load(f)
 
         # NEW STRATEGIES #
+        self.dual_line_info = DualLineInfo()
         self.stairs_info = StairsInfo()
         self.volume_increase_info = VolumeIncreaseInfo()
         self.wr_info = WRInfo()
@@ -73,6 +75,9 @@ class Nav(QWidget):
         self.kdj_info = KDJInfo()
         self.rsi_info = RSIInfo()
         self.strategies = [
+            {'name': self.dual_line_info.name,
+             'choose': 'Y' if self.dual_line_info.choose_flag else 'N',
+             'watch': 'Y' if self.dual_line_info.watch_flag else 'N'},
             {'name': self.stairs_info.name,
              'choose': 'Y' if self.stairs_info.choose_flag else 'N',
              'watch': 'Y' if self.stairs_info.watch_flag else 'N'},
@@ -242,7 +247,8 @@ class Nav(QWidget):
         self.stacked_window.addWidget(self.choose)
 
         self.backtest = Backtest()
-        self.backtest.fav_stock_changed_signal.connect(self.on_refresh_fav_table)
+        self.backtest.fav_stock_changed_signal.connect(
+            self.on_refresh_fav_table)
         self.stacked_window.addWidget(self.backtest)
 
         self.config = Config()
@@ -271,6 +277,10 @@ class Nav(QWidget):
         row = self.strategy_table.currentIndex().row()
         name = self.strategy_table.item(row, 1).text()
         # NEW STRATEGIES #
+        if name == self.dual_line_info.name:
+            cfg_dlg = DualLineConfig(self)
+            cfg_dlg.show()
+            cfg_dlg.exec_()
         if name == self.stairs_info.name:
             cfg_dlg = StairsConfig(self)
             cfg_dlg.show()

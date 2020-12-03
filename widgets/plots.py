@@ -5,6 +5,7 @@ from qtpy.QtWidgets import *
 
 from strategies.common import get_latest_batch_data
 from strategies.boll import BOLL
+from strategies.dual_line import DualLine
 from strategies.kdj import KDJ
 from strategies.macd import MACD
 from strategies.rsi import RSI
@@ -445,6 +446,12 @@ class Plots(QWidget):
             downs = boll.calc_batch_down(closes)
             data = [ups, middles, downs]
             pen_colors = ['r', 'w', 'b']
+        elif self.current_indicatrix_name == self.dual_line_info.name:
+            dual_line = DualLine()
+            ema = dual_line.calc_ema(closes)
+            ma = dual_line.calc_ma(closes)
+            data = [ema, ma]
+            pen_colors = ['r', 'y']
         else:
             data = []
             pen_colors = []
