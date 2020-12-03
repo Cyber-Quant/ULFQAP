@@ -48,7 +48,7 @@ def download_data(codes):
 
     for code in codes:
         print('Downloading: ' + code)
-        ret, data = fetch_day_line_data(code, '1990-12-19', today)
+        ret, data = fetch_day_line_data(code, today)
         if ret != 0:
             print('下载', code, '时出错，退出，接着跑')
             break
