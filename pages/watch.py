@@ -8,6 +8,7 @@ from qtpy.QtWidgets import *
 from conf.conf import fav_stocks_config_path, apply_strategies_config_path, \
     bundle_dir
 from strategies.boll import BOLLInfo, BOLLWatch
+from strategies.dual_line import DualLineInfo
 from strategies.custom_watch import CustomWatch
 from strategies.turtle import TurtleInfo, TurtleWatch
 from widgets.plots import Plots
@@ -70,6 +71,7 @@ class Watch(Plots):
         self.custom_watch_thread = None
         self.turtle_watch_thread = None
         self.boll_info = BOLLInfo()
+        self.dual_line_info = DualLineInfo()
         self.turtle_info = TurtleInfo()
 
         self.top_widget = QWidget()
