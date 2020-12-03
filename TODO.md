@@ -1,15 +1,13 @@
 TODO
 ---
 
-- Reduce DB IO to improve update performance.
-- Dynamic update K line.
-- Using numpy to speedup strategies?
+- Plugin system, make all strategies plugin.
+- Terminate thread properly.
+- Dynamic update plots by moving left.
 - Improve strategies to get better backtest results.
-- Refresh minute K by minute in Watch page.
-- Notify iOS and Android.
+- Refresh minute K by minute in watch.
 - Exclude Right and Exclude Dividend.
 - Try catch in APIs.
-- More strategies.
-- Plugin system, make all strategies plugin.
+- Using numpy to speedup strategies?
+- Notify iOS and Android.
 - Better UI, user experience, icons, splash screen...
-- Trading support.
