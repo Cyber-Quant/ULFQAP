@@ -286,48 +286,30 @@ def fetch_sina_minute_k(code, period):
     return k_charts
 
 
-def fetch_tencent_k(code, period):
+def fetch_tencent_1_minute_k(code):
     code = code.replace('.', '') + '.js'
-    if period == '1':
-        url = 'http://data.gtimg.cn/flashdata/hushen/minute/'
-    elif period == 'w':
-        url = 'http://data.gtimg.cn/flashdata/hushen/latest/weekly/'
-    elif period == 'm':
-        url = 'http://data.gtimg.cn/flashdata/hushen/monthly/'
-    url = url + code
+    base = 'http://data.gtimg.cn/flashdata/hushen/minute/'
+    url = base + code
     res = requests.get(url).text
     res_list = res.split('\\n\\\n')
     k_charts = []
     for item in res_list[2:-1]:
         item_list = item.split(' ')
-        if period == '1':
-            now = datetime.datetime.now()
-            year = now.year
-            month = now.month
-            day = now.day
-            _date = datetime.datetime(year, month, day,
-                                      int(item_list[0][:2], 10),
-                                      int(item_list[0][2:], 10),
-                                      0, 0)
-            data_str = _date.strftime('%Y-%m-%d %H:%M:%S')
-            date = data_str
-            _open = float(item_list[1])
-            close = float(item_list[1])
-            high = float(item_list[1])
-            low = float(item_list[1])
-            vol = int(item_list[2])
-        else:
-            year = int('20' + item_list[0][:2], 10)
-            month = int(item_list[0][2:4], 10)
-            day = int(item_list[0][4:], 10)
-            _date = datetime.datetime(year, month, day, 0, 0, 0, 0)
-            data_str = _date.strftime('%Y-%m-%d')
-            date = data_str
-            _open = float(item_list[1])
-            close = float(item_list[2])
-            high = float(item_list[3])
-            low = float(item_list[4])
-            vol = int(item_list[5])
+        now = datetime.datetime.now()
+        year = now.year
+        month = now.month
+        day = now.day
+        _date = datetime.datetime(year, month, day,
+                                  int(item_list[0][:2], 10),
+                                  int(item_list[0][2:], 10),
+                                  0, 0)
+        data_str = _date.strftime('%Y-%m-%d %H:%M:%S')
+        date = data_str
+        _open = float(item_list[1])
+        close = float(item_list[1])
+        high = float(item_list[1])
+        low = float(item_list[1])
+        vol = int(item_list[2])
         k_chart = {
             'date': date,
             'open': _open,
