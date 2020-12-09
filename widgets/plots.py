@@ -443,7 +443,7 @@ class Plots(QWidget):
             closes.append(item['close'])
             highs.append(item['high'])
             lows.append(item['low'])
-            volumes.append(item['volumw'])
+            volumes.append(item['volume'])
 
         # NEW STRATEGIES #
         if self.current_indicator_name == self.boll_info.name:
