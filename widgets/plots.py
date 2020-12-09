@@ -20,7 +20,7 @@ class Plots(QWidget):
         self.setWindowTitle('Plots')
 
         self.current_kline_code = None
-        self.current_indicatrix_name = None
+        self.current_indicator_name = None
 
         self.kline_data = []
         self.k_v_line = pg.InfiniteLine(angle=90, movable=False)
@@ -423,16 +423,16 @@ class Plots(QWidget):
             self.kdj_v_line.setPos(mouse_point.x())
             self.rsi_v_line.setPos(mouse_point.x())
 
-    def re_draw_indicatrix(self, name):
-        self.current_indicatrix_name = name
+    def re_draw_indicator(self, name):
+        self.current_indicator_name = name
         if self.current_kline_code is None:
             return
-        self.draw_indicatrix(name)
+        self.draw_indicator(name)
 
-    def draw_indicatrix(self, strategy_name):
-        self.current_indicatrix_name = strategy_name
+    def draw_indicator(self, strategy_name):
+        self.current_indicator_name = strategy_name
         if self.current_kline_code is None or \
-                self.current_indicatrix_name is None:
+                self.current_indicator_name is None:
             return
 
         closes = []
@@ -444,20 +444,20 @@ class Plots(QWidget):
             lows.append(item['low'])
 
         # NEW STRATEGIES #
-        if self.current_indicatrix_name == self.boll_info.name:
+        if self.current_indicator_name == self.boll_info.name:
             boll = BOLL()
             ups = boll.calc_batch_up(closes)
             middles = boll.calc_batch_middle(closes)
             downs = boll.calc_batch_down(closes)
             data = [ups, middles, downs]
             pen_colors = ['r', 'w', 'y']
-        elif self.current_indicatrix_name == self.dual_line_info.name:
+        elif self.current_indicator_name == self.dual_line_info.name:
             dual_line = DualLine()
             ema = dual_line.calc_ema(closes)
             ma = dual_line.calc_ma(closes)
             data = [ema, ma]
             pen_colors = ['r', 'y']
-        elif self.current_indicatrix_name == self.turtle_info.name:
+        elif self.current_indicator_name == self.turtle_info.name:
             turtle = Turtle()
             ups = turtle.calc_batch_up(highs)
             downs = turtle.calc_batch_down(lows)

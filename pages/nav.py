@@ -462,10 +462,10 @@ class Nav(QWidget):
             strategy = None
         if self.list.currentRow() == 0:
             self.watch.render_all_plots(code)
-            self.watch.draw_indicatrix(strategy)
+            self.watch.draw_indicator(strategy)
         elif self.list.currentRow() == 1:
             self.choose.re_render_all_plots(code)
-            self.choose.draw_indicatrix(strategy)
+            self.choose.draw_indicator(strategy)
         elif self.list.currentRow() == 2:
             self.backtest.set_code(code, name)
 
@@ -478,10 +478,10 @@ class Nav(QWidget):
         code = self.fav_table.item(row, 0).text()
         if self.list.currentRow() == 0:
             self.watch.render_all_plots(code)
-            self.watch.draw_indicatrix(strategy)
+            self.watch.draw_indicator(strategy)
         elif self.list.currentRow() == 1:
             self.choose.re_render_all_plots(code)
-            self.choose.re_draw_indicatrix(strategy)
+            self.choose.re_draw_indicator(strategy)
         elif self.list.currentRow() == 2:
             self.backtest.set_strategy(strategy)
 
