@@ -188,6 +188,26 @@ def calc_batch_ema(data, period):
     return emas
 
 
+def calc_batch_macd(closes, fast_period, slow_period, period):
+    fast_ema = calc_batch_ema(closes, fast_period)
+    slow_ema = calc_batch_ema(closes, slow_period)
+    dif = []
+    for i, data in enumerate(fast_ema):
+        dif.append(fast_ema[i] - slow_ema[i])
+    dea = []
+    for i, data in enumerate(dif):
+        if i == 0:
+            dea.append(dif[i])
+        else:
+            dea.append(
+                (2 * dif[i] + (period - 1) * dea[i - 1]) / (period + 1)
+            )
+    macd = []
+    for i, data in enumerate(dea):
+        macd.append(2 * (dif[i] - dea[i]))
+    return macd, dif, dea
+
+
 def calc_batch_mav(vol, period):
     mavs = []
     for i in range(len(vol)):

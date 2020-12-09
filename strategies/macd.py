@@ -6,7 +6,8 @@ from qtpy.QtGui import *
 from qtpy.QtCore import *
 
 from conf.conf import strategies_config_path
-from strategies.common import get_latest_batch_data, calc_wpct, calc_batch_ema
+from strategies.common import get_latest_batch_data, calc_batch_ema, \
+    calc_batch_macd, calc_wpct
 
 
 class MACDInfo:
@@ -45,22 +46,7 @@ class MACD:
             self.divergence = True
 
     def calc_macd(self, closes):
-        fast_ema = calc_batch_ema(closes, self.m)
-        slow_ema = calc_batch_ema(closes, self.n)
-        dif = []
-        for i, data in enumerate(fast_ema):
-            dif.append(fast_ema[i] - slow_ema[i])
-        dea = []
-        for i, data in enumerate(dif):
-            if i == 0:
-                dea.append(dif[i])
-            else:
-                dea.append(
-                    (2 * dif[i] + (self.k - 1) * dea[i - 1]) / (self.k + 1)
-                )
-        macd = []
-        for i, data in enumerate(dea):
-            macd.append(2 * (dif[i] - dea[i]))
+        macd, dif, dea = calc_batch_macd(closes, self.m, self.n, self.k)
         return macd, dif, dea
 
     def backtest(self, code, s_date, e_date, init_money, fee, pass_fee, tax):
