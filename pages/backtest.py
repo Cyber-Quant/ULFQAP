@@ -283,6 +283,8 @@ class Backtest(QWidget):
 
     def on_row_changed(self):
         row = self.table.currentRow()
+        if row == -1:
+            return
         self.current_code = self.table.item(row, 0).text()
         self.current_name = self.table.item(row, 1).text()
         if self.current_strategy_name is not None:

@@ -180,6 +180,8 @@ class Choose(Plots):
 
     def on_row_changed(self):
         row = self.table.currentRow()
+        if row == -1:
+            return
         code = self.table.item(row, 0).text()
         self.render_all_plots(code)
         self.re_draw_indicatrix(self.current_indicatrix_name)

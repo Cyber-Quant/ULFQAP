@@ -451,6 +451,8 @@ class Nav(QWidget):
 
     def on_fav_table_row_changed(self):
         row = self.fav_table.currentRow()
+        if row == -1:
+            return
         code = self.fav_table.item(row, 0).text()
         name = self.fav_table.item(row, 1).text()
         row = self.strategy_table.currentRow()
@@ -471,10 +473,9 @@ class Nav(QWidget):
         row = self.strategy_table.currentRow()
         strategy = self.strategy_table.item(row, 1).text()
         row = self.fav_table.currentRow()
-        if row != -1:
-            code = self.fav_table.item(row, 0).text()
-        else:
-            code = None
+        if row == -1:
+            return
+        code = self.fav_table.item(row, 0).text()
         if self.list.currentRow() == 0:
             self.watch.render_all_plots(code)
             self.watch.draw_indicatrix(strategy)
