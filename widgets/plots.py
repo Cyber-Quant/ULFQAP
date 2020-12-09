@@ -438,10 +438,12 @@ class Plots(QWidget):
         closes = []
         highs = []
         lows = []
+        volumes = []
         for item in self.kline_data:
             closes.append(item['close'])
             highs.append(item['high'])
             lows.append(item['low'])
+            volumes.append(item['volumw'])
 
         # NEW STRATEGIES #
         if self.current_indicator_name == self.boll_info.name:
@@ -449,28 +451,44 @@ class Plots(QWidget):
             ups = boll.calc_batch_up(closes)
             middles = boll.calc_batch_middle(closes)
             downs = boll.calc_batch_down(closes)
-            data = [ups, middles, downs]
-            pen_colors = ['r', 'w', 'y']
+            k_data = [ups, middles, downs]
+            k_pen_colors = ['r', 'w', 'y']
+            vol_data = []
+            vol_pen_colors = []
         elif self.current_indicator_name == self.dual_line_info.name:
             dual_line = DualLine()
             ema = dual_line.calc_ema(closes)
             ma = dual_line.calc_ma(closes)
-            data = [ema, ma]
-            pen_colors = ['r', 'y']
+            k_data = [ema, ma]
+            k_pen_colors = ['r', 'y']
+            vol_data = []
+            vol_pen_colors = []
         elif self.current_indicator_name == self.turtle_info.name:
             turtle = Turtle()
             ups = turtle.calc_batch_up(highs)
             downs = turtle.calc_batch_down(lows)
-            data = [ups, downs]
-            pen_colors = ['r', 'y']
+            k_data = [ups, downs]
+            k_pen_colors = ['r', 'y']
+            vol_data = []
+            vol_pen_colors = []
         else:
-            data = []
-            pen_colors = []
-        self.draw_lines(data, pen_colors)
+            k_data = []
+            k_pen_colors = []
+            vol_data = []
+            vol_pen_colors = []
+        self.draw_k_indicators(k_data, k_pen_colors)
+        self.draw_vol_indicators(vol_data, vol_pen_colors)
 
-    def draw_lines(self, data, pen_colors):
+    def draw_k_indicators(self, data, pen_colors):
         for i, _data in enumerate(data):
-            self._draw_line(_data, pen_colors[i])
+            self.draw_k_indicator(_data, pen_colors[i])
 
-    def _draw_line(self, data, pen_color):
+    def draw_k_indicator(self, data, pen_color):
         self.k_plt.plot(data, pen=pen_color)
+
+    def draw_vol_indicators(self, data, pen_colors):
+        for i, _data in enumerate(data):
+            self.draw_vol_indicator(_data, pen_colors[i])
+
+    def draw_vol_indicator(self, data, pen_color):
+        self.vol_plt.plot(data, pen=pen_color)
