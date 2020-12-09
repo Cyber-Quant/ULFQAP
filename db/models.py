@@ -24,7 +24,7 @@ class AStockInfo(BaseModel):
 
 class AStockDayLine(BaseModel):
     id = BigAutoField()
-    date = DateTimeField(index=True)
+    date = DateTimeField()
     code = CharField(index=True)
     open = FloatField()
     high = FloatField()
@@ -48,3 +48,7 @@ class AStockDayLine(BaseModel):
         indexes = (
             (('code', 'date'), False),
         )
+
+
+idx = AStockDayLine.index(AStockDayLine.date.desc())
+AStockDayLine.add_index(idx)
