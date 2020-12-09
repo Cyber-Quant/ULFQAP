@@ -187,7 +187,7 @@ class Choose(Plots):
             return
         code = self.table.item(row, 0).text()
         self.render_all_plots(code)
-        self.re_draw_indicator(self.current_indicator_name)
+        self.re_draw_indicators(self.current_indicator_name)
 
     def on_kline_info_changed(self, date, _open, close, high, low, volume):
         self.date_input.setText(date)

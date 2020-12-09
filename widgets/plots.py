@@ -424,13 +424,13 @@ class Plots(QWidget):
             self.kdj_v_line.setPos(mouse_point.x())
             self.rsi_v_line.setPos(mouse_point.x())
 
-    def re_draw_indicator(self, name):
+    def re_draw_indicators(self, name):
         self.current_indicator_name = name
         if self.current_kline_code is None:
             return
         self.draw_indicator(name)
 
-    def draw_indicator(self, strategy_name):
+    def draw_indicators(self, strategy_name):
         self.current_indicator_name = strategy_name
         if self.current_kline_code is None or \
                 self.current_indicator_name is None:
