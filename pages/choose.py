@@ -40,16 +40,16 @@ class Choose(Plots):
         self.choose_thread = None
         # TODO: make strategies plugin
         # NEW STRATEGIES #
+        self.boll_info = BOLLInfo()
         self.dual_line_info = DualLineInfo()
+        self.kdj_info = KDJInfo()
+        self.macd_info = MACDInfo()
+        self.rsi_info = RSIInfo()
         self.stairs_info = StairsInfo()
+        self.triple_golden_cross_info = TripleGoldenCrossInfo()
         self.turtle_info = TurtleInfo()
         self.volume_increase_info = VolumeIncreaseInfo()
         self.wr_info = WRInfo()
-        self.triple_golden_cross_info = TripleGoldenCrossInfo()
-        self.boll_info = BOLLInfo()
-        self.macd_info = MACDInfo()
-        self.kdj_info = KDJInfo()
-        self.rsi_info = RSIInfo()
 
         op_v_box = QVBoxLayout()
         self.re_search_check = QCheckBox('从结果中再选')
@@ -256,11 +256,23 @@ class Choose(Plots):
                 self.enable_all()
             elif len(self.apply_strategies) == 1:
                 # NEW STRATEGIES #
-                if self.apply_strategies[0] == self.dual_line_info.name:
+                if self.apply_strategies[0] == self.boll_info.name:
+                    self.choose_thread = BOLLChoose(self.stocks_to_be_chosen)
+                elif self.apply_strategies[0] == self.dual_line_info.name:
                     self.choose_thread = DualLineChoose(
                         self.stocks_to_be_chosen)
+                elif self.apply_strategies[0] == self.kdj_info.name:
+                    self.choose_thread = KDJChoose(self.stocks_to_be_chosen)
+                elif self.apply_strategies[0] == self.macd_info.name:
+                    self.choose_thread = MACDChoose(self.stocks_to_be_chosen)
+                elif self.apply_strategies[0] == self.rsi_info.name:
+                    self.choose_thread = RSIChoose(self.stocks_to_be_chosen)
                 elif self.apply_strategies[0] == self.stairs_info.name:
                     self.choose_thread = StairsChoose(self.stocks_to_be_chosen)
+                elif self.apply_strategies[0] == \
+                        self.triple_golden_cross_info.name:
+                    self.choose_thread = TripleGoldenCrossChoose(
+                        self.stocks_to_be_chosen)
                 elif self.apply_strategies[0] == self.turtle_info.name:
                     self.choose_thread = TurtleChoose(self.stocks_to_be_chosen)
                 elif self.apply_strategies[0] == self.volume_increase_info.name:
@@ -268,18 +280,6 @@ class Choose(Plots):
                         self.stocks_to_be_chosen)
                 elif self.apply_strategies[0] == self.wr_info.name:
                     self.choose_thread = WRChoose(self.stocks_to_be_chosen)
-                elif self.apply_strategies[0] == \
-                        self.triple_golden_cross_info.name:
-                    self.choose_thread = TripleGoldenCrossChoose(
-                        self.stocks_to_be_chosen)
-                elif self.apply_strategies[0] == self.boll_info.name:
-                    self.choose_thread = BOLLChoose(self.stocks_to_be_chosen)
-                elif self.apply_strategies[0] == self.macd_info.name:
-                    self.choose_thread = MACDChoose(self.stocks_to_be_chosen)
-                elif self.apply_strategies[0] == self.kdj_info.name:
-                    self.choose_thread = KDJChoose(self.stocks_to_be_chosen)
-                elif self.apply_strategies[0] == self.rsi_info.name:
-                    self.choose_thread = RSIChoose(self.stocks_to_be_chosen)
                 self.choose_thread.progress_signal.connect(
                     self.set_progress_bar)
                 self.choose_thread.start()

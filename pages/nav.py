@@ -71,10 +71,10 @@ class Nav(QWidget):
         # NEW STRATEGIES #
         self.dual_line_info = DualLineInfo()
         self.stairs_info = StairsInfo()
+        self.triple_golden_cross_info = TripleGoldenCrossInfo()
         self.turtle_info = TurtleInfo()
         self.volume_increase_info = VolumeIncreaseInfo()
         self.wr_info = WRInfo()
-        self.triple_golden_cross_info = TripleGoldenCrossInfo()
         self.boll_info = BOLLInfo()
         self.macd_info = MACDInfo()
         self.kdj_info = KDJInfo()
@@ -91,6 +91,11 @@ class Nav(QWidget):
                 'watch': 'Y' if self.stairs_info.watch_flag else 'N'
             },
             {
+                'name': self.triple_golden_cross_info.name,
+                'choose': 'Y' if self.triple_golden_cross_info.choose_flag else 'N',
+                'watch': 'Y' if self.triple_golden_cross_info.watch_flag else 'N'
+            },
+            {
                 'name': self.turtle_info.name,
                 'choose': 'Y' if self.turtle_info.choose_flag else 'N',
                 'watch': 'Y' if self.turtle_info.watch_flag else 'N'
@@ -104,11 +109,6 @@ class Nav(QWidget):
                 'name': self.wr_info.name,
                 'choose': 'Y' if self.wr_info.choose_flag else 'N',
                 'watch': 'Y' if self.wr_info.watch_flag else 'N'
-            },
-            {
-                'name': self.triple_golden_cross_info.name,
-                'choose': 'Y' if self.triple_golden_cross_info.choose_flag else 'N',
-                'watch': 'Y' if self.triple_golden_cross_info.watch_flag else 'N'
             },
             {
                 'name': self.boll_info.name,
@@ -316,6 +316,10 @@ class Nav(QWidget):
             cfg_dlg = StairsConfig(self)
             cfg_dlg.show()
             cfg_dlg.exec_()
+        if name == self.triple_golden_cross_info.name:
+            cfg_dlg = TripleGoldenCrossConfig(self)
+            cfg_dlg.show()
+            cfg_dlg.exec_()
         if name == self.turtle_info.name:
             cfg_dlg = TurtleConfig(self)
             cfg_dlg.show()
@@ -326,10 +330,6 @@ class Nav(QWidget):
             cfg_dlg.exec_()
         if name == self.wr_info.name:
             cfg_dlg = WRConfig(self)
-            cfg_dlg.show()
-            cfg_dlg.exec_()
-        if name == self.triple_golden_cross_info.name:
-            cfg_dlg = TripleGoldenCrossConfig(self)
             cfg_dlg.show()
             cfg_dlg.exec_()
         if name == self.boll_info.name:
