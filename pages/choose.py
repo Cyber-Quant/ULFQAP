@@ -12,6 +12,8 @@ from strategies.kdj import KDJChoose, KDJInfo
 from strategies.macd import MACDChoose, MACDInfo
 from strategies.rsi import RSIChoose, RSIInfo
 from strategies.stairs import StairsChoose, StairsInfo
+from strategies.triple_golden_cross import TripleGoldenCrossChoose, \
+    TripleGoldenCrossInfo
 from strategies.turtle import TurtleChoose, TurtleInfo
 from strategies.volume_increase import VolumeIncreaseChoose, VolumeIncreaseInfo
 from strategies.wr import WRChoose, WRInfo
@@ -43,6 +45,7 @@ class Choose(Plots):
         self.turtle_info = TurtleInfo()
         self.volume_increase_info = VolumeIncreaseInfo()
         self.wr_info = WRInfo()
+        self.triple_golden_cross_info = TripleGoldenCrossInfo()
         self.boll_info = BOLLInfo()
         self.macd_info = MACDInfo()
         self.kdj_info = KDJInfo()
@@ -265,6 +268,10 @@ class Choose(Plots):
                         self.stocks_to_be_chosen)
                 elif self.apply_strategies[0] == self.wr_info.name:
                     self.choose_thread = WRChoose(self.stocks_to_be_chosen)
+                elif self.apply_strategies[0] == \
+                        self.triple_golden_cross_info.name:
+                    self.choose_thread = TripleGoldenCrossChoose(
+                        self.stocks_to_be_chosen)
                 elif self.apply_strategies[0] == self.boll_info.name:
                     self.choose_thread = BOLLChoose(self.stocks_to_be_chosen)
                 elif self.apply_strategies[0] == self.macd_info.name:

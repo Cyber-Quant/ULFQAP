@@ -15,6 +15,8 @@ from strategies.kdj import KDJ, KDJBacktest, KDJInfo
 from strategies.macd import MACD, MACDBacktest, MACDInfo
 from strategies.rsi import RSI, RSIBacktest, RSIInfo
 from strategies.stairs import Stairs, StairsBacktest, StairsInfo
+from strategies.triple_golden_cross import TripleGoldenCross, \
+    TripleGoldenCrossBacktest, TripleGoldenCrossInfo
 from strategies.turtle import Turtle, TurtleBacktest, TurtleInfo
 from strategies.wr import WR, WRBacktest, WRInfo
 
@@ -238,6 +240,7 @@ class Backtest(QWidget):
         macd_info = MACDInfo()
         rsi_info = RSIInfo()
         stairs_info = StairsInfo()
+        triple_golden_cross_info = TripleGoldenCrossInfo()
         turtle_info = TurtleInfo()
         wr_info = WRInfo()
         if self.current_strategy_name == boll_info.name:
@@ -264,6 +267,11 @@ class Backtest(QWidget):
             self.backtest_thread = StairsBacktest(stocks, s_date, e_date,
                                                   init_money, fee,
                                                   pass_fee, tax)
+        elif self.current_strategy_name == triple_golden_cross_info.name:
+            self.backtest_thread = TripleGoldenCrossBacktest(stocks, s_date,
+                                                             e_date,
+                                                             init_money, fee,
+                                                             pass_fee, tax)
         elif self.current_strategy_name == turtle_info.name:
             self.backtest_thread = TurtleBacktest(stocks, s_date, e_date,
                                                   init_money, fee,
@@ -329,6 +337,7 @@ class Backtest(QWidget):
         macd_info = MACDInfo()
         rsi_info = RSIInfo()
         stairs_info = StairsInfo()
+        triple_golden_cross_info = TripleGoldenCrossInfo()
         turtle_info = TurtleInfo()
         wr_info = WRInfo()
         if self.current_strategy_name == boll_info.name:
@@ -343,6 +352,8 @@ class Backtest(QWidget):
             backtest = RSI()
         elif self.current_strategy_name == stairs_info.name:
             backtest = Stairs()
+        elif self.current_strategy_name == triple_golden_cross_info.name:
+            backtest = TripleGoldenCross()
         elif self.current_strategy_name == turtle_info.name:
             backtest = Turtle()
         elif self.current_strategy_name == wr_info.name:

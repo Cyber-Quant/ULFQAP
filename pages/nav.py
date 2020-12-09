@@ -16,6 +16,8 @@ from strategies.kdj import KDJConfig, KDJInfo
 from strategies.macd import MACDConfig, MACDInfo
 from strategies.rsi import RSIConfig, RSIInfo
 from strategies.stairs import StairsConfig, StairsInfo
+from strategies.triple_golden_cross import TripleGoldenCrossConfig, \
+    TripleGoldenCrossInfo
 from strategies.turtle import TurtleConfig, TurtleInfo
 from strategies.wr import WRConfig, WRInfo
 from strategies.volume_increase import VolumeIncreaseConfig, VolumeIncreaseInfo
@@ -72,6 +74,7 @@ class Nav(QWidget):
         self.turtle_info = TurtleInfo()
         self.volume_increase_info = VolumeIncreaseInfo()
         self.wr_info = WRInfo()
+        self.triple_golden_cross_info = TripleGoldenCrossInfo()
         self.boll_info = BOLLInfo()
         self.macd_info = MACDInfo()
         self.kdj_info = KDJInfo()
@@ -101,6 +104,11 @@ class Nav(QWidget):
                 'name': self.wr_info.name,
                 'choose': 'Y' if self.wr_info.choose_flag else 'N',
                 'watch': 'Y' if self.wr_info.watch_flag else 'N'
+            },
+            {
+                'name': self.triple_golden_cross_info.name,
+                'choose': 'Y' if self.triple_golden_cross_info.choose_flag else 'N',
+                'watch': 'Y' if self.triple_golden_cross_info.watch_flag else 'N'
             },
             {
                 'name': self.boll_info.name,
@@ -318,6 +326,10 @@ class Nav(QWidget):
             cfg_dlg.exec_()
         if name == self.wr_info.name:
             cfg_dlg = WRConfig(self)
+            cfg_dlg.show()
+            cfg_dlg.exec_()
+        if name == self.triple_golden_cross_info.name:
+            cfg_dlg = TripleGoldenCrossConfig(self)
             cfg_dlg.show()
             cfg_dlg.exec_()
         if name == self.boll_info.name:

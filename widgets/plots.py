@@ -9,6 +9,7 @@ from strategies.dual_line import DualLine
 from strategies.kdj import KDJ
 from strategies.macd import MACD
 from strategies.rsi import RSI
+from strategies.triple_golden_cross import TripleGoldenCross
 from strategies.turtle import Turtle
 from strategies.wr import WR
 from utils.candlestick import CandlestickItem
@@ -463,6 +464,18 @@ class Plots(QWidget):
             k_pen_colors = ['r', 'y']
             vol_data = []
             vol_pen_colors = []
+        elif self.current_indicator_name == self.triple_golden_cross_info.name:
+            triple_golden_cross = TripleGoldenCross()
+            fast_ma = triple_golden_cross.calc_fast_ma(closes)
+            slow_ma = triple_golden_cross.calc_slow_ma(closes)
+            season_ma = triple_golden_cross.calc_season_ma_indicator(
+                closes)
+            k_data = [fast_ma, slow_ma, season_ma]
+            k_pen_colors = ['r', 'y', 'w']
+            fast_mav = triple_golden_cross.calc_fast_mav(volumes)
+            slow_mav = triple_golden_cross.calc_slow_mav(volumes)
+            vol_data = [fast_mav, slow_mav]
+            vol_pen_colors = ['r', 'y']
         elif self.current_indicator_name == self.turtle_info.name:
             turtle = Turtle()
             ups = turtle.calc_batch_up(highs)
