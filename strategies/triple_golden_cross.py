@@ -1,7 +1,5 @@
 import datetime
 import json
-import numpy as np
-import time
 
 from qtpy.QtWidgets import *
 from qtpy.QtGui import *
