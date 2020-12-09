@@ -109,20 +109,36 @@ class BOLL:
         for i in range(len(closes)):
             if i < start:
                 continue
-            if highs[i] >= ups[i]:
-                state = 'b'
-                if state != old_state:
-                    buy_prices.append(closes[i])
-                    buy_dates.append(dates[i])
-                    buy_index.append(i)
-                    old_state = state
-            elif lows[i] < downs[i]:
-                state = 's'
-                if state != old_state:
-                    sell_prices.append(closes[i])
-                    sell_dates.append(dates[i])
-                    sell_index.append(i)
-                    old_state = state
+            if self.break_up:
+                if highs[i] > ups[i]:
+                    state = 'b'
+                    if state != old_state:
+                        buy_prices.append(closes[i])
+                        buy_dates.append(dates[i])
+                        buy_index.append(i)
+                        old_state = state
+                elif lows[i] <= downs[i]:
+                    state = 's'
+                    if state != old_state:
+                        sell_prices.append(closes[i])
+                        sell_dates.append(dates[i])
+                        sell_index.append(i)
+                        old_state = state
+            elif self.rebound:
+                if lows[i] <= downs[i]:
+                    state = 'b'
+                    if state != old_state:
+                        buy_prices.append(closes[i])
+                        buy_dates.append(dates[i])
+                        buy_index.append(i)
+                        old_state = state
+                elif highs[i] >= ups[i]:
+                    state = 's'
+                    if state != old_state:
+                        sell_prices.append(closes[i])
+                        sell_dates.append(dates[i])
+                        sell_index.append(i)
+                        old_state = state
         if len(sell_prices) < len(buy_prices):
             sell_prices.append(closes[-1])
             sell_dates.append(dates[-1])
@@ -343,7 +359,7 @@ class BOLLWatch(QThread):
             time.sleep(3)
 
 
-# TODO: line color, different usage of this strategy
+# TODO: line color
 class BOLLConfig(QDialog):
     def __init__(self, parent=None):
         super(BOLLConfig, self).__init__(parent)
@@ -406,7 +422,7 @@ class BOLLConfig(QDialog):
             self.rebound_check.setChecked(True)
         else:
             self.rebound_check.setChecked(False)
-        self.open_up_check = QCheckBox('向上开口')
+        self.open_up_check = QCheckBox('向上开口(不支持回测)')
         if self.open_up:
             self.open_up_check.setChecked(True)
         else:

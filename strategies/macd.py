@@ -20,7 +20,7 @@ class MACDInfo:
         DEA线：9(k)日DIF线的指数平滑移动平均线
         MACD柱：2倍DIF线与DEA线的差，红绿柱
         股价上涨/下跌，但是MACD红绿柱不跟随，即发生背离，认为可以做空/做多。
-        两均线均在零轴下，DIF上穿过DEA，即认为上涨趋势。零轴上下穿则认为下跌。
+        DIF上穿过DEA，金叉，即认为上涨趋势。下穿则认为下跌。
         '''
         self.choose_flag = True
         self.watch_flag = False
@@ -35,10 +35,14 @@ class MACD:
                 self.m = data['m']
                 self.n = data['n']
                 self.k = data['k']
+                self.golden_cross = data['golden_cross']
+                self.divergence = data['divergence']
         else:
             self.m = 12
             self.n = 26
             self.k = 9
+            self.golden_cross = False
+            self.divergence = True
 
     def calc_macd(self, closes):
         fast_ema = calc_batch_ema(closes, self.m)
@@ -80,26 +84,43 @@ class MACD:
                 continue
             if i == start:
                 continue
-            if dif[i - 1] < 0 and dif[i - 2] < 0 and \
-                    dea[i - 1] < 0 and dea[i - 2] < 0 and \
-                    0 > macd[i - 1] > macd[i - 2] and \
-                    closes[i - 1] < closes[i - 2]:
-                state = 'b'
-                if state != old_state:
-                    buy_prices.append(closes[i])
-                    buy_dates.append(dates[i])
-                    buy_index.append(i)
-                    old_state = state
-            elif dif[i - 1] > 0 and dif[i - 2] > 0 and \
-                    dea[i - 1] > 0 and dea[i - 2] > 0 and \
-                    0 < macd[i - 1] < macd[i - 2] and \
-                    closes[i - 1] > closes[i - 2]:
-                state = 's'
-                if state != old_state:
-                    sell_prices.append(closes[i])
-                    sell_dates.append(dates[i])
-                    sell_index.append(i)
-                    old_state = state
+            if self.divergence:
+                if dif[i - 1] > 0 and dif[i - 2] > 0 \
+                        and dea[i - 1] > 0 and dea[i - 2] > 0 \
+                        and macd[i - 1] > macd[i - 2] > 0 \
+                        and closes[i - 1] < closes[i - 2]:
+                    state = 'b'
+                    if state != old_state:
+                        buy_prices.append(closes[i])
+                        buy_dates.append(dates[i])
+                        buy_index.append(i)
+                        old_state = state
+                elif macd[i - 1] < macd[i - 2] \
+                        and closes[i - 1] > closes[i - 2]:
+                    state = 's'
+                    if state != old_state:
+                        sell_prices.append(closes[i])
+                        sell_dates.append(dates[i])
+                        sell_index.append(i)
+                        old_state = state
+            elif self.golden_cross:
+                if dif[i - 1] > 0 and dif[i - 2] > 0 and dif[i - 3] > 0 \
+                        and dea[i - 1] > 0 and dea[i - 2] > 0 \
+                        and dea[i - 3] > 0 \
+                        and macd[i - 1] > 0 > macd[i - 3]:
+                    state = 'b'
+                    if state != old_state:
+                        buy_prices.append(closes[i])
+                        buy_dates.append(dates[i])
+                        buy_index.append(i)
+                        old_state = state
+                elif macd[i - 1] < 0 < macd[i - 3]:
+                    state = 's'
+                    if state != old_state:
+                        sell_prices.append(closes[i])
+                        sell_dates.append(dates[i])
+                        sell_index.append(i)
+                        old_state = state
         if len(sell_prices) < len(buy_prices):
             sell_prices.append(closes[-1])
             sell_dates.append(dates[-1])
@@ -155,9 +176,15 @@ class MACD:
         date, _open, close, high, low, volume, ma_price, ma_volume = \
             get_latest_batch_data(code)
         macd, dif, dea = self.calc_macd(close)
-        if dif[-1] < 0 and dif[-2] < 0 and dea[-1] < 0 and dea[-2] < 0 \
-                and 0 > macd[-1] > macd[-2] and close[-1] < close[-2]:
-            return True
+        if self.divergence:
+            if dif[-1] > 0 and dif[-2] > 0 and dea[-1] > 0 and dea[-2] > 0 \
+                    and macd[-1] > macd[-2] > 0 and close[-1] < close[-2]:
+                return True
+        elif self.golden_cross:
+            if dif[-1] > 0 and dif[-2] > 0 and dif[-3] > 0 \
+                    and dea[-1] > 0 and dea[-2] > 0 and dea[-3] > 0 \
+                    and macd[-1] > 0 > macd[-3]:
+                return True
         else:
             return False
 
@@ -228,7 +255,7 @@ class MACDChoose(QThread):
         self.progress_signal.emit(100, '', '')
 
 
-# TODO: line color, different usage of this strategy
+# TODO: line color
 class MACDConfig(QDialog):
     def __init__(self, parent=None):
         super(MACDConfig, self).__init__(parent)
@@ -244,10 +271,14 @@ class MACDConfig(QDialog):
                 self.m = data['m']
                 self.n = data['n']
                 self.k = data['k']
+                self.golden_cross = data['golden_cross']
+                self.divergence = data['divergence']
         else:
             self.m = 12
             self.n = 26
             self.k = 9
+            self.golden_cross = False
+            self.divergence = True
 
         reg = QRegExp('[0-9]+$')
         validator = QRegExpValidator()
@@ -266,12 +297,24 @@ class MACDConfig(QDialog):
         self.k_label = QLabel('DEA线周期k')
         self.k_input = QLineEdit(str(self.k))
         self.k_input.setValidator(validator)
+        self.golden_cross_check = QCheckBox('金叉')
+        if self.golden_cross:
+            self.golden_cross_check.setChecked(True)
+        else:
+            self.golden_cross_check.setChecked(False)
+        self.divergence_check = QCheckBox('背离')
+        if self.divergence:
+            self.divergence_check.setChecked(True)
+        else:
+            self.divergence_check.setChecked(False)
         self.btn_cancel = QPushButton('取消')
         self.btn_ok = QPushButton('确定')
         main_f_box.addRow(self.desc)
         main_f_box.addRow(self.m_label, self.m_input)
         main_f_box.addRow(self.n_label, self.n_input)
         main_f_box.addRow(self.k_label, self.k_input)
+        main_f_box.addRow(self.golden_cross_check)
+        main_f_box.addRow(self.divergence_check)
         main_f_box.addRow(self.btn_cancel, self.btn_ok)
         self.setLayout(main_f_box)
 
@@ -287,6 +330,14 @@ class MACDConfig(QDialog):
         data['m'] = int(self.m_input.text())
         data['n'] = int(self.n_input.text())
         data['k'] = int(self.k_input.text())
+        if self.divergence_check.isChecked():
+            data['divergence'] = True
+        else:
+            data['divergence'] = False
+        if self.golden_cross_check.isChecked():
+            data['golden_cross'] = True
+        else:
+            data['golden_cross'] = False
         with open(self.config_path, 'w', encoding='utf-8') as f:
             json.dump(data, f, indent=4, ensure_ascii=False)
         self.close()
