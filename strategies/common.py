@@ -186,3 +186,13 @@ def calc_batch_ema(data, period):
             emas[i] = ((period - 1) * emas[i - 1] + 2 * data[i]) / (
                     period + 1)
     return emas
+
+
+def calc_batch_mav(vol, period):
+    mavs = []
+    for i in range(len(vol)):
+        if i < period - 1:
+            continue
+        mav = np.mean(vol[i - period + 1: i + 1])
+        mavs.append(mav)
+    return mavs
