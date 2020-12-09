@@ -2,12 +2,26 @@ TODO
 ---
 
 - Plugin system, make all strategies plugin.
-- Terminate thread properly.
+
+- Log axis.
 - Dynamic update plots by moving left.
-- Improve strategies to get better backtest results.
 - Refresh minute K by minute in watch.
+
 - Exclude Right and Exclude Dividend.
+
+- Terminate thread properly.
+
 - Try catch in APIs.
-- Using numpy to speedup strategies?
+
 - Notify iOS and Android.
+
 - Better UI, user experience, icons, splash screen...
+
+RoadMap
+---
+
+- B/S version, react/antd single page application and django server. HTML 5
+  canvas to solving all plot problems.
+
+- Import neural networks, some guys said they are using over 1000 factors, but I
+  think that is totally shit in shit out.
