@@ -111,9 +111,9 @@ class TripleGoldenCross:
                     old_state = state
             elif (fast_ma[i - self.k] > slow_ma[i - self.k] \
                   and fast_ma[i - 1] < slow_ma[i - 1]) \
-                    or (fast_mav[i - self.k] > slow_mav[i - self.k] \
-                        and fast_mav[i - 1] < slow_mav[i - 1]) \
-                    or (macd[i - self.k] > 0 and macd[i - 1] < 0):
+                    and (fast_mav[i - self.k] > slow_mav[i - self.k] \
+                         and fast_mav[i - 1] < slow_mav[i - 1]) \
+                    and (macd[i - self.k] > 0 and macd[i - 1] < 0):
                 state = 's'
                 if state != old_state:
                     sell_prices.append(closes[i])
