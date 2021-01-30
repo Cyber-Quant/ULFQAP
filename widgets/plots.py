@@ -428,7 +428,7 @@ class Plots(QWidget):
         self.current_indicator_name = name
         if self.current_kline_code is None:
             return
-        self.draw_indicator(name)
+        self.draw_indicators(name)
 
     def draw_indicators(self, strategy_name):
         self.current_indicator_name = strategy_name
