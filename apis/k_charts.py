@@ -5,11 +5,10 @@ import requests
 
 from qtpy.QtCore import *
 
-from apis.stock_info import AStockInfo, fetch_all_code, \
-    reset_stock_info, fetch_last_trading_day, \
-    fetch_stock_info
+from apis.stock_info import fetch_all_code, reset_stock_info, \
+    fetch_last_trading_day, fetch_stock_info
 from conf.conf import DEFAULT_K_LIMIT, FIRST_DAY
-from db.models import AStockDayLine
+from db.models import AStockInfo, AStockDayLine
 from db.ops import create_table, drop_table
 
 
