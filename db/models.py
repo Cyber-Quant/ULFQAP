@@ -8,14 +8,14 @@ class BaseModel(Model):
         database = db
 
 
-class AStockInfo(BaseModel):
+class AStockIndex(BaseModel):
     id = BigAutoField()
     code = CharField(unique=True)
     name = CharField()
     trade_status = IntegerField(null=True)
 
     class Meta:
-        db_table = 'a_stock_info'
+        db_table = 'a_stock_index'
 
 
 class AStockDayLine(BaseModel):

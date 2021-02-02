@@ -6,7 +6,7 @@ import requests
 from qtpy.QtCore import *
 
 from conf.conf import DEFAULT_K_LIMIT, FIRST_DAY
-from db.models import AStockDayLine, AStockInfo
+from db.models import AStockDayLine, AStockIndex
 from db.ops import create_table, drop_table
 
 
@@ -143,7 +143,7 @@ def store_day_line_data(day_data_list):
 
 
 def get_code_list():
-    rows = AStockInfo.select()
+    rows = AStockIndex.select()
     code_list = []
     for row in rows:
         code_list.append(row.code)

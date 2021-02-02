@@ -2,10 +2,10 @@ import baostock as bs
 
 from qtpy.QtWidgets import *
 
-from apis.k_charts import FetchDayK, get_code_list, reset_k_line_data
-from apis.stock_info import need_update, reset_last_updated_date, \
-    fetch_last_trading_day, reset_stock_info, save_last_updated_date, \
+from apis.code_index import need_update, reset_last_updated_date, \
+    fetch_last_trading_day, reset_stock_index, save_last_updated_date, \
     fetch_all_code, store_all_code
+from apis.k_charts import FetchDayK, get_code_list, reset_k_line_data
 from pages.about import About
 
 
@@ -24,9 +24,9 @@ class Config(QWidget):
 
         self.up_group_box = QGroupBox()
         up_h_box = QHBoxLayout()
-        self.btn_up_stock_info = QPushButton('更新股票信息')
-        self.btn_up_day_k = QPushButton('更新日K')
-        up_h_box.addWidget(self.btn_up_stock_info)
+        self.btn_up_stock_index = QPushButton('更新股票索引')
+        self.btn_up_day_k = QPushButton('更新K线数据')
+        up_h_box.addWidget(self.btn_up_stock_index)
         up_h_box.addWidget(self.btn_up_day_k)
         up_h_box.addStretch()
         self.up_group_box.setLayout(up_h_box)
@@ -52,18 +52,18 @@ class Config(QWidget):
 
         self.setLayout(main_v_box)
 
-        self.btn_up_stock_info.clicked.connect(self.on_up_stock_info)
+        self.btn_up_stock_index.clicked.connect(self.on_up_stock_index)
         self.btn_up_day_k.clicked.connect(self.on_up_day_k)
         self.btn_reset.clicked.connect(self.on_reset)
         self.btn_about.clicked.connect(self.on_about)
 
     def enable_all(self):
-        self.btn_up_stock_info.setEnabled(True)
+        self.btn_up_stock_index.setEnabled(True)
         self.btn_up_day_k.setEnabled(True)
         self.btn_reset.setEnabled(True)
 
     def disable_all(self):
-        self.btn_up_stock_info.setDisabled(True)
+        self.btn_up_stock_index.setDisabled(True)
         self.btn_up_day_k.setDisabled(True)
         self.btn_reset.setDisabled(True)
 
@@ -77,7 +77,7 @@ class Config(QWidget):
 
     def on_reset(self):
         self.progress_bar.reset()
-        reset_stock_info()
+        reset_stock_index()
         reset_k_line_data()
         reset_last_updated_date()
 
@@ -115,7 +115,7 @@ class Config(QWidget):
         save_last_updated_date(self.index_date, 'i')
         self.progress_bar.reset()
 
-    def on_up_stock_info(self):
+    def on_up_stock_index(self):
         self.progress_bar.reset()
         self.disable_all()
 
@@ -127,7 +127,7 @@ class Config(QWidget):
             if ret != 0:
                 msg = '获取index失败'
                 self.show_warning(msg)
-            reset_stock_info()
+            reset_stock_index()
             store_all_code(data)
             self.complete_stock_info_progress()
         else:

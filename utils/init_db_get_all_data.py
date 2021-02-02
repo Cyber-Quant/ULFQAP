@@ -4,6 +4,7 @@ import json
 
 from pathlib import Path
 
+from apis.code_index import fetch_last_trading_day, fetch_all_code
 from apis.finance import fetch_balance_data, fetch_cash_flow_data, \
     fetch_dupont_data, fetch_growth_data, fetch_operation_data, \
     fetch_profit_data, store_balance_data, store_cash_flow_data, \
@@ -13,7 +14,6 @@ from apis.k_charts import fetch_day_line_data, store_day_line_data
 from apis.statements import fetch_performance_express_report, \
     fetch_forecast_report, store_performance_express_report, \
     store_forecast_report
-from apis.stock_info import fetch_last_trading_day, fetch_all_code
 
 
 # TODO: Due to the '_MEIPASS' attr, I don't know how to make it runnable

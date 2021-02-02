@@ -5,7 +5,7 @@ from qtpy.QtGui import *
 from qtpy.QtCore import *
 
 from conf.conf import fav_stocks_config_path, apply_strategies_config_path
-from db.models import AStockInfo
+from db.models import AStockIndex
 from strategies.boll import BOLLChoose, BOLLInfo
 from strategies.dual_line import DualLineChoose, DualLineInfo
 from strategies.kdj import KDJChoose, KDJInfo
@@ -234,7 +234,7 @@ class Choose(Plots):
             self.stocks_pre_chose.clear()
         else:
             self.stocks_to_be_chosen.clear()
-            stocks = AStockInfo.select()
+            stocks = AStockIndex.select()
             for stock in stocks:
                 if stock.status != 0 and stock.type == 1:
                     _stock = {

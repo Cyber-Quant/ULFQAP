@@ -4,7 +4,7 @@ import json
 
 from conf.conf import global_config_path, DAY_K_READY_HOUR, \
     DAY_K_READY_MINUTE, FIRST_DAY
-from db.models import AStockInfo
+from db.models import AStockIndex
 from db.ops import create_table, drop_table
 
 
@@ -42,9 +42,9 @@ def reset_last_updated_date():
     save_last_updated_date(date, 'd')
 
 
-def reset_stock_info():
-    drop_table(AStockInfo)
-    create_table(AStockInfo)
+def reset_stock_index():
+    drop_table(AStockIndex)
+    create_table(AStockIndex)
 
 
 def fetch_last_trading_day(date=None):
@@ -141,7 +141,7 @@ def store_all_code(data):
             'trade_status': int(code_info[1])
         }
         records.append(record)
-    query = AStockInfo.insert_many(records)
+    query = AStockIndex.insert_many(records)
     query.execute()
 
 

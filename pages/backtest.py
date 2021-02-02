@@ -8,7 +8,7 @@ from qtpy.QtCore import *
 
 from conf.conf import fav_stocks_config_path, FIRST_DAY_YEAR, \
     FIRST_DAY_MONTH, FIRST_DAY_DAY
-from db.models import AStockInfo
+from db.models import AStockIndex
 from strategies.boll import BOLL, BOLLBacktest, BOLLInfo
 from strategies.dual_line import DualLine, DualLineBacktest, DualLineInfo
 from strategies.kdj import KDJ, KDJBacktest, KDJInfo
@@ -216,7 +216,7 @@ class Backtest(QWidget):
             with open(fav_stocks_config_path, 'r', encoding='utf-8') as f:
                 stocks = json.load(f)
         elif self.backtest_option == 'all':
-            rows = AStockInfo.select()
+            rows = AStockIndex.select()
             for row in rows:
                 if row.type == 1:
                     stocks.append({'code': row.code, 'name': row.name})

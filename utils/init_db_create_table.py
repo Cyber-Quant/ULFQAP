@@ -1,4 +1,4 @@
-from db.models import AStockInfo, AStockDayLine, AStockProfitData, \
+from db.models import AStockIndex, AStockDayLine, AStockProfitData, \
     AStockOperationData, AStockGrowthData, AStockBalanceData, \
     AStockCashFlowData, AStockDupontData, AStockPerformanceExpressReport, \
     AStockForcastReport
@@ -8,7 +8,7 @@ from db.ops import create_table
 #  under its current directory.  I have to put this script into the ROOT
 #  directory to run it.
 
-create_table(AStockInfo)
+create_table(AStockIndex)
 create_table(AStockDayLine)
 create_table(AStockProfitData)
 create_table(AStockOperationData)
