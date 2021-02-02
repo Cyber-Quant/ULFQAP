@@ -85,6 +85,8 @@ def get_last_updated_date(flag):
         key = 'index_update_date'
     elif flag == 'd':
         key = 'day_k_update_date'
+    elif flag == 'f':
+        key = 'financial_update_date'
 
     if not global_config_path.exists():
         return FIRST_DAY

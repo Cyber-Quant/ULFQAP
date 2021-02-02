@@ -3,6 +3,9 @@ import datetime
 
 from qtpy.QtCore import *
 
+from apis.statements import fetch_performance_express_report, \
+    fetch_forecast_report, store_performance_express_report, \
+    store_forecast_report
 from conf.conf import FIRST_DAY_YEAR
 from db.models import AStockProfitData, AStockOperationData, AStockGrowthData, \
     AStockBalanceData, AStockCashFlowData, AStockDupontData
@@ -589,3 +592,81 @@ def store_dupont_data(data_list):
         records.append(record)
     query = AStockDupontData.insert_many(records)
     query.execute()
+
+
+class FetchFinancialData(QThread):
+    sig_fetch_financial = Signal(int)
+    sig_fetch_financial_done = Signal()
+    err_signal = Signal(str)
+
+    def __init__(self, e_date, code_list, parent=None):
+        super(FetchFinancialData, self).__init__(parent)
+        self.e_date = e_date
+        self.stock_code_list = code_list
+
+    def run(self):
+        lg = bs.login()
+        if lg.error_code != '0' or lg.error_msg != 'success':
+            return lg.error_msg
+
+        self.sig_fetch_financial.emit(1)
+        stock_num = len(self.stock_code_list)
+        total_num = int(stock_num / 100 * 110)
+        step = int(total_num / 100)
+        i = 0
+        j = 0
+        for code in self.stock_code_list:
+            i += 1
+            ret, data = fetch_profit_data(code)
+            if ret != 0:
+                self.err_signal.emit(data)
+                return False
+            store_profit_data(data)
+
+            ret, data = fetch_operation_data(code)
+            if ret != 0:
+                self.err_signal.emit(data)
+                return False
+            store_operation_data(data)
+
+            ret, data = fetch_growth_data(code)
+            if ret != 0:
+                self.err_signal.emit(data)
+                return False
+            store_growth_data(data)
+
+            ret, data = fetch_balance_data(code)
+            if ret != 0:
+                self.err_signal.emit(data)
+                return False
+            store_balance_data(data)
+
+            ret, data = fetch_cash_flow_data(code)
+            if ret != 0:
+                self.err_signal.emit(data)
+                return False
+            store_cash_flow_data(data)
+
+            ret, data = fetch_dupont_data(code)
+            if ret != 0:
+                self.err_signal.emit(data)
+                return False
+            store_dupont_data(data)
+
+            ret, data = fetch_performance_express_report(code, self.e_date)
+            if ret != 0:
+                self.err_signal.emit(data)
+                return False
+            store_performance_express_report(data)
+
+            ret, data = fetch_forecast_report(code, self.e_date)
+            if ret != 0:
+                self.err_signal.emit(data)
+                return False
+            store_forecast_report(data)
+            if i % step == 0:
+                j += 1
+                self.sig_fetch_financial.emit(j)
+        self.sig_fetch_financial_done.emit()
+        bs.logout()
+        return True
