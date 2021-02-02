@@ -5,10 +5,8 @@ import requests
 
 from qtpy.QtCore import *
 
-from apis.stock_info import fetch_all_code, reset_stock_info, \
-    fetch_last_trading_day, fetch_stock_info
 from conf.conf import DEFAULT_K_LIMIT, FIRST_DAY
-from db.models import AStockInfo, AStockDayLine
+from db.models import AStockDayLine, AStockInfo
 from db.ops import create_table, drop_table
 
 
@@ -150,77 +148,6 @@ def get_code_list():
     for row in rows:
         code_list.append(row.code)
     return code_list
-
-
-class UpdateStockInfo(QThread):
-    sig_up_stock_info = Signal(int)
-    sig_up_stock_info_done = Signal()
-    err_signal = Signal(str)
-
-    def __init__(self, date, parent=None):
-        super(UpdateStockInfo, self).__init__(parent)
-        self.date = date
-
-    def run(self):
-        lg = bs.login()
-        if lg.error_code != '0' or lg.error_msg != 'success':
-            return lg.error_msg
-
-        self.sig_up_stock_info.emit(1)
-        ret, date = fetch_last_trading_day(date=self.date)
-        if ret != 0:
-            self.err_signal.emit(date)
-            return False
-        ret, stock_code_list = fetch_all_code(date)
-        if ret != 0:
-            self.err_signal.emit(stock_code_list)
-            return False
-        stock_num = len(stock_code_list)
-        total_num = int(stock_num / 100 * 110)
-        step = int(total_num / 100)
-        i = 0
-        j = 0
-        reset_stock_info()
-        records = []
-        for code_info in stock_code_list:
-            code = code_info[0]
-            i += 1
-            ret, stock_info = fetch_stock_info(code)
-            if ret != 0:
-                self.err_signal.emit(stock_info)
-                return False
-            if not stock_info:
-                ipo_date = None
-                out_date = None
-                _type = None
-                status = None
-            else:
-                ipo_date = datetime.datetime.strptime(stock_info[2], '%Y-%m-%d')
-                if stock_info[3] != '':
-                    out_date = datetime.datetime.strptime(stock_info[3],
-                                                          '%Y-%m-%d')
-                else:
-                    out_date = None
-                _type = int(stock_info[4])
-                status = int(stock_info[5])
-            record = {
-                'code': code_info[0],
-                'name': code_info[2],
-                'trade_status': int(code_info[1]),
-                'ipo_date': ipo_date,
-                'out_date': out_date,
-                'type': _type,
-                'status': status
-            }
-            records.append(record)
-            if i % step == 0:
-                j += 1
-                self.sig_up_stock_info.emit(j)
-        query = AStockInfo.insert_many(records)
-        query.execute()
-        self.sig_up_stock_info_done.emit()
-        bs.logout()
-        return True
 
 
 class FetchDayK(QThread):

@@ -2,11 +2,10 @@ import baostock as bs
 
 from qtpy.QtWidgets import *
 
-from apis.k_charts import FetchDayK, UpdateStockInfo, \
-    get_code_list, reset_k_line_data
-from apis.stock_info import save_last_updated_date
+from apis.k_charts import FetchDayK, get_code_list, reset_k_line_data
 from apis.stock_info import need_update, reset_last_updated_date, \
-    fetch_last_trading_day, reset_stock_info
+    fetch_last_trading_day, reset_stock_info, save_last_updated_date, \
+    fetch_all_code, store_all_code
 from pages.about import About
 
 
@@ -116,14 +115,6 @@ class Config(QWidget):
         save_last_updated_date(self.index_date, 'i')
         self.progress_bar.reset()
 
-    def _up_stock_info(self):
-        self.usi = UpdateStockInfo(self.index_date)
-        self.usi.sig_up_stock_info.connect(self.set_progress_bar)
-        self.usi.sig_up_stock_info_done.connect(
-            self.complete_stock_info_progress)
-        self.usi.err_signal.connect(self.show_warning)
-        self.usi.start()
-
     def on_up_stock_info(self):
         self.progress_bar.reset()
         self.disable_all()
@@ -132,7 +123,13 @@ class Config(QWidget):
             self.prepare_index_update()
 
         if self.index_date is not None:
-            self._up_stock_info()
+            ret, data = fetch_all_code(self.index_date)
+            if ret != 0:
+                msg = '获取index失败'
+                self.show_warning(msg)
+            reset_stock_info()
+            store_all_code(data)
+            self.complete_stock_info_progress()
         else:
             QMessageBox.warning(self, '警告', '股票信息更新失败，请重试',
                                 QMessageBox.Ok, QMessageBox.Ok)

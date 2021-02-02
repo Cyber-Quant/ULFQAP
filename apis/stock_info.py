@@ -119,6 +119,7 @@ def need_update(flag):
 
 
 def fetch_all_code(trading_day):
+    lg = bs.login()
     rs = bs.query_all_stock(day=trading_day)
     if rs.error_code != '0' or rs.error_msg != 'success':
         return int(rs.error_code), rs.error_msg
@@ -127,14 +128,21 @@ def fetch_all_code(trading_day):
     while (rs.error_code == '0') & rs.next():
         data = rs.get_row_data()
         stock_code_list.append(data)
+    bs.logout()
     return 0, stock_code_list
 
 
-def fetch_stock_info(code):
-    rs = bs.query_stock_basic(code=code)
-    if rs.error_code != '0' or rs.error_msg != 'success':
-        return int(rs.error_code), rs.error_msg
-    return 0, rs.get_row_data()
+def store_all_code(data):
+    records = []
+    for code_info in data:
+        record = {
+            'code': code_info[0],
+            'name': code_info[2],
+            'trade_status': int(code_info[1])
+        }
+        records.append(record)
+    query = AStockInfo.insert_many(records)
+    query.execute()
 
 
 if __name__ == '__main__':

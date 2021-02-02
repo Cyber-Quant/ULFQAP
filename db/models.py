@@ -13,10 +13,6 @@ class AStockInfo(BaseModel):
     code = CharField(unique=True)
     name = CharField()
     trade_status = IntegerField(null=True)
-    ipo_date = DateTimeField(null=True)
-    out_date = DateTimeField(null=True)
-    type = IntegerField(null=True)
-    status = IntegerField(null=True)
 
     class Meta:
         db_table = 'a_stock_info'
