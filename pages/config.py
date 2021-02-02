@@ -123,16 +123,15 @@ class Config(QWidget):
             self.prepare_index_update()
 
         if self.index_date is not None:
+            lg = bs.login()
             ret, data = fetch_all_code(self.index_date)
             if ret != 0:
                 msg = '获取index失败'
                 self.show_warning(msg)
+            bs.logout()
             reset_stock_index()
             store_all_code(data)
             self.complete_stock_info_progress()
-        else:
-            QMessageBox.warning(self, '警告', '股票信息更新失败，请重试',
-                                QMessageBox.Ok, QMessageBox.Ok)
 
     def prepare_index_update(self):
         ret = need_update('i')
