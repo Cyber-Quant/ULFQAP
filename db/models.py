@@ -193,3 +193,51 @@ class AStockDupontData(BaseModel):
 
 idx = AStockDupontData.index(AStockDupontData.stat_date.desc())
 AStockDupontData.add_index(idx)
+
+
+class AStockPerformanceExpressReport(BaseModel):
+    id = BigAutoField()
+    code = CharField(index=True)
+    performance_exp_pub_date = DateTimeField()
+    performance_exp_stat_date = DateTimeField()
+    performance_exp_update_date = DateTimeField()
+    performance_express_total_asset = FloatField()
+    performance_express_net_asset = FloatField()
+    performance_express_EPS_chg_pct = FloatField()
+    performance_express_ROE_wa = FloatField()
+    performance_express_EPS_diluted = FloatField()
+    performance_express_GRYOY = FloatField()
+    performance_express_OPYOY = FloatField()
+
+    class Meta:
+        db_table = 'a_stock_performance_express_report'
+        indexes = (
+            (('code', 'performance_exp_stat_date'), False),
+        )
+
+
+idx = AStockPerformanceExpressReport.index(
+    AStockPerformanceExpressReport.performance_exp_stat_date.desc())
+AStockPerformanceExpressReport.add_index(idx)
+
+
+class AStockForcastReport(BaseModel):
+    id = BigAutoField()
+    code = CharField(index=True)
+    profit_forcast_exp_pub_date = DateTimeField()
+    profit_forcast_exp_stat_date = DateTimeField()
+    profit_forcast_type = CharField()
+    profit_forcast_abstract = CharField()
+    profit_forcast_chg_pct_up = FloatField()
+    profit_forcast_chg_pct_down = FloatField()
+
+    class Meta:
+        db_table = 'a_stock_forcast_report'
+        indexes = (
+            (('code', 'profit_forcast_exp_stat_date'), False),
+        )
+
+
+idx = AStockForcastReport.index(
+    AStockForcastReport.profit_forcast_exp_stat_date.desc())
+AStockForcastReport.add_index(idx)

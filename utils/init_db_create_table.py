@@ -1,6 +1,7 @@
 from db.models import AStockInfo, AStockDayLine, AStockProfitData, \
     AStockOperationData, AStockGrowthData, AStockBalanceData, \
-    AStockCashFlowData, AStockDupontData
+    AStockCashFlowData, AStockDupontData, AStockPerformanceExpressReport, \
+    AStockForcastReport
 from db.ops import create_table
 
 # TODO: Due to the '_MEIPASS' attr, I don't know how to make it runnable
@@ -15,3 +16,5 @@ create_table(AStockGrowthData)
 create_table(AStockBalanceData)
 create_table(AStockCashFlowData)
 create_table(AStockDupontData)
+create_table(AStockPerformanceExpressReport)
+create_table(AStockForcastReport)

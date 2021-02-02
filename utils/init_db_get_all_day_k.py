@@ -10,6 +10,9 @@ from apis.finance import fetch_balance_data, fetch_cash_flow_data, \
     store_dupont_data, store_growth_data, store_operation_data, \
     store_profit_data
 from apis.k_charts import fetch_day_line_data, store_day_line_data
+from apis.statements import fetch_performance_express_report, \
+    fetch_forecast_report, store_performance_express_report, \
+    store_forecast_report
 from apis.stock_info import fetch_last_trading_day, fetch_all_code
 
 
@@ -94,6 +97,18 @@ def download_data(codes):
             print('下载', code, '杜邦指数时出错，退出，接着跑')
             break
         store_dupont_data(data)
+
+        ret, data = fetch_performance_express_report(code, today)
+        if ret != 0:
+            print('下载', code, '业绩快报时出错，退出，接着跑')
+            break
+        store_performance_express_report(data)
+
+        ret, data = fetch_forecast_report(code, today)
+        if ret != 0:
+            print('下载', code, '业绩预告时出错，退出，接着跑')
+            break
+        store_forecast_report(data)
 
     bs.logout()
 
