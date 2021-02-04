@@ -98,7 +98,7 @@ class Config(QWidget):
         self.code_list = []
         self.progress_bar.reset()
 
-    def _up_financial_date(self):
+    def _up_financial_data(self):
         self.code_list = get_code_list()
         self.ffd = FetchFinancialData(self.financial_date, self.code_list)
         self.ffd.sig_fetch_financial.connect(self.set_progress_bar)
