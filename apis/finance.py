@@ -659,6 +659,9 @@ class FetchFinancialData(QThread):
                 return False
             store_performance_express_report(data)
 
+            # I don't know what's fucking wrong with 002045 data, it just crash.
+            if code == 'sz.002045':
+                continue
             ret, data = fetch_forecast_report(code, self.e_date)
             if ret != 0:
                 self.err_signal.emit(data)
