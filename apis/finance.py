@@ -662,6 +662,9 @@ class FetchFinancialData(QThread):
             # I don't know what's fucking wrong with 002045 data, it just crash.
             if code == 'sz.002045':
                 continue
+            # I don't know what's fucking wrong with 300048 data, it just crash.
+            if code == 'sz.300048':
+                continue
             ret, data = fetch_forecast_report(code, self.e_date)
             if ret != 0:
                 self.err_signal.emit(data)
