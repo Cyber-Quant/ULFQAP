@@ -2,7 +2,8 @@ import calendar
 import datetime
 import numpy as np
 
-from db.models import AStockDayLine
+from db.models import AStockDayLine, AStockIndex, AStockBalanceData, \
+    AStockOperationData, AStockProfitData
 from apis.k_charts import fetch_sina_minute_k, fetch_tencent_1_minute_k
 from conf.conf import DEFAULT_K_LIMIT
 
@@ -216,3 +217,90 @@ def calc_batch_mav(vol, period):
         mav = np.mean(vol[i - period + 1: i + 1])
         mavs.append(mav)
     return mavs
+
+
+def filter_roe(v, date):
+    stocks = []
+    rows = AStockProfitData.select().where(
+        AStockProfitData.ROE_avg >= v / 100,
+        AStockProfitData.stat_date == date)
+    for row in rows:
+        code = row.code
+        stocks.append(code)
+    return stocks
+
+
+def filter_ltv(v, date):
+    return []
+
+
+def filter_ito(v, date):
+    stocks = []
+    rows = AStockOperationData.select().where(
+        AStockOperationData.INV_turn_ratio <= v / 100,
+        AStockOperationData.stat_date == date)
+    for row in rows:
+        code = row.code
+        stocks.append(code)
+    return stocks
+
+
+def filter_artr(v, date):
+    stocks = []
+    rows = AStockOperationData.select().where(
+        AStockOperationData.NR_turn_ratio <= v / 100,
+        AStockOperationData.stat_date == date)
+    for row in rows:
+        code = row.code
+        stocks.append(code)
+    return stocks
+
+
+def filter_dar(v, date):
+    stocks = []
+    rows = AStockBalanceData.select().where(
+        AStockBalanceData.liability_to_asset <= v / 100,
+        AStockBalanceData.stat_date == date)
+    for row in rows:
+        code = row.code
+        stocks.append(code)
+    return stocks
+
+
+def get_value_info(code, date):
+    index = AStockIndex.select().where(AStockIndex.code == code)[0]
+    name = index.name
+    profit_data = AStockProfitData.select().where(
+        AStockProfitData.code == code, AStockProfitData.stat_date == date)[0]
+    roe = round(profit_data.ROE_avg * 100, 2)
+    ltv = 0.0
+    operation_data = AStockOperationData.select().where(
+        AStockOperationData.code == code,
+        AStockOperationData.stat_date == date)[0]
+    ito = round(operation_data.INV_turn_ratio * 100, 2)
+    artr = round(operation_data.NR_turn_ratio * 100, 2)
+    balance_data = AStockBalanceData.select().where(
+        AStockBalanceData.code == code, AStockBalanceData.stat_date == date)[0]
+    dar = round(balance_data.liability_to_asset * 100, 2)
+    return code, name, roe, ltv, ito, artr, dar
+
+
+def get_stat_date():
+    now = datetime.datetime.now()
+    year = now.year
+    quarter = int((now.month - 1) / 3) + 1
+    if quarter > 2:
+        quarter -= 2
+    else:
+        year -= 1
+        quarter += 2
+
+    if quarter == 1:
+        date = datetime.datetime(year, 3, 31)
+    elif quarter == 2:
+        date = datetime.datetime(year, 6, 30)
+    elif quarter == 3:
+        date = datetime.datetime(year, 9, 30)
+    elif quarter == 4:
+        date = datetime.datetime(year, 12, 31)
+    return date

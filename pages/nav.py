@@ -6,10 +6,11 @@ from qtpy.QtWidgets import *
 
 from conf.conf import apply_strategies_config_path, fav_stocks_config_path, \
     custom_watch_config_path, bundle_dir
+from pages.backtest import Backtest
 from pages.choose import Choose
 from pages.config import Config
+from pages.pool import Pool
 from pages.watch import Watch
-from pages.backtest import Backtest
 from strategies.boll import BOLLConfig, BOLLInfo
 from strategies.dual_line import DualLineConfig, DualLineInfo
 from strategies.kdj import KDJConfig, KDJInfo
@@ -134,6 +135,7 @@ class Nav(QWidget):
 
         self.watch = None
         self.choose = None
+        self.pool = None
         self.backtest = None
         self.config = None
 
@@ -257,6 +259,12 @@ class Nav(QWidget):
         self.list.addItem(choose_item)
         self.list.setItemWidget(choose_item, choose_widget)
 
+        pool_widget = get_item_widget('股池', bundle_dir / 'media/pool.svg')
+        pool_item = QListWidgetItem()
+        pool_item.setSizeHint(QSize(150, 70))
+        self.list.addItem(pool_item)
+        self.list.setItemWidget(pool_item, pool_widget)
+
         test_widget = get_item_widget('回测', bundle_dir / 'media/backtest.svg')
         test_item = QListWidgetItem()
         test_item.setSizeHint(QSize(150, 70))
@@ -276,6 +284,9 @@ class Nav(QWidget):
         self.choose = Choose()
         self.choose.fav_stock_changed_signal.connect(self.on_refresh_fav_table)
         self.stacked_window.addWidget(self.choose)
+
+        self.pool = Pool()
+        self.stacked_window.addWidget(self.pool)
 
         self.backtest = Backtest()
         self.backtest.fav_stock_changed_signal.connect(
@@ -479,6 +490,8 @@ class Nav(QWidget):
             self.choose.re_render_all_plots(code)
             self.choose.draw_indicators(strategy)
         elif self.list.currentRow() == 2:
+            self.pool.set_code(code, name)
+        elif self.list.currentRow() == 3:
             self.backtest.set_code(code, name)
 
     def on_strategy_table_row_changed(self):
@@ -494,7 +507,7 @@ class Nav(QWidget):
         elif self.list.currentRow() == 1:
             self.choose.re_render_all_plots(code)
             self.choose.re_draw_indicators(strategy)
-        elif self.list.currentRow() == 2:
+        elif self.list.currentRow() == 3:
             self.backtest.set_strategy(strategy)
 
 
