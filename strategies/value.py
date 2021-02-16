@@ -1,5 +1,3 @@
-import datetime
-
 from qtpy.QtCore import *
 
 from strategies.common import filter_roe, filter_ltv, filter_ito, \
