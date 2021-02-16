@@ -237,7 +237,7 @@ def filter_ltv(v, date):
 def filter_ito(v, date):
     stocks = []
     rows = AStockOperationData.select().where(
-        AStockOperationData.INV_turn_ratio <= v / 100,
+        AStockOperationData.INV_turn_ratio <= v,
         AStockOperationData.stat_date == date)
     for row in rows:
         code = row.code
@@ -248,7 +248,7 @@ def filter_ito(v, date):
 def filter_artr(v, date):
     stocks = []
     rows = AStockOperationData.select().where(
-        AStockOperationData.NR_turn_ratio <= v / 100,
+        AStockOperationData.NR_turn_ratio <= v,
         AStockOperationData.stat_date == date)
     for row in rows:
         code = row.code
@@ -277,8 +277,8 @@ def get_value_info(code, date):
     operation_data = AStockOperationData.select().where(
         AStockOperationData.code == code,
         AStockOperationData.stat_date == date)[0]
-    ito = round(operation_data.INV_turn_ratio * 100, 2)
-    artr = round(operation_data.NR_turn_ratio * 100, 2)
+    ito = round(operation_data.INV_turn_ratio, 2)
+    artr = round(operation_data.NR_turn_ratio, 2)
     balance_data = AStockBalanceData.select().where(
         AStockBalanceData.code == code, AStockBalanceData.stat_date == date)[0]
     dar = round(balance_data.liability_to_asset * 100, 2)
