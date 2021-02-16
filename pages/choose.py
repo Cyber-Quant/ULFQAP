@@ -4,7 +4,8 @@ from qtpy.QtWidgets import *
 from qtpy.QtGui import *
 from qtpy.QtCore import *
 
-from conf.conf import fav_stocks_config_path, apply_strategies_config_path
+from conf.conf import fav_stocks_config_path, apply_strategies_config_path, \
+    stock_pool_config_path
 from db.models import AStockIndex
 from strategies.boll import BOLLChoose, BOLLInfo
 from strategies.dual_line import DualLineChoose, DualLineInfo
@@ -30,6 +31,7 @@ class Choose(Plots):
         self.setWindowTitle('选股')
 
         self.fav_stocks = []
+        self.stock_pool = []
 
         self.stocks_to_be_chosen = []
         self.stocks_pre_chose = []
@@ -51,18 +53,29 @@ class Choose(Plots):
         self.volume_increase_info = VolumeIncreaseInfo()
         self.wr_info = WRInfo()
 
+        condition_v_box = QVBoxLayout()
+        self.re_search_radio = QRadioButton('从结果中再选')
+        self.pool_search_radio = QRadioButton('从股票池中选')
+        self.all_search_radio = QRadioButton('从全部股票中选')
+        self.all_search_radio.setChecked(True)
+        condition_v_box.addWidget(self.re_search_radio)
+        condition_v_box.addWidget(self.pool_search_radio)
+        condition_v_box.addWidget(self.all_search_radio)
+
         op_v_box = QVBoxLayout()
-        self.re_search_check = QCheckBox('从结果中再选')
         self.btn_choose = QPushButton('策略选股')
         self.btn_stop_choose = QPushButton('停止')
         self.btn_stop_choose.setDisabled(True)
-        op_v_box.addWidget(self.re_search_check)
         op_v_box.addWidget(self.btn_choose)
         op_v_box.addWidget(self.btn_stop_choose)
 
+        op_h_box = QHBoxLayout()
+        op_h_box.addLayout(condition_v_box)
+        op_h_box.addLayout(op_v_box)
+
         self.filter_group_box = QGroupBox()
         choose_v_box = QVBoxLayout()
-        choose_v_box.addLayout(op_v_box)
+        choose_v_box.addLayout(op_h_box)
         self.filter_group_box.setLayout(choose_v_box)
 
         self.progress_bar = QProgressBar()
@@ -125,26 +138,26 @@ class Choose(Plots):
         self.info_widget = QGroupBox()
         self.info_widget.setLayout(info_g_box)
 
-        self.day_check = QRadioButton('日')
-        self.day_check.setChecked(True)
-        self.week_check = QRadioButton('周')
-        self.month_check = QRadioButton('月')
-        self.day_check.toggled.connect(self.on_period_change)
-        self.week_check.toggled.connect(self.on_period_change)
-        self.month_check.toggled.connect(self.on_period_change)
+        self.day_radio = QRadioButton('日')
+        self.day_radio.setChecked(True)
+        self.week_radio = QRadioButton('周')
+        self.month_radio = QRadioButton('月')
+        self.day_radio.toggled.connect(self.on_period_change)
+        self.week_radio.toggled.connect(self.on_period_change)
+        self.month_radio.toggled.connect(self.on_period_change)
 
         self.period_widget = QGroupBox()
         period_g_box = QGridLayout()
-        period_g_box.addWidget(self.day_check, 0, 0)
-        period_g_box.addWidget(self.week_check, 0, 1)
-        period_g_box.addWidget(self.month_check, 0, 2)
+        period_g_box.addWidget(self.day_radio, 0, 0)
+        period_g_box.addWidget(self.week_radio, 0, 1)
+        period_g_box.addWidget(self.month_radio, 0, 2)
         period_g_box.setContentsMargins(0, 0, 0, 0)
         self.period_widget.setLayout(period_g_box)
 
         self.period_group = QButtonGroup()
-        self.period_group.addButton(self.day_check)
-        self.period_group.addButton(self.week_check)
-        self.period_group.addButton(self.month_check)
+        self.period_group.addButton(self.day_radio)
+        self.period_group.addButton(self.week_radio)
+        self.period_group.addButton(self.month_radio)
 
         info_h_box = QHBoxLayout()
         info_h_box.addWidget(self.period_widget)
@@ -198,12 +211,12 @@ class Choose(Plots):
         self.volume_input.setText(str(volume))
 
     def disable_all(self):
-        self.re_search_check.setDisabled(True)
+        self.re_search_radio.setDisabled(True)
         self.btn_choose.setDisabled(True)
         self.btn_stop_choose.setEnabled(True)
 
     def enable_all(self):
-        self.re_search_check.setEnabled(True)
+        self.re_search_radio.setEnabled(True)
         self.btn_choose.setEnabled(True)
         self.btn_stop_choose.setDisabled(True)
 
@@ -229,19 +242,25 @@ class Choose(Plots):
         for i in reversed(range(rows)):
             self.table.removeRow(i)
 
-        if self.re_search_check.isChecked():
+        if self.re_search_radio.isChecked():
             self.stocks_to_be_chosen = self.stocks_pre_chose.copy()
             self.stocks_pre_chose.clear()
+        elif self.pool_search_radio.isChecked():
+            if not stock_pool_config_path.exists():
+                self.stock_pool = []
+            else:
+                with open(stock_pool_config_path, 'r', encoding='utf-8') as f:
+                    self.stock_pool = json.load(f)
+            self.stocks_to_be_chosen = self.stock_pool.copy()
         else:
             self.stocks_to_be_chosen.clear()
             stocks = AStockIndex.select()
             for stock in stocks:
-                if stock.status != 0 and stock.type == 1:
-                    _stock = {
-                        'code': stock.code,
-                        'name': stock.name
-                    }
-                    self.stocks_to_be_chosen.append(_stock)
+                _stock = {
+                    'code': stock.code,
+                    'name': stock.name
+                }
+                self.stocks_to_be_chosen.append(_stock)
 
         if not apply_strategies_config_path.exists():
             QMessageBox.warning(self, '警告', '请先选择一个策略',
