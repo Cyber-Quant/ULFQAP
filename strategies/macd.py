@@ -49,8 +49,9 @@ class MACD:
         return macd, dif, dea
 
     def backtest(self, code, s_date, e_date, init_money, fee, pass_fee, tax):
-        dates, opens, closes, highs, lows, volumes, ma_price, ma_volume = \
-            get_latest_batch_data(code, s_date=s_date, e_date=e_date)
+        dates, opens, closes, highs, lows, volumes, amount, \
+        ma_price, ma_volume = get_latest_batch_data(code, s_date=s_date,
+                                                    e_date=e_date)
         macd, dif, dea = self.calc_macd(closes)
         if self.m > self.n:
             start = self.m
@@ -158,7 +159,7 @@ class MACD:
                closing_index_slices, closing_price_slices
 
     def choose(self, code):
-        date, _open, close, high, low, volume, ma_price, ma_volume = \
+        date, _open, close, high, low, volume, amount, ma_price, ma_volume = \
             get_latest_batch_data(code)
         macd, dif, dea = self.calc_macd(close)
         if self.divergence:

@@ -74,8 +74,9 @@ class TripleGoldenCross:
         return mav
 
     def backtest(self, code, s_date, e_date, init_money, fee, pass_fee, tax):
-        dates, opens, closes, highs, lows, volumes, ma_price, ma_volume = \
-            get_latest_batch_data(code, s_date=s_date, e_date=e_date)
+        dates, opens, closes, highs, lows, volumes, amount, \
+        ma_price, ma_volume = get_latest_batch_data(code, s_date=s_date,
+                                                    e_date=e_date)
         fast_ma = self.calc_fast_ma(closes)
         slow_ma = self.calc_slow_ma(closes)
         fast_mav = self.calc_fast_mav(volumes)
@@ -172,8 +173,8 @@ class TripleGoldenCross:
                closing_index_slices, closing_price_slices
 
     def choose(self, code):
-        dates, opens, closes, highs, lows, volumes, ma_price, ma_volume = \
-            get_latest_batch_data(code)
+        dates, opens, closes, highs, lows, volumes, amount, \
+        ma_price, ma_volume = get_latest_batch_data(code)
         fast_ma = self.calc_fast_ma(closes)
         slow_ma = self.calc_slow_ma(closes)
         fast_mav = self.calc_fast_mav(volumes)

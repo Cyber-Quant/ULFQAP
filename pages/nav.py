@@ -15,6 +15,7 @@ from strategies.boll import BOLLConfig, BOLLInfo
 from strategies.dual_line import DualLineConfig, DualLineInfo
 from strategies.kdj import KDJConfig, KDJInfo
 from strategies.macd import MACDConfig, MACDInfo
+from strategies.mcst import MCSTInfo
 from strategies.rsi import RSIConfig, RSIInfo
 from strategies.stairs import StairsConfig, StairsInfo
 from strategies.triple_golden_cross import TripleGoldenCrossConfig, \
@@ -75,6 +76,7 @@ class Nav(QWidget):
         self.triple_golden_cross_info = TripleGoldenCrossInfo()
         self.turtle_info = TurtleInfo()
         self.volume_increase_info = VolumeIncreaseInfo()
+        self.mcst_info = MCSTInfo()
         self.wr_info = WRInfo()
         self.boll_info = BOLLInfo()
         self.macd_info = MACDInfo()
@@ -105,6 +107,11 @@ class Nav(QWidget):
                 'name': self.volume_increase_info.name,
                 'choose': 'Y' if self.volume_increase_info.choose_flag else 'N',
                 'watch': 'Y' if self.volume_increase_info.watch_flag else 'N'
+            },
+            {
+                'name': self.mcst_info.name,
+                'choose': 'Y' if self.mcst_info.choose_flag else 'N',
+                'watch': 'Y' if self.mcst_info.watch_flag else 'N'
             },
             {
                 'name': self.wr_info.name,

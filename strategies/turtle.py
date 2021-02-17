@@ -62,8 +62,9 @@ class Turtle:
         return downs
 
     def backtest(self, code, s_date, e_date, init_money, fee, pass_fee, tax):
-        dates, opens, closes, highs, lows, volumes, ma_price, mv_volume = \
-            get_latest_batch_data(code, s_date=s_date, e_date=e_date)
+        dates, opens, closes, highs, lows, volumes, amount, \
+        ma_price, mv_volume = get_latest_batch_data(code, s_date=s_date,
+                                                    e_date=e_date)
         ups = self.calc_batch_up(highs)
         downs = self.calc_batch_down(lows)
         if self.m > self.n:
@@ -147,8 +148,8 @@ class Turtle:
                closing_index_slices, closing_price_slices
 
     def choose(self, code):
-        dates, opens, closes, highs, lows, volumes, ma_price, ma_volume = \
-            get_latest_batch_data(code)
+        dates, opens, closes, highs, lows, volumes, amount, \
+        ma_price, ma_volume = get_latest_batch_data(code)
         up = self.calc_batch_up(highs)[-1]
         price = closes[-1]
         if round((abs(up - price) / price), 3) * 100 <= self.k:
@@ -243,7 +244,7 @@ class TurtleWatch(QThread):
             self.names.append(stock['name'])
 
     def _get_up_data(self, code):
-        date, _open, close, high, low, volume, ma_price, ma_volume = \
+        date, _open, close, high, low, volume, amount, ma_price, ma_volume = \
             get_latest_batch_data(code, limit=self.m)
         return high
 
@@ -253,7 +254,7 @@ class TurtleWatch(QThread):
         return up
 
     def _get_down_data(self, code):
-        date, _open, close, high, low, volume, ma_price, ma_volume = \
+        date, _open, close, high, low, volume, amount, ma_price, ma_volume = \
             get_latest_batch_data(code, limit=self.n)
         return low
 

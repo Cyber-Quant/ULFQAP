@@ -8,6 +8,7 @@ from strategies.boll import BOLL
 from strategies.dual_line import DualLine
 from strategies.kdj import KDJ
 from strategies.macd import MACD
+from strategies.mcst import MCST
 from strategies.rsi import RSI
 from strategies.triple_golden_cross import TripleGoldenCross
 from strategies.turtle import Turtle
@@ -127,7 +128,7 @@ class Plots(QWidget):
             return
 
         self.kline_data = []
-        date, _open, close, high, low, volume, ma_price, ma_volume = \
+        date, _open, close, high, low, volume, amount, ma_price, ma_volume = \
             get_latest_batch_data(code, period=self.current_kline_period)
 
         _macd = MACD()
@@ -152,6 +153,7 @@ class Plots(QWidget):
                 'high': high[i],
                 'low': low[i],
                 'volume': volume[i],
+                'amount': amount[i],
                 'ma_price': ma_price[i],
                 'ma_volume': ma_volume[i],
                 'dif': dif[i],
@@ -440,11 +442,13 @@ class Plots(QWidget):
         highs = []
         lows = []
         volumes = []
+        amount = []
         for item in self.kline_data:
             closes.append(item['close'])
             highs.append(item['high'])
             lows.append(item['low'])
             volumes.append(item['volume'])
+            amount.append(item['amount'])
 
         # NEW STRATEGIES #
         if self.current_indicator_name == self.boll_info.name:
@@ -482,6 +486,14 @@ class Plots(QWidget):
             downs = turtle.calc_batch_down(lows)
             k_data = [ups, downs]
             k_pen_colors = ['r', 'y']
+            vol_data = []
+            vol_pen_colors = []
+        elif self.current_indicator_name == self.mcst_info.name:
+            msct = MCST()
+            _msct = msct.calc_batch_mcst(volumes, amount,
+                                         self.current_kline_code)
+            k_data = [_msct]
+            k_pen_colors = ['y']
             vol_data = []
             vol_pen_colors = []
         else:

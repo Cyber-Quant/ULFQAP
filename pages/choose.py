@@ -11,6 +11,7 @@ from strategies.boll import BOLLChoose, BOLLInfo
 from strategies.dual_line import DualLineChoose, DualLineInfo
 from strategies.kdj import KDJChoose, KDJInfo
 from strategies.macd import MACDChoose, MACDInfo
+from strategies.mcst import MCSTInfo
 from strategies.rsi import RSIChoose, RSIInfo
 from strategies.stairs import StairsChoose, StairsInfo
 from strategies.triple_golden_cross import TripleGoldenCrossChoose, \
@@ -46,6 +47,7 @@ class Choose(Plots):
         self.dual_line_info = DualLineInfo()
         self.kdj_info = KDJInfo()
         self.macd_info = MACDInfo()
+        self.mcst_info = MCSTInfo()
         self.rsi_info = RSIInfo()
         self.stairs_info = StairsInfo()
         self.triple_golden_cross_info = TripleGoldenCrossInfo()

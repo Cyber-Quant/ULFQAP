@@ -48,8 +48,9 @@ class DualLine:
         return ema
 
     def backtest(self, code, s_date, e_date, init_money, fee, pass_fee, tax):
-        dates, opens, closes, highs, lows, volumes, ma_price, ma_volume = \
-            get_latest_batch_data(code, s_date=s_date, e_date=e_date)
+        dates, opens, closes, highs, lows, volumes, amount, \
+        ma_price, ma_volume = get_latest_batch_data(code, s_date=s_date,
+                                                    e_date=e_date)
         ma = self.calc_ma(closes)
         ema = self.calc_ema(closes)
         start = self.m
@@ -132,8 +133,8 @@ class DualLine:
                closing_index_slices, closing_price_slices
 
     def choose(self, code):
-        dates, opens, closes, highs, lows, volumes, ma_price, ma_volume = \
-            get_latest_batch_data(code)
+        dates, opens, closes, highs, lows, volumes, amount, \
+        ma_price, ma_volume = get_latest_batch_data(code)
         ma = self.calc_ma(closes)
         ema = self.calc_ema(closes)
         if ema[-1] > ema[-2] and ma[-1] > ma[-2] <= ma[-3]:

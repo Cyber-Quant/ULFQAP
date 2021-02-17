@@ -10,6 +10,7 @@ from conf.conf import fav_stocks_config_path, apply_strategies_config_path, \
 from strategies.boll import BOLLInfo, BOLLWatch
 from strategies.dual_line import DualLineInfo
 from strategies.custom_watch import CustomWatch
+from strategies.mcst import MCSTInfo
 from strategies.turtle import TurtleInfo, TurtleWatch
 from widgets.plots import Plots
 
@@ -73,6 +74,7 @@ class Watch(Plots):
         self.boll_info = BOLLInfo()
         self.dual_line_info = DualLineInfo()
         self.turtle_info = TurtleInfo()
+        self.mcst_info = MCSTInfo()
 
         self.top_widget = QWidget()
         top_h_box = QHBoxLayout()

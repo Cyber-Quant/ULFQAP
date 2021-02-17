@@ -45,7 +45,7 @@ class VolumeIncreaseChoose(QThread):
             self.n = 2
 
     def _get_volumes(self, code):
-        date, _open, close, high, low, volume, ma_price, ma_volume = \
+        date, _open, close, high, low, volume, amount, ma_price, ma_volume = \
             get_latest_batch_data(code, self.m)
         return volume
 
