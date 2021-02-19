@@ -21,6 +21,12 @@ class MCST:
         # FIXME get different liqa_share by date.
         liqa_share = get_liqa_share(code)
         for i, _ in enumerate(volumes):
-            _mcst = (volumes[i] / liqa_share) * (amount[i] / volumes[i] / 100)
+            if volumes[i] == 0:
+                _mcst = 0
+            elif liqa_share == 0:
+                _mcst = 0
+            else:
+                # _mcst = (volumes[i] / liqa_share) * amount[i] / volumes[i] / 100
+                _mcst = (volumes[i] / liqa_share) * amount[i] / volumes[i]
             mcst.append(_mcst)
         return mcst
