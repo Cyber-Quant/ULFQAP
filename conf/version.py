@@ -5,5 +5,5 @@ RELEASE = ''
 name = SOFT_NAME
 channel = DEV
 major = 0
-minor = 4
-fix = 29
+minor = 5
+fix = 1
