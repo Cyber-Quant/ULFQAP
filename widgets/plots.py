@@ -261,7 +261,8 @@ class Plots(QWidget):
 
             axis = zip(range(len(k_axis)), k_axis)
             item = CandlestickItem(k_data)
-            y_min = min(lows)
+            # y_min = min(lows)
+            y_min = 0
             y_max = max(highs)
             self.k_plt.getAxis('bottom').setTicks([axis])
             self.k_plt.addItem(item)
@@ -489,10 +490,10 @@ class Plots(QWidget):
             vol_data = []
             vol_pen_colors = []
         elif self.current_indicator_name == self.mcst_info.name:
-            msct = MCST()
-            _msct = msct.calc_batch_mcst(volumes, amount,
+            mcst = MCST()
+            _mcst = mcst.calc_batch_mcst(volumes, amount,
                                          self.current_kline_code)
-            k_data = [_msct]
+            k_data = [_mcst]
             k_pen_colors = ['y']
             vol_data = []
             vol_pen_colors = []
