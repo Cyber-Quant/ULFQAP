@@ -261,8 +261,8 @@ class Plots(QWidget):
 
             axis = zip(range(len(k_axis)), k_axis)
             item = CandlestickItem(k_data)
-            # y_min = min(lows)
-            y_min = 0
+            y_min = min(lows)
+            # y_min = 0
             y_max = max(highs)
             self.k_plt.getAxis('bottom').setTicks([axis])
             self.k_plt.addItem(item)
