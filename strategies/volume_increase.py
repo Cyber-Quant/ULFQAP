@@ -21,18 +21,8 @@ class VolumeIncreaseInfo:
         self.watch_flag = False
 
 
-# TODO: Separate common code
-class VolumeIncreaseChoose(QThread):
-    progress_signal = Signal(int, str, str)
-
-    def __init__(self, stocks, parent=None):
-        super(VolumeIncreaseChoose, self).__init__(parent)
-        self.codes = []
-        self.names = []
-        for stock in stocks:
-            self.codes.append(stock['code'])
-            self.names.append(stock['name'])
-
+class VolumeIncrease:
+    def __init__(self):
         self.config_path = strategies_config_path.joinpath(
             'volume_increase.json')
         if self.config_path.exists():
@@ -42,10 +32,11 @@ class VolumeIncreaseChoose(QThread):
                 self.n = data['n']
         else:
             self.m = 20
-            self.n = 2
+            self.m = 2
 
     def _get_volumes(self, code):
-        date, _open, close, high, low, volume, amount, ma_price, ma_volume = \
+        date, _open, close, high, low, volume, amount, turn, pct_chg, \
+        ma_price, ma_volume = \
             get_latest_batch_data(code, self.m)
         return volume
 
@@ -61,13 +52,27 @@ class VolumeIncreaseChoose(QThread):
         else:
             return False
 
+
+class VolumeIncreaseChoose(QThread):
+    progress_signal = Signal(int, str, str)
+
+    def __init__(self, stocks, parent=None):
+        super(VolumeIncreaseChoose, self).__init__(parent)
+        self.codes = []
+        self.names = []
+        for stock in stocks:
+            self.codes.append(stock['code'])
+            self.names.append(stock['name'])
+
     def run(self):
+        volume_increase = VolumeIncrease()
+
         step = int(len(self.codes) / 100) + 1
         i = 0
         j = 0
         for code in self.codes:
             i += 1
-            ret = self.choose(code)
+            ret = volume_increase.choose(code)
             if not ret:
                 continue
             self.progress_signal.emit(j, code, self.names[i - 1])
