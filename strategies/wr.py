@@ -56,7 +56,7 @@ class WR:
         return wr
 
     def backtest(self, code, s_date, e_date, init_money, fee, pass_fee, tax):
-        dates, opens, closes, highs, lows, volumes, amount, \
+        dates, opens, closes, highs, lows, volumes, amount, turn, pct_chg, \
         ma_price, ma_volume = get_latest_batch_data(code, s_date=s_date,
                                                     e_date=e_date)
         wrs = self.calc_williams(closes, highs, lows)
@@ -138,7 +138,8 @@ class WR:
                closing_index_slices, closing_price_slices
 
     def choose(self, code):
-        date, _open, close, high, low, volume, amount, ma_price, ma_volume = \
+        date, _open, close, high, low, volume, amount, turn, pct_chg, \
+        ma_price, ma_volume = \
             get_latest_batch_data(code)
         wr = self.calc_williams(close, high, low)
         if wr[-1] > self.n:

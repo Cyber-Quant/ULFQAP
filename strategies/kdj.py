@@ -76,7 +76,7 @@ class KDJ:
         return k, d, j
 
     def backtest(self, code, s_date, e_date, init_money, fee, pass_fee, tax):
-        dates, opens, closes, highs, lows, volumes, amount, \
+        dates, opens, closes, highs, lows, volumes, amount, turn, pct_chg, \
         ma_price, ma_volume = get_latest_batch_data(code, s_date=s_date,
                                                     e_date=e_date)
         k, d, j = self.calc_kdj(closes, highs, lows)
@@ -161,7 +161,8 @@ class KDJ:
                closing_index_slices, closing_price_slices
 
     def choose(self, code):
-        date, _open, close, high, low, volume, amount, ma_price, ma_volume = \
+        date, _open, close, high, low, volume, amount, turn, pct_chg, \
+        ma_price, ma_volume = \
             get_latest_batch_data(code)
         k, d, j = self.calc_kdj(close, high, low)
         if (k[-1] < 20 and d[-1] < 20) and (k[-1] >= d[-1] and k[-3] < d[-3]):

@@ -16,7 +16,9 @@ def get_latest_batch_data(code, limit=DEFAULT_K_LIMIT, period='d',
     high = []
     low = []
     volume = []
-    amount =[]
+    amount = []
+    turn = []
+    pct_chg = []
     ma_price = []
     ma_volume = []
     if period == 'd':
@@ -38,10 +40,13 @@ def get_latest_batch_data(code, limit=DEFAULT_K_LIMIT, period='d',
             low.append(row.low)
             volume.append(row.volume)
             amount.append(row.amount)
+            turn.append(row.turn)
+            pct_chg.append(row.pct_chg)
             ma_price.append(0)
             ma_volume.append(0)
     elif period == 'w':
         monday, sunday = get_current_week_date()
+        total_share = get_total_share(code)
         for i in reversed(range(limit)):
             s_date = monday - datetime.timedelta(days=7 * i)
             e_date = sunday - datetime.timedelta(days=7 * i)
@@ -55,6 +60,7 @@ def get_latest_batch_data(code, limit=DEFAULT_K_LIMIT, period='d',
             prices = []
             vol = 0
             _amount = 0
+            _turn = 0
             for row in rows:
                 prices.append(row.open)
                 prices.append(row.close)
@@ -62,6 +68,9 @@ def get_latest_batch_data(code, limit=DEFAULT_K_LIMIT, period='d',
                 prices.append(row.low)
                 vol += row.volume
                 _amount += row.amount
+                _turn += row.turn
+            turn_w = _turn / total_share * 100
+            pct_chg_w = abs(rows[0].open - rows[-1].close) / rows[0].open * 100
             date.append(rows[-1].date.strftime('%Y-%m-%d'))
             _open.append(rows[0].open)
             close.append(rows[-1].close)
@@ -69,10 +78,13 @@ def get_latest_batch_data(code, limit=DEFAULT_K_LIMIT, period='d',
             low.append(min(prices))
             volume.append(vol)
             amount.append(_amount)
+            turn.append(turn_w)
+            pct_chg.append(pct_chg_w)
             ma_price.append(0)
             ma_volume.append(0)
     elif period == 'm':
         month_ranges = get_month_range()
+        total_share = get_total_share(code)
         for month_range in month_ranges:
             s_date = month_range['s_date']
             e_date = month_range['e_date']
@@ -86,6 +98,7 @@ def get_latest_batch_data(code, limit=DEFAULT_K_LIMIT, period='d',
             prices = []
             vol = 0
             _amount = 0
+            _turn = 0
             for row in rows:
                 prices.append(row.open)
                 prices.append(row.close)
@@ -93,6 +106,9 @@ def get_latest_batch_data(code, limit=DEFAULT_K_LIMIT, period='d',
                 prices.append(row.low)
                 vol += row.volume
                 _amount += row.amount
+                _turn += row.turn
+            turn_m = _turn / total_share * 100
+            pct_chg_m = abs(rows[0].open - rows[-1].close) / rows[0].open * 100
             date.append(rows[-1].date.strftime('%Y-%m-%d'))
             _open.append(rows[0].open)
             close.append(rows[-1].close)
@@ -100,6 +116,8 @@ def get_latest_batch_data(code, limit=DEFAULT_K_LIMIT, period='d',
             low.append(min(prices))
             volume.append(vol)
             amount.append(_amount)
+            turn.append(turn_m)
+            pct_chg.append(pct_chg_m)
             ma_price.append(0)
             ma_volume.append(0)
     elif period == '1':
@@ -112,6 +130,8 @@ def get_latest_batch_data(code, limit=DEFAULT_K_LIMIT, period='d',
             low.append(item['low'])
             volume.append(item['volume'])
             amount.append(0)
+            turn.append(0)
+            pct_chg.append(0)
             ma_price.append(0)
             ma_volume.append(0)
     elif period == '5' or period == '15' or period == '30' or period == '60':
@@ -124,6 +144,8 @@ def get_latest_batch_data(code, limit=DEFAULT_K_LIMIT, period='d',
             low.append(item['low'])
             volume.append(item['volume'])
             amount.append(0)
+            turn.append(0)
+            pct_chg.append(0)
             if period != '60':
                 _ma_price = float(item['ma_price'])
                 _ma_volume = int(item['ma_volume'])
@@ -132,7 +154,8 @@ def get_latest_batch_data(code, limit=DEFAULT_K_LIMIT, period='d',
                 _ma_volume = 0
             ma_price.append(_ma_price)
             ma_volume.append(_ma_volume)
-    return date, _open, close, high, low, volume, amount, ma_price, ma_volume
+    return date, _open, close, high, low, volume, amount, turn, pct_chg, \
+           ma_price, ma_volume
 
 
 def get_current_week_date():
@@ -322,3 +345,11 @@ def get_liqa_share(code):
         AStockProfitData.stat_date.desc())[0]
     liqa_share = row.liqa_share
     return liqa_share
+
+
+def get_total_share(code):
+    row = AStockProfitData.select().where(
+        AStockProfitData.code == code).order_by(
+        AStockProfitData.stat_date.desc())[0]
+    total_share = row.total_share
+    return total_share

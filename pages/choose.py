@@ -12,10 +12,12 @@ from strategies.dual_line import DualLineChoose, DualLineInfo
 from strategies.kdj import KDJChoose, KDJInfo
 from strategies.macd import MACDChoose, MACDInfo
 from strategies.mcst import MCSTInfo
+from strategies.percent_change import PercentChangeChoose, PercentChangeInfo
 from strategies.rsi import RSIChoose, RSIInfo
 from strategies.stairs import StairsChoose, StairsInfo
 from strategies.triple_golden_cross import TripleGoldenCrossChoose, \
     TripleGoldenCrossInfo
+from strategies.turn_over import TurnOverChoose, TurnOverInfo
 from strategies.turtle import TurtleChoose, TurtleInfo
 from strategies.volume_increase import VolumeIncreaseChoose, VolumeIncreaseInfo
 from strategies.wr import WRChoose, WRInfo
@@ -48,9 +50,11 @@ class Choose(Plots):
         self.kdj_info = KDJInfo()
         self.macd_info = MACDInfo()
         self.mcst_info = MCSTInfo()
+        self.percent_change_info = PercentChangeInfo()
         self.rsi_info = RSIInfo()
         self.stairs_info = StairsInfo()
         self.triple_golden_cross_info = TripleGoldenCrossInfo()
+        self.turn_over_info = TurnOverInfo()
         self.turtle_info = TurtleInfo()
         self.volume_increase_info = VolumeIncreaseInfo()
         self.wr_info = WRInfo()
@@ -286,6 +290,9 @@ class Choose(Plots):
                     self.choose_thread = KDJChoose(self.stocks_to_be_chosen)
                 elif self.apply_strategies[0] == self.macd_info.name:
                     self.choose_thread = MACDChoose(self.stocks_to_be_chosen)
+                elif self.apply_strategies[0] == self.percent_change_info.name:
+                    self.choose_thread = PercentChangeChoose(
+                        self.stocks_to_be_chosen)
                 elif self.apply_strategies[0] == self.rsi_info.name:
                     self.choose_thread = RSIChoose(self.stocks_to_be_chosen)
                 elif self.apply_strategies[0] == self.stairs_info.name:
@@ -293,6 +300,9 @@ class Choose(Plots):
                 elif self.apply_strategies[0] == \
                         self.triple_golden_cross_info.name:
                     self.choose_thread = TripleGoldenCrossChoose(
+                        self.stocks_to_be_chosen)
+                elif self.apply_strategies[0] == self.turn_over_info.name:
+                    self.choose_thread = TurnOverChoose(
                         self.stocks_to_be_chosen)
                 elif self.apply_strategies[0] == self.turtle_info.name:
                     self.choose_thread = TurtleChoose(self.stocks_to_be_chosen)

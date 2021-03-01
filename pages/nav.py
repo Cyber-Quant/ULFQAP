@@ -16,10 +16,12 @@ from strategies.dual_line import DualLineConfig, DualLineInfo
 from strategies.kdj import KDJConfig, KDJInfo
 from strategies.macd import MACDConfig, MACDInfo
 from strategies.mcst import MCSTInfo
+from strategies.percent_change import PercentChangeConfig, PercentChangeInfo
 from strategies.rsi import RSIConfig, RSIInfo
 from strategies.stairs import StairsConfig, StairsInfo
 from strategies.triple_golden_cross import TripleGoldenCrossConfig, \
     TripleGoldenCrossInfo
+from strategies.turn_over import TurnOverConfig, TurnOverInfo
 from strategies.turtle import TurtleConfig, TurtleInfo
 from strategies.wr import WRConfig, WRInfo
 from strategies.volume_increase import VolumeIncreaseConfig, VolumeIncreaseInfo
@@ -76,6 +78,8 @@ class Nav(QWidget):
         self.triple_golden_cross_info = TripleGoldenCrossInfo()
         self.turtle_info = TurtleInfo()
         self.volume_increase_info = VolumeIncreaseInfo()
+        self.turn_over_info = TurnOverInfo()
+        self.percent_change_info = PercentChangeInfo()
         self.mcst_info = MCSTInfo()
         self.wr_info = WRInfo()
         self.boll_info = BOLLInfo()
@@ -107,6 +111,16 @@ class Nav(QWidget):
                 'name': self.volume_increase_info.name,
                 'choose': 'Y' if self.volume_increase_info.choose_flag else 'N',
                 'watch': 'Y' if self.volume_increase_info.watch_flag else 'N'
+            },
+            {
+                'name': self.turn_over_info.name,
+                'choose': 'Y' if self.turn_over_info.choose_flag else 'N',
+                'watch': 'Y' if self.turn_over_info.watch_flag else 'N'
+            },
+            {
+                'name': self.percent_change_info.name,
+                'choose': 'Y' if self.percent_change_info.choose_flag else 'N',
+                'watch': 'Y' if self.percent_change_info.watch_flag else 'N'
             },
             {
                 'name': self.mcst_info.name,
@@ -344,6 +358,14 @@ class Nav(QWidget):
             cfg_dlg.exec_()
         if name == self.volume_increase_info.name:
             cfg_dlg = VolumeIncreaseConfig(self)
+            cfg_dlg.show()
+            cfg_dlg.exec_()
+        if name == self.turn_over_info.name:
+            cfg_dlg = TurnOverConfig(self)
+            cfg_dlg.show()
+            cfg_dlg.exec_()
+        if name == self.percent_change_info.name:
+            cfg_dlg = PercentChangeConfig(self)
             cfg_dlg.show()
             cfg_dlg.exec_()
         if name == self.wr_info.name:

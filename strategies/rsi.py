@@ -77,7 +77,7 @@ class RSI:
         return fast_rsi, slow_rsi
 
     def backtest(self, code, s_date, e_date, init_money, fee, pass_fee, tax):
-        dates, opens, closes, highs, lows, volumes, amount, \
+        dates, opens, closes, highs, lows, volumes, amount, turn, pct_chg, \
         ma_price, ma_volume = get_latest_batch_data(code, s_date=s_date,
                                                     e_date=e_date)
         fast_rsi = self._calc_rsi(closes, self.m)
@@ -169,7 +169,7 @@ class RSI:
                closing_index_slices, closing_price_slices
 
     def choose(self, code):
-        dates, opens, closes, highs, lows, volumes, amount, \
+        dates, opens, closes, highs, lows, volumes, amount, turn, pct_chg, \
         ma_price, ma_volume = get_latest_batch_data(code)
         fast_rsi = self._calc_rsi(closes, self.m)
         slow_rsi = self._calc_rsi(closes, self.n)

@@ -93,7 +93,7 @@ class BOLL:
         return ups
 
     def backtest(self, code, s_date, e_date, init_money, fee, pass_fee, tax):
-        dates, opens, closes, highs, lows, volumes, amount, \
+        dates, opens, closes, highs, lows, volumes, amount, turn, pct_chg, \
         ma_price, ma_volume = get_latest_batch_data(code, s_date=s_date,
                                                     e_date=e_date)
         ups = self.calc_batch_up(closes)
@@ -192,7 +192,7 @@ class BOLL:
                closing_index_slices, closing_price_slices
 
     def choose(self, code):
-        dates, opens, closes, highs, lows, volumes, amount, \
+        dates, opens, closes, highs, lows, volumes, amount, turn, pct_chg, \
         ma_price, ma_volume = get_latest_batch_data(code)
         ups = self.calc_batch_up(closes)[:-self.j]
         downs = self.calc_batch_down(closes)[:-self.j]
@@ -311,7 +311,8 @@ class BOLLWatch(QThread):
             self.names.append(stock['name'])
 
     def _get_close_data(self, code):
-        date, _open, close, high, low, volume, amount, ma_price, ma_volume = \
+        date, _open, close, high, low, volume, amount, turn, pct_chg, \
+        ma_price, ma_volume = \
             get_latest_batch_data(code, limit=self.m)
         return close
 

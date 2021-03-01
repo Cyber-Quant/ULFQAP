@@ -1,5 +1,4 @@
-from conf.conf import strategies_config_path
-from strategies.common import get_latest_batch_data, get_liqa_share
+from strategies.common import get_liqa_share
 
 
 class MCSTInfo:

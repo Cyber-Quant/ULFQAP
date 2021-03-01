@@ -128,7 +128,8 @@ class Plots(QWidget):
             return
 
         self.kline_data = []
-        date, _open, close, high, low, volume, amount, ma_price, ma_volume = \
+        date, _open, close, high, low, volume, amount, turn, pct_chg, \
+        ma_price, ma_volume = \
             get_latest_batch_data(code, period=self.current_kline_period)
 
         _macd = MACD()

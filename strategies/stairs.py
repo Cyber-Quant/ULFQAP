@@ -32,7 +32,7 @@ class Stairs:
             self.m = 3
 
     def backtest(self, code, s_date, e_date, init_money, fee, pass_fee, tax):
-        dates, opens, closes, highs, lows, volumes, amount, \
+        dates, opens, closes, highs, lows, volumes, amount, turn, pct_chg, \
         ma_price, ma_volume = get_latest_batch_data(code, s_date=s_date,
                                                     e_date=e_date)
         start = self.m
@@ -132,7 +132,7 @@ class Stairs:
         return True
 
     def choose(self, code):
-        dates, opens, closes, highs, lows, volumes, amount, \
+        dates, opens, closes, highs, lows, volumes, amount, turn, pct_chg, \
         ma_price, ma_volume = get_latest_batch_data(code)
         return self._choose(dates, opens, closes, highs, lows, volumes,
                             ma_price, ma_volume)
