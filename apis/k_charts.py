@@ -171,16 +171,20 @@ class FetchDayK(QThread):
         step = int(total_num / 100)
         i = 0
         j = 0
+        all_data = []
         for code in self.stock_code_list:
             i += 1
             ret, data = fetch_day_line_data(code, self.e_date)
             if ret != 0:
                 self.err_signal.emit(data)
                 return False
-            store_day_line_data(data)
+            all_data += data
             if i % step == 0:
                 j += 1
                 self.sig_fetch_day_k.emit(j)
+
+        store_day_line_data(all_data)
+
         self.sig_fetch_day_k_done.emit()
         bs.logout()
         return True
