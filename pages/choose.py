@@ -8,6 +8,7 @@ from conf.conf import fav_stocks_config_path, apply_strategies_config_path, \
     stock_pool_config_path
 from db.models import AStockIndex
 from strategies.boll import BOLLChoose, BOLLInfo
+from strategies.common import get_stat_date, get_value_info
 from strategies.dual_line import DualLineChoose, DualLineInfo
 from strategies.kdj import KDJChoose, KDJInfo
 from strategies.macd import MACDChoose, MACDInfo
@@ -41,6 +42,8 @@ class Choose(Plots):
         self.apply_strategies = []
 
         self.current_kline_period = 'd'
+
+        self.stat_date = get_stat_date()
 
         self.choose_thread = None
         # TODO: make strategies plugin
@@ -140,9 +143,32 @@ class Choose(Plots):
         info_g_box.addWidget(self.high_input, 0, 5)
         info_g_box.addWidget(self.low_label, 1, 4)
         info_g_box.addWidget(self.low_input, 1, 5)
-
         self.info_widget = QGroupBox()
         self.info_widget.setLayout(info_g_box)
+
+        basic_info_g_box = QGridLayout()
+        self.roe_label = QLabel('ROE')
+        self.roe_input = QLineEdit()
+        self.roe_input.setDisabled(True)
+        self.ito_label = QLabel('存货率')
+        self.ito_input = QLineEdit()
+        self.ito_input.setDisabled(True)
+        self.artr_label = QLabel('应收帐款率')
+        self.artr_input = QLineEdit()
+        self.artr_input.setDisabled(True)
+        self.dar_label = QLabel('资产负债率')
+        self.dar_input = QLineEdit()
+        self.dar_input.setDisabled(True)
+        basic_info_g_box.addWidget(self.roe_label, 0, 6)
+        basic_info_g_box.addWidget(self.roe_input, 0, 7)
+        basic_info_g_box.addWidget(self.ito_label, 1, 6)
+        basic_info_g_box.addWidget(self.ito_input, 1, 7)
+        basic_info_g_box.addWidget(self.artr_label, 0, 8)
+        basic_info_g_box.addWidget(self.artr_input, 0, 9)
+        basic_info_g_box.addWidget(self.dar_label, 1, 8)
+        basic_info_g_box.addWidget(self.dar_input, 1, 9)
+        self.basic_info_widget = QGroupBox()
+        self.basic_info_widget.setLayout(basic_info_g_box)
 
         self.day_radio = QRadioButton('日')
         self.day_radio.setChecked(True)
@@ -167,6 +193,7 @@ class Choose(Plots):
 
         info_h_box = QHBoxLayout()
         info_h_box.addWidget(self.period_widget)
+        info_h_box.addWidget(self.basic_info_widget)
         info_h_box.addWidget(self.info_widget)
 
         right_v_box = QVBoxLayout()
@@ -207,6 +234,18 @@ class Choose(Plots):
         code = self.table.item(row, 0).text()
         self.render_all_plots(code)
         self.re_draw_indicators(self.current_indicator_name)
+        self.display_basic_info(code)
+
+    def display_basic_info(self, code):
+        _, _, roe, ltv, ito, artr, dar = get_value_info(
+            code, self.stat_date)
+        self._display_basic_info(roe, ito, artr, dar)
+
+    def _display_basic_info(self, roe, ito, artr, dar):
+        self.roe_input.setText(str(roe))
+        self.ito_input.setText(str(ito))
+        self.artr_input.setText(str(artr))
+        self.dar_input.setText(str(dar))
 
     def on_kline_info_changed(self, date, _open, close, high, low, volume):
         self.date_input.setText(date)

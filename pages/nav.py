@@ -518,6 +518,7 @@ class Nav(QWidget):
         elif self.list.currentRow() == 1:
             self.choose.re_render_all_plots(code)
             self.choose.draw_indicators(strategy)
+            self.choose.display_basic_info(code)
         elif self.list.currentRow() == 2:
             self.pool.set_code(code, name)
         elif self.list.currentRow() == 3:

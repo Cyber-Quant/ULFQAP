@@ -303,18 +303,31 @@ def filter_dar(v, date):
 def get_value_info(code, date):
     index = AStockIndex.select().where(AStockIndex.code == code)[0]
     name = index.name
-    profit_data = AStockProfitData.select().where(
-        AStockProfitData.code == code, AStockProfitData.stat_date == date)[0]
-    roe = round(profit_data.ROE_avg * 100, 2)
+    rows = AStockProfitData.select().where(
+        AStockProfitData.code == code, AStockProfitData.stat_date == date)
+    if rows.count() == 0:
+        roe = 0
+    else:
+        profit_data = rows[0]
+        roe = round(profit_data.ROE_avg * 100, 2)
     ltv = 0.0
-    operation_data = AStockOperationData.select().where(
+    rows = AStockOperationData.select().where(
         AStockOperationData.code == code,
-        AStockOperationData.stat_date == date)[0]
-    ito = round(operation_data.INV_turn_ratio, 2)
-    artr = round(operation_data.NR_turn_ratio, 2)
-    balance_data = AStockBalanceData.select().where(
-        AStockBalanceData.code == code, AStockBalanceData.stat_date == date)[0]
-    dar = round(balance_data.liability_to_asset * 100, 2)
+        AStockOperationData.stat_date == date)
+    if rows.count() == 0:
+        ito = 0
+        artr = 0
+    else:
+        operation_data = rows[0]
+        ito = round(operation_data.INV_turn_ratio, 2)
+        artr = round(operation_data.NR_turn_ratio, 2)
+    rows = AStockBalanceData.select().where(
+        AStockBalanceData.code == code, AStockBalanceData.stat_date == date)
+    if rows.count() == 0:
+        dar = 0
+    else:
+        balance_data = rows[0]
+        dar = round(balance_data.liability_to_asset * 100, 2)
     return code, name, roe, ltv, ito, artr, dar
 
 
