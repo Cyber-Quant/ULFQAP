@@ -6,6 +6,7 @@ from qtpy.QtGui import *
 from qtpy.QtCore import *
 
 from conf.conf import stock_pool_config_path
+from strategies.common import  get_stat_date, get_value_info
 from strategies.value import ValueChoose
 
 
@@ -16,6 +17,8 @@ class Pool(QWidget):
 
         self.pool_thread = None
         self.stock_pool = []
+        self.current_code = None
+        self.stat_date = get_stat_date()
 
         self.progress_bar = QProgressBar()
 
@@ -214,6 +217,13 @@ class Pool(QWidget):
                 self.artr_info_label.setText(artr_txt)
                 dar_txt = '资产负债率: ' + str(dar)
                 self.dar_info_label.setText(dar_txt)
+
+    def display_basic_info(self, code):
+        _, _, roe, ltv, ito, artr, dar = get_value_info(code, self.stat_date)
+        self.roe_info_label.setText(str(roe))
+        self.ito_info_label.setText(str(ito))
+        self.artr_info_label.setText(str(artr))
+        self.dar_info_label.setText(str(dar))
 
     def on_refresh_pool_table(self):
         if not stock_pool_config_path.exists():
