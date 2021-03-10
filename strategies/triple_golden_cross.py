@@ -13,9 +13,9 @@ from strategies.macd import MACD
 
 class TripleGoldenCrossInfo:
     def __init__(self):
-        self.name = '三金叉'
+        self.name = '三金叉见底'
         self.desc = '''
-        三金叉
+        三金叉见底
         均线，均量线，MACD三者都金叉。代表价，量，时，空这四大要素中有三个发出了买入信号。
         5(m)日快线，10(n)日慢线
         5(k)日内，符合条件
