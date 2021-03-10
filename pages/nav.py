@@ -12,13 +12,11 @@ from pages.config import Config
 from pages.pool import Pool
 from pages.watch import Watch
 from strategies.boll import BOLLConfig, BOLLInfo
-from strategies.dual_line import DualLineConfig, DualLineInfo
 from strategies.kdj import KDJConfig, KDJInfo
 from strategies.macd import MACDConfig, MACDInfo
 from strategies.mcst import MCSTInfo
 from strategies.percent_change import PercentChangeConfig, PercentChangeInfo
 from strategies.rsi import RSIConfig, RSIInfo
-from strategies.stairs import StairsConfig, StairsInfo
 from strategies.triple_golden_cross import TripleGoldenCrossConfig, \
     TripleGoldenCrossInfo
 from strategies.turn_over import TurnOverConfig, TurnOverInfo
@@ -73,8 +71,6 @@ class Nav(QWidget):
                 self.custom_watch = json.load(f)
 
         # NEW STRATEGIES #
-        self.dual_line_info = DualLineInfo()
-        self.stairs_info = StairsInfo()
         self.triple_golden_cross_info = TripleGoldenCrossInfo()
         self.turtle_info = TurtleInfo()
         self.volume_increase_info = VolumeIncreaseInfo()
@@ -87,16 +83,6 @@ class Nav(QWidget):
         self.kdj_info = KDJInfo()
         self.rsi_info = RSIInfo()
         self.strategies = [
-            {
-                'name': self.dual_line_info.name,
-                'choose': 'Y' if self.dual_line_info.choose_flag else 'N',
-                'watch': 'Y' if self.dual_line_info.watch_flag else 'N'
-            },
-            {
-                'name': self.stairs_info.name,
-                'choose': 'Y' if self.stairs_info.choose_flag else 'N',
-                'watch': 'Y' if self.stairs_info.watch_flag else 'N'
-            },
             {
                 'name': self.triple_golden_cross_info.name,
                 'choose': 'Y' if self.triple_golden_cross_info.choose_flag else 'N',
@@ -340,14 +326,6 @@ class Nav(QWidget):
         row = self.strategy_table.currentIndex().row()
         name = self.strategy_table.item(row, 1).text()
         # NEW STRATEGIES #
-        if name == self.dual_line_info.name:
-            cfg_dlg = DualLineConfig(self)
-            cfg_dlg.show()
-            cfg_dlg.exec_()
-        if name == self.stairs_info.name:
-            cfg_dlg = StairsConfig(self)
-            cfg_dlg.show()
-            cfg_dlg.exec_()
         if name == self.triple_golden_cross_info.name:
             cfg_dlg = TripleGoldenCrossConfig(self)
             cfg_dlg.show()

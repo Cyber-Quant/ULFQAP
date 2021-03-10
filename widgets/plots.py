@@ -5,7 +5,6 @@ from qtpy.QtWidgets import *
 
 from strategies.common import get_latest_batch_data
 from strategies.boll import BOLL
-from strategies.dual_line import DualLine
 from strategies.kdj import KDJ
 from strategies.macd import MACD
 from strategies.mcst import MCST
@@ -460,14 +459,6 @@ class Plots(QWidget):
             downs = boll.calc_batch_down(closes)
             k_data = [ups, middles, downs]
             k_pen_colors = ['r', 'w', 'y']
-            vol_data = []
-            vol_pen_colors = []
-        elif self.current_indicator_name == self.dual_line_info.name:
-            dual_line = DualLine()
-            ema = dual_line.calc_ema(closes)
-            ma = dual_line.calc_ma(closes)
-            k_data = [ema, ma]
-            k_pen_colors = ['r', 'y']
             vol_data = []
             vol_pen_colors = []
         elif self.current_indicator_name == self.triple_golden_cross_info.name:

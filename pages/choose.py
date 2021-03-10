@@ -9,13 +9,11 @@ from conf.conf import fav_stocks_config_path, apply_strategies_config_path, \
 from db.models import AStockIndex
 from strategies.boll import BOLLChoose, BOLLInfo
 from strategies.common import get_stat_date, get_value_info
-from strategies.dual_line import DualLineChoose, DualLineInfo
 from strategies.kdj import KDJChoose, KDJInfo
 from strategies.macd import MACDChoose, MACDInfo
 from strategies.mcst import MCSTInfo
 from strategies.percent_change import PercentChangeChoose, PercentChangeInfo
 from strategies.rsi import RSIChoose, RSIInfo
-from strategies.stairs import StairsChoose, StairsInfo
 from strategies.triple_golden_cross import TripleGoldenCrossChoose, \
     TripleGoldenCrossInfo
 from strategies.turn_over import TurnOverChoose, TurnOverInfo
@@ -49,13 +47,11 @@ class Choose(Plots):
         # TODO: make strategies plugin
         # NEW STRATEGIES #
         self.boll_info = BOLLInfo()
-        self.dual_line_info = DualLineInfo()
         self.kdj_info = KDJInfo()
         self.macd_info = MACDInfo()
         self.mcst_info = MCSTInfo()
         self.percent_change_info = PercentChangeInfo()
         self.rsi_info = RSIInfo()
-        self.stairs_info = StairsInfo()
         self.triple_golden_cross_info = TripleGoldenCrossInfo()
         self.turn_over_info = TurnOverInfo()
         self.turtle_info = TurtleInfo()
@@ -322,9 +318,6 @@ class Choose(Plots):
                 # NEW STRATEGIES #
                 if self.apply_strategies[0] == self.boll_info.name:
                     self.choose_thread = BOLLChoose(self.stocks_to_be_chosen)
-                elif self.apply_strategies[0] == self.dual_line_info.name:
-                    self.choose_thread = DualLineChoose(
-                        self.stocks_to_be_chosen)
                 elif self.apply_strategies[0] == self.kdj_info.name:
                     self.choose_thread = KDJChoose(self.stocks_to_be_chosen)
                 elif self.apply_strategies[0] == self.macd_info.name:
@@ -334,8 +327,6 @@ class Choose(Plots):
                         self.stocks_to_be_chosen)
                 elif self.apply_strategies[0] == self.rsi_info.name:
                     self.choose_thread = RSIChoose(self.stocks_to_be_chosen)
-                elif self.apply_strategies[0] == self.stairs_info.name:
-                    self.choose_thread = StairsChoose(self.stocks_to_be_chosen)
                 elif self.apply_strategies[0] == \
                         self.triple_golden_cross_info.name:
                     self.choose_thread = TripleGoldenCrossChoose(
