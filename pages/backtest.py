@@ -216,8 +216,7 @@ class Backtest(QWidget):
         elif self.backtest_option == 'all':
             rows = AStockIndex.select()
             for row in rows:
-                if row.type == 1:
-                    stocks.append({'code': row.code, 'name': row.name})
+                stocks.append({'code': row.code, 'name': row.name})
 
         if self.current_strategy_name is None:
             QMessageBox.warning(self, '警告', '请选择一个策略进行回测',
