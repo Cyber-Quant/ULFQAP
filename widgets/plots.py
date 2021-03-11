@@ -461,6 +461,14 @@ class Plots(QWidget):
             k_pen_colors = ['r', 'w', 'y']
             vol_data = []
             vol_pen_colors = []
+        elif self.current_indicator_name == self.mcst_info.name:
+            mcst = MCST()
+            _mcst = mcst.calc_batch_mcst(volumes, amount,
+                                         self.current_kline_code)
+            k_data = [_mcst]
+            k_pen_colors = ['y']
+            vol_data = []
+            vol_pen_colors = []
         elif self.current_indicator_name == self.triple_golden_cross_info.name:
             triple_golden_cross = TripleGoldenCross()
             fast_ma = triple_golden_cross.calc_fast_ma(closes)
@@ -479,14 +487,6 @@ class Plots(QWidget):
             downs = turtle.calc_batch_down(lows)
             k_data = [ups, downs]
             k_pen_colors = ['r', 'y']
-            vol_data = []
-            vol_pen_colors = []
-        elif self.current_indicator_name == self.mcst_info.name:
-            mcst = MCST()
-            _mcst = mcst.calc_batch_mcst(volumes, amount,
-                                         self.current_kline_code)
-            k_data = [_mcst]
-            k_pen_colors = ['y']
             vol_data = []
             vol_pen_colors = []
         else:
