@@ -1,11 +1,11 @@
 TODO
 ---
 
-- Plugin system, make all strategies plugin.
+- New plot widget using web technology.
+- Move to MongoDB.
+- Import LSTM.
 
-- Log axis.
-- Dynamic update plots by moving left.
-- Refresh minute K by minute in watch.
+- Plugin system, make all strategies plugin.
 
 - Exclude Right and Exclude Dividend.
 
@@ -14,14 +14,3 @@ TODO
 - Try catch in APIs.
 
 - Notify iOS and Android.
-
-- Better UI, user experience, icons, splash screen...
-
-RoadMap
----
-
-- B/S version, react/antd single page application and django server. HTML 5
-  canvas to solving all plot problems.
-
-- Import neural networks, some guys said they are using over 1000 factors, but I
-  think that is totally shit in shit out.

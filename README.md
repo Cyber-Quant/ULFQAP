@@ -1,4 +1,4 @@
 README
 ---
 
-Cyber is currently a classical Qualitative Analysis Platform.
+Cyber is evolving into an A.I. Qualitative Analysis Platform.
