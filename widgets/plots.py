@@ -6,6 +6,7 @@ from qtpy.QtWidgets import *
 from strategies.common import get_latest_batch_data
 from strategies.boll import BOLL
 from strategies.kdj import KDJ
+from strategies.lucky_duck_head import LuckyDuckHead
 from strategies.macd import MACD
 from strategies.mcst import MCST
 from strategies.rsi import RSI
@@ -461,6 +462,17 @@ class Plots(QWidget):
             k_pen_colors = ['r', 'w', 'y']
             vol_data = []
             vol_pen_colors = []
+        elif self.current_indicator_name == self.lucky_duck_head_info.name:
+            lucky_duck_head = LuckyDuckHead()
+            fast_ma = lucky_duck_head.calc_fast_ma(closes)
+            slow_ma = lucky_duck_head.calc_slow_ma(closes)
+            base_ma = lucky_duck_head.calc_base_ma(closes)
+            k_data = [fast_ma, slow_ma, base_ma]
+            k_pen_colors = ['r', 'y', 'w']
+            fast_mav = lucky_duck_head.calc_fast_mav(volumes)
+            slow_mav = lucky_duck_head.calc_slow_mav(volumes)
+            vol_data = [fast_mav, slow_mav]
+            vol_pen_colors = ['r', 'y']
         elif self.current_indicator_name == self.mcst_info.name:
             mcst = MCST()
             _mcst = mcst.calc_batch_mcst(volumes, amount,

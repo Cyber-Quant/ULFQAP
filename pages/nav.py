@@ -13,6 +13,7 @@ from pages.pool import Pool
 from pages.watch import Watch
 from strategies.boll import BOLLConfig, BOLLInfo
 from strategies.kdj import KDJConfig, KDJInfo
+from strategies.lucky_duck_head import LuckyDuckHeadConfig, LuckyDuckHeadInfo
 from strategies.macd import MACDConfig, MACDInfo
 from strategies.mcst import MCSTInfo
 from strategies.percent_change import PercentChangeConfig, PercentChangeInfo
@@ -76,6 +77,7 @@ class Nav(QWidget):
         self.volume_increase_info = VolumeIncreaseInfo()
         self.turn_over_info = TurnOverInfo()
         self.percent_change_info = PercentChangeInfo()
+        self.lucky_duck_head_info = LuckyDuckHeadInfo()
         self.mcst_info = MCSTInfo()
         self.wr_info = WRInfo()
         self.boll_info = BOLLInfo()
@@ -107,6 +109,11 @@ class Nav(QWidget):
                 'name': self.percent_change_info.name,
                 'choose': 'Y' if self.percent_change_info.choose_flag else 'N',
                 'watch': 'Y' if self.percent_change_info.watch_flag else 'N'
+            },
+            {
+                'name': self.lucky_duck_head_info.name,
+                'choose': 'Y' if self.lucky_duck_head_info.choose_flag else 'N',
+                'watch': 'Y' if self.lucky_duck_head_info.watch_flag else 'N'
             },
             {
                 'name': self.mcst_info.name,
@@ -344,6 +351,10 @@ class Nav(QWidget):
             cfg_dlg.exec_()
         if name == self.percent_change_info.name:
             cfg_dlg = PercentChangeConfig(self)
+            cfg_dlg.show()
+            cfg_dlg.exec_()
+        if name == self.lucky_duck_head_info.name:
+            cfg_dlg = LuckyDuckHeadConfig(self)
             cfg_dlg.show()
             cfg_dlg.exec_()
         if name == self.wr_info.name:

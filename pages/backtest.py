@@ -11,6 +11,8 @@ from conf.conf import fav_stocks_config_path, FIRST_DAY_YEAR, \
 from db.models import AStockIndex
 from strategies.boll import BOLL, BOLLBacktest, BOLLInfo
 from strategies.kdj import KDJ, KDJBacktest, KDJInfo
+from strategies.lucky_duck_head import LuckyDuckHead, LuckyDuckHeadBacktest, \
+    LuckyDuckHeadInfo
 from strategies.macd import MACD, MACDBacktest, MACDInfo
 from strategies.rsi import RSI, RSIBacktest, RSIInfo
 from strategies.triple_golden_cross import TripleGoldenCross, \
@@ -233,6 +235,7 @@ class Backtest(QWidget):
         # NEW STRATEGIES #
         boll_info = BOLLInfo()
         kdj_info = KDJInfo()
+        lucky_duck_head_info = LuckyDuckHeadInfo()
         macd_info = MACDInfo()
         rsi_info = RSIInfo()
         triple_golden_cross_info = TripleGoldenCrossInfo()
@@ -246,6 +249,10 @@ class Backtest(QWidget):
             self.backtest_thread = KDJBacktest(stocks, s_date, e_date,
                                                init_money, fee,
                                                pass_fee, tax)
+        elif self.current_strategy_name == lucky_duck_head_info.name:
+            self.backtest_thread = LuckyDuckHeadBacktest(stocks, s_date, e_date,
+                                                         init_money, fee,
+                                                         pass_fee, tax)
         elif self.current_strategy_name == macd_info.name:
             self.backtest_thread = MACDBacktest(stocks, s_date, e_date,
                                                 init_money, fee,
@@ -320,6 +327,7 @@ class Backtest(QWidget):
         # NEW STRATEGIES #
         boll_info = BOLLInfo()
         kdj_info = KDJInfo()
+        lucky_duck_head_info = LuckyDuckHeadInfo()
         macd_info = MACDInfo()
         rsi_info = RSIInfo()
         triple_golden_cross_info = TripleGoldenCrossInfo()
@@ -329,6 +337,8 @@ class Backtest(QWidget):
             backtest = BOLL()
         elif self.current_strategy_name == kdj_info.name:
             backtest = KDJ()
+        elif self.current_strategy_name == lucky_duck_head_info.name:
+            backtest = LuckyDuckHead()
         elif self.current_strategy_name == macd_info.name:
             backtest = MACD()
         elif self.current_strategy_name == rsi_info.name:

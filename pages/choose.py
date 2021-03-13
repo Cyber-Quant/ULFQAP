@@ -10,6 +10,7 @@ from db.models import AStockIndex
 from strategies.boll import BOLLChoose, BOLLInfo
 from strategies.common import get_stat_date, get_value_info
 from strategies.kdj import KDJChoose, KDJInfo
+from strategies.lucky_duck_head import LuckyDuckHeadChoose, LuckyDuckHeadInfo
 from strategies.macd import MACDChoose, MACDInfo
 from strategies.mcst import MCSTInfo
 from strategies.percent_change import PercentChangeChoose, PercentChangeInfo
@@ -48,6 +49,7 @@ class Choose(Plots):
         # NEW STRATEGIES #
         self.boll_info = BOLLInfo()
         self.kdj_info = KDJInfo()
+        self.lucky_duck_head_info = LuckyDuckHeadInfo()
         self.macd_info = MACDInfo()
         self.mcst_info = MCSTInfo()
         self.percent_change_info = PercentChangeInfo()
@@ -320,6 +322,9 @@ class Choose(Plots):
                     self.choose_thread = BOLLChoose(self.stocks_to_be_chosen)
                 elif self.apply_strategies[0] == self.kdj_info.name:
                     self.choose_thread = KDJChoose(self.stocks_to_be_chosen)
+                elif self.apply_strategies[0] == self.lucky_duck_head_info.name:
+                    self.choose_thread = LuckyDuckHeadChoose(
+                        self.stocks_to_be_chosen)
                 elif self.apply_strategies[0] == self.macd_info.name:
                     self.choose_thread = MACDChoose(self.stocks_to_be_chosen)
                 elif self.apply_strategies[0] == self.percent_change_info.name:
