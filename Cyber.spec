@@ -4,7 +4,7 @@ block_cipher = pyi_crypto.PyiBlockCipher(key='xxxxxxxxxxxxxxxx')
 
 
 a = Analysis(['main.py'],
-             pathex=['/Users/jia/Desktop/cyberpunk'],
+             pathex=['/Users/jia/Desktop/cyber'],
              binaries=[],
              datas=[
              ('media/backtest.svg', 'media'),
@@ -25,7 +25,7 @@ a = Analysis(['main.py'],
              ('user_data/custom_watch.json', 'user_data'),
              ('user_data/fav_stocks.json', 'user_data'),
              ('user_data/quant.db', 'user_data'),
-             ('user_data/strategies/boll.json', 'user_data/rules')
+             ('user_data/strategies/boll.json', 'user_data/strategies')
              ],
              hiddenimports=[],
              hookspath=[],
