@@ -8,6 +8,7 @@ from conf.conf import fav_stocks_config_path, apply_strategies_config_path, \
     stock_pool_config_path
 from db.models import AStockIndex
 from strategies.boll import BOLLChoose, BOLLInfo
+from strategies.bottom_break_up import BottomBreakUpChoose, BottomBreakUpInfo
 from strategies.common import get_stat_date, get_value_info
 from strategies.kdj import KDJChoose, KDJInfo
 from strategies.lucky_duck_head import LuckyDuckHeadChoose, LuckyDuckHeadInfo
@@ -47,6 +48,7 @@ class Choose(Plots):
         # TODO: make strategies plugin
         # NEW STRATEGIES #
         self.boll_info = BOLLInfo()
+        self.bottom_break_up_info = BottomBreakUpInfo()
         self.kdj_info = KDJInfo()
         self.lucky_duck_head_info = LuckyDuckHeadInfo()
         self.macd_info = MACDInfo()
@@ -318,6 +320,9 @@ class Choose(Plots):
                 # NEW STRATEGIES #
                 if self.apply_strategies[0] == self.boll_info.name:
                     self.choose_thread = BOLLChoose(self.stocks_to_be_chosen)
+                elif self.apply_strategies[0] == self.bottom_break_up_info.name:
+                    self.choose_thread = BottomBreakUpChoose(
+                        self.stocks_to_be_chosen)
                 elif self.apply_strategies[0] == self.kdj_info.name:
                     self.choose_thread = KDJChoose(self.stocks_to_be_chosen)
                 elif self.apply_strategies[0] == self.lucky_duck_head_info.name:

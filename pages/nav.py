@@ -12,6 +12,7 @@ from pages.config import Config
 from pages.pool import Pool
 from pages.watch import Watch
 from strategies.boll import BOLLConfig, BOLLInfo
+from strategies.bottom_break_up import BottomBreakUpConfig, BottomBreakUpInfo
 from strategies.kdj import KDJConfig, KDJInfo
 from strategies.lucky_duck_head import LuckyDuckHeadConfig, LuckyDuckHeadInfo
 from strategies.macd import MACDConfig, MACDInfo
@@ -77,6 +78,7 @@ class Nav(QWidget):
         self.percent_change_info = PercentChangeInfo()
         self.lucky_duck_head_info = LuckyDuckHeadInfo()
         self.mcst_info = MCSTInfo()
+        self.bottom_break_up_info = BottomBreakUpInfo()
         self.wr_info = WRInfo()
         self.boll_info = BOLLInfo()
         self.macd_info = MACDInfo()
@@ -112,6 +114,11 @@ class Nav(QWidget):
                 'name': self.mcst_info.name,
                 'choose': 'Y' if self.mcst_info.choose_flag else 'N',
                 'watch': 'Y' if self.mcst_info.watch_flag else 'N'
+            },
+            {
+                'name': self.bottom_break_up_info.name,
+                'choose': 'Y' if self.bottom_break_up_info.choose_flag else 'N',
+                'watch': 'Y' if self.bottom_break_up_info.watch_flag else 'N'
             },
             {
                 'name': self.wr_info.name,
@@ -344,6 +351,10 @@ class Nav(QWidget):
             cfg_dlg.exec_()
         if name == self.lucky_duck_head_info.name:
             cfg_dlg = LuckyDuckHeadConfig(self)
+            cfg_dlg.show()
+            cfg_dlg.exec_()
+        if name == self.bottom_break_up_info.name:
+            cfg_dlg = BottomBreakUpConfig(self)
             cfg_dlg.show()
             cfg_dlg.exec_()
         if name == self.wr_info.name:

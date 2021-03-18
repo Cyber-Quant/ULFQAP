@@ -10,6 +10,8 @@ from conf.conf import fav_stocks_config_path, FIRST_DAY_YEAR, \
     FIRST_DAY_MONTH, FIRST_DAY_DAY
 from db.models import AStockIndex
 from strategies.boll import BOLL, BOLLBacktest, BOLLInfo
+from strategies.bottom_break_up import BottomBreakUp, BottomBreakUpBacktest, \
+    BottomBreakUpInfo
 from strategies.kdj import KDJ, KDJBacktest, KDJInfo
 from strategies.lucky_duck_head import LuckyDuckHead, LuckyDuckHeadBacktest, \
     LuckyDuckHeadInfo
@@ -233,6 +235,7 @@ class Backtest(QWidget):
         tax = float(self.tax_input.text()) / 1000
         # NEW STRATEGIES #
         boll_info = BOLLInfo()
+        bottom_break_up_info = BottomBreakUpInfo()
         kdj_info = KDJInfo()
         lucky_duck_head_info = LuckyDuckHeadInfo()
         macd_info = MACDInfo()
@@ -243,6 +246,10 @@ class Backtest(QWidget):
             self.backtest_thread = BOLLBacktest(stocks, s_date, e_date,
                                                 init_money, fee,
                                                 pass_fee, tax)
+        elif self.current_strategy_name == bottom_break_up_info.name:
+            self.backtest_thread = BottomBreakUpBacktest(stocks, s_date, e_date,
+                                                         init_money, fee,
+                                                         pass_fee, tax)
         elif self.current_strategy_name == kdj_info.name:
             self.backtest_thread = KDJBacktest(stocks, s_date, e_date,
                                                init_money, fee,
@@ -320,6 +327,7 @@ class Backtest(QWidget):
         tax = float(self.tax_input.text()) / 1000
         # NEW STRATEGIES #
         boll_info = BOLLInfo()
+        bottom_break_up_info = BottomBreakUpInfo()
         kdj_info = KDJInfo()
         lucky_duck_head_info = LuckyDuckHeadInfo()
         macd_info = MACDInfo()
@@ -328,6 +336,8 @@ class Backtest(QWidget):
         wr_info = WRInfo()
         if self.current_strategy_name == boll_info.name:
             backtest = BOLL()
+        elif self.current_strategy_name == bottom_break_up_info.name:
+            backtest = BottomBreakUp()
         elif self.current_strategy_name == kdj_info.name:
             backtest = KDJ()
         elif self.current_strategy_name == lucky_duck_head_info.name:

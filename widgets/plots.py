@@ -5,6 +5,7 @@ from qtpy.QtWidgets import *
 
 from strategies.common import get_latest_batch_data
 from strategies.boll import BOLL
+from strategies.bottom_break_up import BottomBreakUp
 from strategies.kdj import KDJ
 from strategies.lucky_duck_head import LuckyDuckHead
 from strategies.macd import MACD
@@ -461,6 +462,19 @@ class Plots(QWidget):
             k_pen_colors = ['r', 'w', 'y']
             vol_data = []
             vol_pen_colors = []
+        elif self.current_indicator_name == self.bottom_break_up_info.name:
+            bottom_break_up = BottomBreakUp()
+            ma_5 = bottom_break_up.calc_5_ma(closes)
+            ma_10 = bottom_break_up.calc_10_ma(closes)
+            ma_20 = bottom_break_up.calc_20_ma(closes)
+            ma_30 = bottom_break_up.calc_30_ma(closes)
+            ma_60 = bottom_break_up.calc_60_ma(closes)
+            k_data = [ma_5, ma_10, ma_20, ma_30, ma_60]
+            k_pen_colors = ['r', 'y', 'w', 'b', 'g']
+            mav_5 = bottom_break_up.calc_mav(volumes, 5)
+            mav_10 = bottom_break_up.calc_mav(volumes, 10)
+            vol_data = [mav_5, mav_10]
+            vol_pen_colors = ['r', 'y']
         elif self.current_indicator_name == self.lucky_duck_head_info.name:
             lucky_duck_head = LuckyDuckHead()
             fast_ma = lucky_duck_head.calc_fast_ma(closes)
