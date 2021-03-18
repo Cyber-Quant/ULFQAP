@@ -91,6 +91,21 @@ class Nav(QWidget):
                 'watch': 'Y' if self.triple_golden_cross_info.watch_flag else 'N'
             },
             {
+                'name': self.lucky_duck_head_info.name,
+                'choose': 'Y' if self.lucky_duck_head_info.choose_flag else 'N',
+                'watch': 'Y' if self.lucky_duck_head_info.watch_flag else 'N'
+            },
+            {
+                'name': self.bottom_break_up_info.name,
+                'choose': 'Y' if self.bottom_break_up_info.choose_flag else 'N',
+                'watch': 'Y' if self.bottom_break_up_info.watch_flag else 'N'
+            },
+            {
+                'name': self.mcst_info.name,
+                'choose': 'Y' if self.mcst_info.choose_flag else 'N',
+                'watch': 'Y' if self.mcst_info.watch_flag else 'N'
+            },
+            {
                 'name': self.volume_increase_info.name,
                 'choose': 'Y' if self.volume_increase_info.choose_flag else 'N',
                 'watch': 'Y' if self.volume_increase_info.watch_flag else 'N'
@@ -104,21 +119,6 @@ class Nav(QWidget):
                 'name': self.percent_change_info.name,
                 'choose': 'Y' if self.percent_change_info.choose_flag else 'N',
                 'watch': 'Y' if self.percent_change_info.watch_flag else 'N'
-            },
-            {
-                'name': self.lucky_duck_head_info.name,
-                'choose': 'Y' if self.lucky_duck_head_info.choose_flag else 'N',
-                'watch': 'Y' if self.lucky_duck_head_info.watch_flag else 'N'
-            },
-            {
-                'name': self.mcst_info.name,
-                'choose': 'Y' if self.mcst_info.choose_flag else 'N',
-                'watch': 'Y' if self.mcst_info.watch_flag else 'N'
-            },
-            {
-                'name': self.bottom_break_up_info.name,
-                'choose': 'Y' if self.bottom_break_up_info.choose_flag else 'N',
-                'watch': 'Y' if self.bottom_break_up_info.watch_flag else 'N'
             },
             {
                 'name': self.wr_info.name,
