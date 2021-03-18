@@ -121,19 +121,9 @@ class Nav(QWidget):
                 'watch': 'Y' if self.percent_change_info.watch_flag else 'N'
             },
             {
-                'name': self.wr_info.name,
-                'choose': 'Y' if self.wr_info.choose_flag else 'N',
-                'watch': 'Y' if self.wr_info.watch_flag else 'N'
-            },
-            {
                 'name': self.boll_info.name,
                 'choose': 'Y' if self.boll_info.choose_flag else 'N',
                 'watch': 'Y' if self.boll_info.watch_flag else 'N'
-            },
-            {
-                'name': self.macd_info.name,
-                'choose': 'Y' if self.macd_info.choose_flag else 'N',
-                'watch': 'Y' if self.macd_info.watch_flag else 'N'
             },
             {
                 'name': self.kdj_info.name,
@@ -141,9 +131,19 @@ class Nav(QWidget):
                 'watch': 'Y' if self.kdj_info.watch_flag else 'N'
             },
             {
+                'name': self.macd_info.name,
+                'choose': 'Y' if self.macd_info.choose_flag else 'N',
+                'watch': 'Y' if self.macd_info.watch_flag else 'N'
+            },
+            {
                 'name': self.rsi_info.name,
                 'choose': 'Y' if self.rsi_info.choose_flag else 'N',
                 'watch': 'Y' if self.rsi_info.watch_flag else 'N'
+            },
+            {
+                'name': self.wr_info.name,
+                'choose': 'Y' if self.wr_info.choose_flag else 'N',
+                'watch': 'Y' if self.wr_info.watch_flag else 'N'
             }
         ]
 
