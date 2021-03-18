@@ -10,7 +10,6 @@ from conf.conf import fav_stocks_config_path, apply_strategies_config_path, \
 from strategies.boll import BOLLInfo, BOLLWatch
 from strategies.custom_watch import CustomWatch
 from strategies.mcst import MCSTInfo
-from strategies.turtle import TurtleInfo, TurtleWatch
 from widgets.plots import Plots
 
 
@@ -69,9 +68,7 @@ class Watch(Plots):
         # NEW STRATEGIES #
         self.boll_watch_thread = None
         self.custom_watch_thread = None
-        self.turtle_watch_thread = None
         self.boll_info = BOLLInfo()
-        self.turtle_info = TurtleInfo()
         self.mcst_info = MCSTInfo()
 
         self.top_widget = QWidget()
@@ -214,11 +211,6 @@ class Watch(Plots):
                 self.boll_watch_thread.up_signal.connect(self.notify_up)
                 self.boll_watch_thread.down_signal.connect(self.notify_down)
                 self.boll_watch_thread.start()
-            if strategy_name == self.turtle_info.name:
-                self.turtle_watch_thread = TurtleWatch(fav_stocks)
-                self.turtle_watch_thread.up_signal.connect(self.notify_up)
-                self.turtle_watch_thread.down_signal.connect(self.notify_down)
-                self.turtle_watch_thread.start()
 
     def on_stop_watch(self):
         with open(fav_stocks_config_path, 'r', encoding='utf-8') as f:
@@ -231,9 +223,6 @@ class Watch(Plots):
             if strategy_name == self.boll_info.name and \
                     self.boll_watch_thread is not None:
                 self.boll_watch_thread.terminate()
-            if strategy_name == self.turtle_info.name and \
-                    self.turtle_watch_thread is not None:
-                self.turtle_watch_thread.terminate()
 
         self.btn_watch.setEnabled(True)
         self.btn_stop_watch.setDisabled(True)

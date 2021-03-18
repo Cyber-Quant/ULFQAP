@@ -21,7 +21,6 @@ from strategies.rsi import RSIConfig, RSIInfo
 from strategies.triple_golden_cross import TripleGoldenCrossConfig, \
     TripleGoldenCrossInfo
 from strategies.turn_over import TurnOverConfig, TurnOverInfo
-from strategies.turtle import TurtleConfig, TurtleInfo
 from strategies.wr import WRConfig, WRInfo
 from strategies.volume_increase import VolumeIncreaseConfig, VolumeIncreaseInfo
 from utils.custom_add_dialog import CustomAddDialog
@@ -73,7 +72,6 @@ class Nav(QWidget):
 
         # NEW STRATEGIES #
         self.triple_golden_cross_info = TripleGoldenCrossInfo()
-        self.turtle_info = TurtleInfo()
         self.volume_increase_info = VolumeIncreaseInfo()
         self.turn_over_info = TurnOverInfo()
         self.percent_change_info = PercentChangeInfo()
@@ -89,11 +87,6 @@ class Nav(QWidget):
                 'name': self.triple_golden_cross_info.name,
                 'choose': 'Y' if self.triple_golden_cross_info.choose_flag else 'N',
                 'watch': 'Y' if self.triple_golden_cross_info.watch_flag else 'N'
-            },
-            {
-                'name': self.turtle_info.name,
-                'choose': 'Y' if self.turtle_info.choose_flag else 'N',
-                'watch': 'Y' if self.turtle_info.watch_flag else 'N'
             },
             {
                 'name': self.volume_increase_info.name,
@@ -335,10 +328,6 @@ class Nav(QWidget):
         # NEW STRATEGIES #
         if name == self.triple_golden_cross_info.name:
             cfg_dlg = TripleGoldenCrossConfig(self)
-            cfg_dlg.show()
-            cfg_dlg.exec_()
-        if name == self.turtle_info.name:
-            cfg_dlg = TurtleConfig(self)
             cfg_dlg.show()
             cfg_dlg.exec_()
         if name == self.volume_increase_info.name:

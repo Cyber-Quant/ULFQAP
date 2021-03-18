@@ -11,7 +11,6 @@ from strategies.macd import MACD
 from strategies.mcst import MCST
 from strategies.rsi import RSI
 from strategies.triple_golden_cross import TripleGoldenCross
-from strategies.turtle import Turtle
 from strategies.wr import WR
 from utils.candlestick import CandlestickItem
 
@@ -493,14 +492,6 @@ class Plots(QWidget):
             slow_mav = triple_golden_cross.calc_slow_mav(volumes)
             vol_data = [fast_mav, slow_mav]
             vol_pen_colors = ['r', 'y']
-        elif self.current_indicator_name == self.turtle_info.name:
-            turtle = Turtle()
-            ups = turtle.calc_batch_up(highs)
-            downs = turtle.calc_batch_down(lows)
-            k_data = [ups, downs]
-            k_pen_colors = ['r', 'y']
-            vol_data = []
-            vol_pen_colors = []
         else:
             k_data = []
             k_pen_colors = []

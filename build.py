@@ -18,8 +18,8 @@ setup(
          './strategies/macd.py', './strategies/mcst.py',
          './strategies/percent_change.py', './strategies/rsi.py',
          './strategies/triple_golden_cross.py', './strategies/turn_over.py',
-         './strategies/turtle.py', './strategies/value.py',
-         './strategies/volume_increase.py', './strategies/wr.py',
+         './strategies/value.py', './strategies/volume_increase.py',
+         './strategies/wr.py',
          './utils/candlestick.py', './utils/custom_add_dialog.py',
          './widgets/plots.py'
          ])

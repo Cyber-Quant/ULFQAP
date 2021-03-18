@@ -18,7 +18,6 @@ from strategies.rsi import RSIChoose, RSIInfo
 from strategies.triple_golden_cross import TripleGoldenCrossChoose, \
     TripleGoldenCrossInfo
 from strategies.turn_over import TurnOverChoose, TurnOverInfo
-from strategies.turtle import TurtleChoose, TurtleInfo
 from strategies.volume_increase import VolumeIncreaseChoose, VolumeIncreaseInfo
 from strategies.wr import WRChoose, WRInfo
 from utils.custom_add_dialog import CustomAddDialog
@@ -56,7 +55,6 @@ class Choose(Plots):
         self.rsi_info = RSIInfo()
         self.triple_golden_cross_info = TripleGoldenCrossInfo()
         self.turn_over_info = TurnOverInfo()
-        self.turtle_info = TurtleInfo()
         self.volume_increase_info = VolumeIncreaseInfo()
         self.wr_info = WRInfo()
 
@@ -339,8 +337,6 @@ class Choose(Plots):
                 elif self.apply_strategies[0] == self.turn_over_info.name:
                     self.choose_thread = TurnOverChoose(
                         self.stocks_to_be_chosen)
-                elif self.apply_strategies[0] == self.turtle_info.name:
-                    self.choose_thread = TurtleChoose(self.stocks_to_be_chosen)
                 elif self.apply_strategies[0] == self.volume_increase_info.name:
                     self.choose_thread = VolumeIncreaseChoose(
                         self.stocks_to_be_chosen)
