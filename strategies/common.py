@@ -203,6 +203,8 @@ def calc_wpct(buy_prices, sell_prices):
 
 def calc_batch_ma(close, period):
     mas = []
+    if len(close) < period:
+        return mas
     for i in range(len(close)):
         if i < period - 1:
             continue
@@ -212,6 +214,8 @@ def calc_batch_ma(close, period):
 
 
 def calc_batch_ema(data, period):
+    if len(data) < period:
+        return []
     emas = data.copy()
     for i in range(len(data)):
         if i == 0:
@@ -224,6 +228,8 @@ def calc_batch_ema(data, period):
 
 def calc_batch_smma(close, period):
     smmas = []
+    if len(close) < period:
+        return smmas
     close_sum = 0
     for i in range(period):
         close_sum += close[i]
@@ -262,6 +268,8 @@ def calc_batch_macd(closes, fast_period, slow_period, period):
 
 def calc_batch_mav(vol, period):
     mavs = []
+    if len(vol) < period:
+        return mavs
     for i in range(len(vol)):
         if i < period - 1:
             continue
