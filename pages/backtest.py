@@ -9,6 +9,7 @@ from qtpy.QtCore import *
 from conf.conf import fav_stocks_config_path, FIRST_DAY_YEAR, \
     FIRST_DAY_MONTH, FIRST_DAY_DAY
 from db.models import AStockIndex
+from strategies.alligator import Alligator, AlligatorBacktest, AlligatorInfo
 from strategies.boll import BOLL, BOLLBacktest, BOLLInfo
 from strategies.bottom_break_up import BottomBreakUp, BottomBreakUpBacktest, \
     BottomBreakUpInfo
@@ -232,6 +233,7 @@ class Backtest(QWidget):
         pass_fee = float(self.pass_fee_input.text()) / 10000
         tax = float(self.tax_input.text()) / 1000
         # NEW STRATEGIES #
+        alligator_info = AlligatorInfo()
         boll_info = BOLLInfo()
         bottom_break_up_info = BottomBreakUpInfo()
         kdj_info = KDJInfo()
@@ -239,7 +241,11 @@ class Backtest(QWidget):
         macd_info = MACDInfo()
         rsi_info = RSIInfo()
         wr_info = WRInfo()
-        if self.current_strategy_name == boll_info.name:
+        if self.current_strategy_name == alligator_info.name:
+            self.backtest_thread = AlligatorBacktest(stocks, s_date, e_date,
+                                                     init_money, fee,
+                                                     pass_fee, tax)
+        elif self.current_strategy_name == boll_info.name:
             self.backtest_thread = BOLLBacktest(stocks, s_date, e_date,
                                                 init_money, fee,
                                                 pass_fee, tax)
@@ -318,6 +324,7 @@ class Backtest(QWidget):
         pass_fee = float(self.pass_fee_input.text()) / 10000
         tax = float(self.tax_input.text()) / 1000
         # NEW STRATEGIES #
+        alligator_info = AlligatorInfo()
         boll_info = BOLLInfo()
         bottom_break_up_info = BottomBreakUpInfo()
         kdj_info = KDJInfo()
@@ -325,7 +332,9 @@ class Backtest(QWidget):
         macd_info = MACDInfo()
         rsi_info = RSIInfo()
         wr_info = WRInfo()
-        if self.current_strategy_name == boll_info.name:
+        if self.current_strategy_name == alligator_info.name:
+            backtest = Alligator()
+        elif self.current_strategy_name == boll_info.name:
             backtest = BOLL()
         elif self.current_strategy_name == bottom_break_up_info.name:
             backtest = BottomBreakUp()

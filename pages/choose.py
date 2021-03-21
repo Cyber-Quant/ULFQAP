@@ -7,6 +7,7 @@ from qtpy.QtCore import *
 from conf.conf import fav_stocks_config_path, apply_strategies_config_path, \
     stock_pool_config_path
 from db.models import AStockIndex
+from strategies.alligator import AlligatorChoose, AlligatorInfo
 from strategies.boll import BOLLChoose, BOLLInfo
 from strategies.bottom_break_up import BottomBreakUpChoose, BottomBreakUpInfo
 from strategies.common import get_stat_date, get_value_info
@@ -45,6 +46,7 @@ class Choose(Plots):
         self.choose_thread = None
         # TODO: make strategies plugin
         # NEW STRATEGIES #
+        self.alligator_info = AlligatorInfo()
         self.boll_info = BOLLInfo()
         self.bottom_break_up_info = BottomBreakUpInfo()
         self.kdj_info = KDJInfo()
@@ -315,7 +317,10 @@ class Choose(Plots):
                 self.enable_all()
             elif len(self.apply_strategies) == 1:
                 # NEW STRATEGIES #
-                if self.apply_strategies[0] == self.boll_info.name:
+                if self.apply_strategies[0] == self.alligator_info.name:
+                    self.choose_thread = AlligatorChoose(
+                        self.stocks_to_be_chosen)
+                elif self.apply_strategies[0] == self.boll_info.name:
                     self.choose_thread = BOLLChoose(self.stocks_to_be_chosen)
                 elif self.apply_strategies[0] == self.bottom_break_up_info.name:
                     self.choose_thread = BottomBreakUpChoose(

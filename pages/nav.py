@@ -11,6 +11,7 @@ from pages.choose import Choose
 from pages.config import Config
 from pages.pool import Pool
 from pages.watch import Watch
+from strategies.alligator import AlligatorConfig, AlligatorInfo
 from strategies.boll import BOLLConfig, BOLLInfo
 from strategies.bottom_break_up import BottomBreakUpConfig, BottomBreakUpInfo
 from strategies.kdj import KDJConfig, KDJInfo
@@ -77,6 +78,7 @@ class Nav(QWidget):
         self.mcst_info = MCSTInfo()
         self.bottom_break_up_info = BottomBreakUpInfo()
         self.wr_info = WRInfo()
+        self.alligator_info = AlligatorInfo()
         self.boll_info = BOLLInfo()
         self.macd_info = MACDInfo()
         self.kdj_info = KDJInfo()
@@ -111,6 +113,11 @@ class Nav(QWidget):
                 'name': self.percent_change_info.name,
                 'choose': 'Y' if self.percent_change_info.choose_flag else 'N',
                 'watch': 'Y' if self.percent_change_info.watch_flag else 'N'
+            },
+            {
+                'name': self.alligator_info.name,
+                'choose': 'Y' if self.alligator_info.choose_flag else 'N',
+                'watch': 'Y' if self.alligator_info.watch_flag else 'N'
             },
             {
                 'name': self.boll_info.name,
@@ -347,6 +354,10 @@ class Nav(QWidget):
             cfg_dlg.exec_()
         if name == self.wr_info.name:
             cfg_dlg = WRConfig(self)
+            cfg_dlg.show()
+            cfg_dlg.exec_()
+        if name == self.alligator_info.name:
+            cfg_dlg = AlligatorConfig(self)
             cfg_dlg.show()
             cfg_dlg.exec_()
         if name == self.boll_info.name:

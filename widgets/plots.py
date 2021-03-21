@@ -4,6 +4,7 @@ from pyqtgraph.dockarea import *
 from qtpy.QtWidgets import *
 
 from strategies.common import get_latest_batch_data
+from strategies.alligator import Alligator
 from strategies.boll import BOLL
 from strategies.bottom_break_up import BottomBreakUp
 from strategies.kdj import KDJ
@@ -452,7 +453,16 @@ class Plots(QWidget):
             amount.append(item['amount'])
 
         # NEW STRATEGIES #
-        if self.current_indicator_name == self.boll_info.name:
+        if self.current_indicator_name == self.alligator_info.name:
+            alligator = Alligator()
+            ups = alligator.calc_batch_ups(closes)
+            middles = alligator.calc_batch_middles(closes)
+            downs = alligator.calc_batch_downs(closes)
+            k_data = [ups, middles, downs]
+            k_pen_colors = ['r', 'w', 'y']
+            vol_data = []
+            vol_pen_colors = []
+        elif self.current_indicator_name == self.boll_info.name:
             boll = BOLL()
             ups = boll.calc_batch_up(closes)
             middles = boll.calc_batch_middle(closes)
