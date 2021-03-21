@@ -459,7 +459,7 @@ class Plots(QWidget):
             middles = alligator.calc_batch_middles(closes)
             downs = alligator.calc_batch_downs(closes)
             k_data = [ups, middles, downs]
-            k_pen_colors = ['r', 'w', 'y']
+            k_pen_colors = ['g', 'r', 'b']
             vol_data = []
             vol_pen_colors = []
         elif self.current_indicator_name == self.boll_info.name:
