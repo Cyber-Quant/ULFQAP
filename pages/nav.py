@@ -19,8 +19,6 @@ from strategies.macd import MACDConfig, MACDInfo
 from strategies.mcst import MCSTInfo
 from strategies.percent_change import PercentChangeConfig, PercentChangeInfo
 from strategies.rsi import RSIConfig, RSIInfo
-from strategies.triple_golden_cross import TripleGoldenCrossConfig, \
-    TripleGoldenCrossInfo
 from strategies.turn_over import TurnOverConfig, TurnOverInfo
 from strategies.wr import WRConfig, WRInfo
 from strategies.volume_increase import VolumeIncreaseConfig, VolumeIncreaseInfo
@@ -72,7 +70,6 @@ class Nav(QWidget):
                 self.custom_watch = json.load(f)
 
         # NEW STRATEGIES #
-        self.triple_golden_cross_info = TripleGoldenCrossInfo()
         self.volume_increase_info = VolumeIncreaseInfo()
         self.turn_over_info = TurnOverInfo()
         self.percent_change_info = PercentChangeInfo()
@@ -333,10 +330,6 @@ class Nav(QWidget):
         row = self.strategy_table.currentIndex().row()
         name = self.strategy_table.item(row, 1).text()
         # NEW STRATEGIES #
-        if name == self.triple_golden_cross_info.name:
-            cfg_dlg = TripleGoldenCrossConfig(self)
-            cfg_dlg.show()
-            cfg_dlg.exec_()
         if name == self.volume_increase_info.name:
             cfg_dlg = VolumeIncreaseConfig(self)
             cfg_dlg.show()

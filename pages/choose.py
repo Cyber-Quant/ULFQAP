@@ -16,8 +16,6 @@ from strategies.macd import MACDChoose, MACDInfo
 from strategies.mcst import MCSTInfo
 from strategies.percent_change import PercentChangeChoose, PercentChangeInfo
 from strategies.rsi import RSIChoose, RSIInfo
-from strategies.triple_golden_cross import TripleGoldenCrossChoose, \
-    TripleGoldenCrossInfo
 from strategies.turn_over import TurnOverChoose, TurnOverInfo
 from strategies.volume_increase import VolumeIncreaseChoose, VolumeIncreaseInfo
 from strategies.wr import WRChoose, WRInfo
@@ -55,7 +53,6 @@ class Choose(Plots):
         self.mcst_info = MCSTInfo()
         self.percent_change_info = PercentChangeInfo()
         self.rsi_info = RSIInfo()
-        self.triple_golden_cross_info = TripleGoldenCrossInfo()
         self.turn_over_info = TurnOverInfo()
         self.volume_increase_info = VolumeIncreaseInfo()
         self.wr_info = WRInfo()
@@ -335,10 +332,6 @@ class Choose(Plots):
                         self.stocks_to_be_chosen)
                 elif self.apply_strategies[0] == self.rsi_info.name:
                     self.choose_thread = RSIChoose(self.stocks_to_be_chosen)
-                elif self.apply_strategies[0] == \
-                        self.triple_golden_cross_info.name:
-                    self.choose_thread = TripleGoldenCrossChoose(
-                        self.stocks_to_be_chosen)
                 elif self.apply_strategies[0] == self.turn_over_info.name:
                     self.choose_thread = TurnOverChoose(
                         self.stocks_to_be_chosen)
