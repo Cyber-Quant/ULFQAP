@@ -222,6 +222,24 @@ def calc_batch_ema(data, period):
     return emas
 
 
+def calc_batch_smma(close, period):
+    smmas = []
+    close_sum = 0
+    for i in range(period):
+        close_sum += close[i]
+    last_smma = close_sum / period
+
+    close_sum = 0
+    for i in range(len(close)):
+        if i < period:
+            smmas.append(last_smma)
+        close_sum += close
+        smma = (close_sum - last_smma + close[i]) / period
+        smmas.append(smma)
+        last_smma = smma
+    return smmas
+
+
 def calc_batch_macd(closes, fast_period, slow_period, period):
     fast_ema = calc_batch_ema(closes, fast_period)
     slow_ema = calc_batch_ema(closes, slow_period)
