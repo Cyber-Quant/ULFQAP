@@ -44,13 +44,28 @@ class Alligator:
             self.k = 8
 
     def calc_batch_ups(self, close):
-        return calc_batch_smma(close, self.m)
+        up = calc_batch_smma(close, self.m)
+        v = up[0]
+        for i in range(self.i):
+            up.pop()
+            up.insert(0, v)
+        return up
 
     def calc_batch_middles(self, close):
-        return calc_batch_smma(close, self.n)
+        middle = calc_batch_smma(close, self.n)
+        v = middle[0]
+        for i in range(self.j):
+            middle.pop()
+            middle.insert(0, v)
+        return middle
 
     def calc_batch_downs(self, close):
-        return calc_batch_smma(close, self.g)
+        down = calc_batch_smma(close, self.g)
+        v = down[0]
+        for i in range(self.k):
+            down.pop()
+            down.insert(0, v)
+        return down
 
     def _backtest(self, up, middle, down, state):
         if len(up) < self.g:
