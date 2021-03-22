@@ -235,12 +235,15 @@ def calc_batch_smma(close, period):
         close_sum += close[i]
     last_smma = close_sum / period
 
+    for i in range(period):
+        smmas.append(last_smma)
+
     close_sum = 0
     for i in range(len(close)):
         if i < period:
-            smmas.append(last_smma)
+            continue
         close_sum += close[i]
-        smma = (close_sum - last_smma + close[i]) / period
+        smma = (last_smma * (period - 1) + close[i]) / period
         smmas.append(smma)
         last_smma = smma
     return smmas
