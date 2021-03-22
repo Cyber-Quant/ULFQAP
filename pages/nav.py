@@ -20,6 +20,8 @@ from strategies.macd import MACDConfig, MACDInfo
 from strategies.mcst import MCSTInfo
 from strategies.percent_change import PercentChangeConfig, PercentChangeInfo
 from strategies.rsi import RSIConfig, RSIInfo
+from strategies.triple_golden_cross import TripleGoldenCrossConfig, \
+    TripleGoldenCrossInfo
 from strategies.turn_over import TurnOverConfig, TurnOverInfo
 from strategies.wr import WRConfig, WRInfo
 from strategies.volume_increase import VolumeIncreaseConfig, VolumeIncreaseInfo
@@ -71,19 +73,25 @@ class Nav(QWidget):
                 self.custom_watch = json.load(f)
 
         # NEW STRATEGIES #
+        self.triple_golden_cross_info = TripleGoldenCrossInfo()
+        self.lucky_duck_head_info = LuckyDuckHeadInfo()
+        self.bottom_break_up_info = BottomBreakUpInfo()
+        self.mcst_info = MCSTInfo()
         self.volume_increase_info = VolumeIncreaseInfo()
         self.turn_over_info = TurnOverInfo()
         self.percent_change_info = PercentChangeInfo()
-        self.lucky_duck_head_info = LuckyDuckHeadInfo()
-        self.mcst_info = MCSTInfo()
-        self.bottom_break_up_info = BottomBreakUpInfo()
-        self.wr_info = WRInfo()
         self.alligator_info = AlligatorInfo()
         self.boll_info = BOLLInfo()
         self.macd_info = MACDInfo()
         self.kdj_info = KDJInfo()
         self.rsi_info = RSIInfo()
+        self.wr_info = WRInfo()
         self.strategies = [
+            {
+                'name': self.triple_golden_cross_info.name,
+                'choose': 'Y' if self.triple_golden_cross_info.choose_flag else 'N',
+                'watch': 'Y' if self.triple_golden_cross_info.watch_flag else 'N'
+            },
             {
                 'name': self.lucky_duck_head_info.name,
                 'choose': 'Y' if self.lucky_duck_head_info.choose_flag else 'N',
@@ -333,6 +341,18 @@ class Nav(QWidget):
         row = self.strategy_table.currentIndex().row()
         name = self.strategy_table.item(row, 1).text()
         # NEW STRATEGIES #
+        if name == self.triple_golden_cross_info.name:
+            cfg_dlg = TripleGoldenCrossConfig(self)
+            cfg_dlg.show()
+            cfg_dlg.exec_()
+        if name == self.lucky_duck_head_info.name:
+            cfg_dlg = LuckyDuckHeadConfig(self)
+            cfg_dlg.show()
+            cfg_dlg.exec_()
+        if name == self.bottom_break_up_info.name:
+            cfg_dlg = BottomBreakUpConfig(self)
+            cfg_dlg.show()
+            cfg_dlg.exec_()
         if name == self.volume_increase_info.name:
             cfg_dlg = VolumeIncreaseConfig(self)
             cfg_dlg.show()
@@ -345,18 +365,6 @@ class Nav(QWidget):
             cfg_dlg = PercentChangeConfig(self)
             cfg_dlg.show()
             cfg_dlg.exec_()
-        if name == self.lucky_duck_head_info.name:
-            cfg_dlg = LuckyDuckHeadConfig(self)
-            cfg_dlg.show()
-            cfg_dlg.exec_()
-        if name == self.bottom_break_up_info.name:
-            cfg_dlg = BottomBreakUpConfig(self)
-            cfg_dlg.show()
-            cfg_dlg.exec_()
-        if name == self.wr_info.name:
-            cfg_dlg = WRConfig(self)
-            cfg_dlg.show()
-            cfg_dlg.exec_()
         if name == self.alligator_info.name:
             cfg_dlg = AlligatorConfig(self)
             cfg_dlg.show()
@@ -365,16 +373,20 @@ class Nav(QWidget):
             cfg_dlg = BOLLConfig(self)
             cfg_dlg.show()
             cfg_dlg.exec_()
-        if name == self.macd_info.name:
-            cfg_dlg = MACDConfig(self)
-            cfg_dlg.show()
-            cfg_dlg.exec_()
         if name == self.kdj_info.name:
             cfg_dlg = KDJConfig(self)
             cfg_dlg.show()
             cfg_dlg.exec_()
+        if name == self.macd_info.name:
+            cfg_dlg = MACDConfig(self)
+            cfg_dlg.show()
+            cfg_dlg.exec_()
         if name == self.rsi_info.name:
             cfg_dlg = RSIConfig(self)
+            cfg_dlg.show()
+            cfg_dlg.exec_()
+        if name == self.wr_info.name:
+            cfg_dlg = WRConfig(self)
             cfg_dlg.show()
             cfg_dlg.exec_()
 

@@ -18,6 +18,8 @@ from strategies.lucky_duck_head import LuckyDuckHead, LuckyDuckHeadBacktest, \
     LuckyDuckHeadInfo
 from strategies.macd import MACD, MACDBacktest, MACDInfo
 from strategies.rsi import RSI, RSIBacktest, RSIInfo
+from strategies.triple_golden_cross import TripleGoldenCross, \
+    TripleGoldenCrossBacktest, TripleGoldenCrossInfo
 from strategies.wr import WR, WRBacktest, WRInfo
 
 
@@ -240,6 +242,7 @@ class Backtest(QWidget):
         lucky_duck_head_info = LuckyDuckHeadInfo()
         macd_info = MACDInfo()
         rsi_info = RSIInfo()
+        triple_golden_cross_info = TripleGoldenCrossInfo()
         wr_info = WRInfo()
         if self.current_strategy_name == alligator_info.name:
             self.backtest_thread = AlligatorBacktest(stocks, s_date, e_date,
@@ -269,6 +272,11 @@ class Backtest(QWidget):
             self.backtest_thread = RSIBacktest(stocks, s_date, e_date,
                                                init_money, fee,
                                                pass_fee, tax)
+        elif self.current_strategy_name == triple_golden_cross_info.name:
+            self.backtest_thread = TripleGoldenCrossBacktest(stocks, s_date,
+                                                             e_date,
+                                                             init_money, fee,
+                                                             pass_fee, tax)
         elif self.current_strategy_name == wr_info.name:
             self.backtest_thread = WRBacktest(stocks, s_date, e_date,
                                               init_money, fee,
@@ -331,6 +339,7 @@ class Backtest(QWidget):
         lucky_duck_head_info = LuckyDuckHeadInfo()
         macd_info = MACDInfo()
         rsi_info = RSIInfo()
+        triple_golden_cross_info = TripleGoldenCrossInfo()
         wr_info = WRInfo()
         if self.current_strategy_name == alligator_info.name:
             backtest = Alligator()
@@ -346,6 +355,8 @@ class Backtest(QWidget):
             backtest = MACD()
         elif self.current_strategy_name == rsi_info.name:
             backtest = RSI()
+        elif self.current_strategy_name == triple_golden_cross_info.name:
+            backtest = TripleGoldenCross()
         elif self.current_strategy_name == wr_info.name:
             backtest = WR()
         wpct, _return, max_drawdown, \

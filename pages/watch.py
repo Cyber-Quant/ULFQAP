@@ -13,6 +13,7 @@ from strategies.bottom_break_up import BottomBreakUpInfo
 from strategies.custom_watch import CustomWatch
 from strategies.lucky_duck_head import LuckyDuckHeadInfo
 from strategies.mcst import MCSTInfo
+from strategies.triple_golden_cross import TripleGoldenCrossInfo
 from widgets.plots import Plots
 
 
@@ -76,6 +77,7 @@ class Watch(Plots):
         self.bottom_break_up_info = BottomBreakUpInfo()
         self.lucky_duck_head_info = LuckyDuckHeadInfo()
         self.mcst_info = MCSTInfo()
+        self.triple_golden_cross_info = TripleGoldenCrossInfo()
 
         self.top_widget = QWidget()
         top_h_box = QHBoxLayout()
