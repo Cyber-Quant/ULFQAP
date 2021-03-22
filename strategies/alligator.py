@@ -178,7 +178,7 @@ class Alligator:
         if len(closes) < self.g:
             return False
 
-        if up[-1] > middle[-1] > down[-1]:
+        if up[-1] >= middle[-1] < down[-1] and up[-2] < middle[-2] < down[-2]:
             return True
         else:
             return False
