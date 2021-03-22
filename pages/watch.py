@@ -7,8 +7,11 @@ from qtpy.QtWidgets import *
 
 from conf.conf import fav_stocks_config_path, apply_strategies_config_path, \
     bundle_dir
+from strategies.alligator import AlligatorInfo
 from strategies.boll import BOLLInfo, BOLLWatch
+from strategies.bottom_break_up import BottomBreakUpInfo
 from strategies.custom_watch import CustomWatch
+from strategies.lucky_duck_head import LuckyDuckHeadInfo
 from strategies.mcst import MCSTInfo
 from widgets.plots import Plots
 
@@ -68,7 +71,10 @@ class Watch(Plots):
         # NEW STRATEGIES #
         self.boll_watch_thread = None
         self.custom_watch_thread = None
+        self.alligator_info = AlligatorInfo()
         self.boll_info = BOLLInfo()
+        self.bottom_break_up_info = BottomBreakUpInfo()
+        self.lucky_duck_head_info = LuckyDuckHeadInfo()
         self.mcst_info = MCSTInfo()
 
         self.top_widget = QWidget()
