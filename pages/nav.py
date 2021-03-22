@@ -146,9 +146,9 @@ class Nav(QWidget):
             }
         ]
 
-        self.watch = None
         self.choose = None
         self.pool = None
+        self.watch = None
         self.backtest = None
         self.config = None
 
@@ -259,13 +259,6 @@ class Nav(QWidget):
         self.list.currentRowChanged.connect(self.stacked_window.setCurrentIndex)
 
     def init_nav_list(self):
-        watch_widget = get_item_widget('盯盘', bundle_dir / 'media/watch.svg')
-        watch_item = QListWidgetItem()
-        watch_item.setSizeHint(QSize(150, 70))
-        self.list.addItem(watch_item)
-        self.list.setItemWidget(watch_item, watch_widget)
-        self.list.setCurrentItem(watch_item)
-
         choose_widget = get_item_widget('选股', bundle_dir / 'media/choose.svg')
         choose_item = QListWidgetItem()
         choose_item.setSizeHint(QSize(150, 70))
@@ -277,6 +270,12 @@ class Nav(QWidget):
         pool_item.setSizeHint(QSize(150, 70))
         self.list.addItem(pool_item)
         self.list.setItemWidget(pool_item, pool_widget)
+
+        watch_widget = get_item_widget('盯盘', bundle_dir / 'media/watch.svg')
+        watch_item = QListWidgetItem()
+        watch_item.setSizeHint(QSize(150, 70))
+        self.list.addItem(watch_item)
+        self.list.setItemWidget(watch_item, watch_widget)
 
         test_widget = get_item_widget('回测', bundle_dir / 'media/backtest.svg')
         test_item = QListWidgetItem()
@@ -290,16 +289,18 @@ class Nav(QWidget):
         self.list.addItem(config_item)
         self.list.setItemWidget(config_item, config_widget)
 
-    def init_stacked_window(self):
-        self.watch = Watch()
-        self.stacked_window.addWidget(self.watch)
+        self.list.setCurrentItem(choose_item)
 
+    def init_stacked_window(self):
         self.choose = Choose()
         self.choose.fav_stock_changed_signal.connect(self.on_refresh_fav_table)
         self.stacked_window.addWidget(self.choose)
 
         self.pool = Pool()
         self.stacked_window.addWidget(self.pool)
+
+        self.watch = Watch()
+        self.stacked_window.addWidget(self.watch)
 
         self.backtest = Backtest()
         self.backtest.fav_stock_changed_signal.connect(
@@ -501,14 +502,14 @@ class Nav(QWidget):
         else:
             strategy = None
         if self.list.currentRow() == 0:
-            self.watch.render_all_plots(code)
-            self.watch.draw_indicators(strategy)
-        elif self.list.currentRow() == 1:
             self.choose.re_render_all_plots(code)
             self.choose.draw_indicators(strategy)
             self.choose.display_basic_info(code)
-        elif self.list.currentRow() == 2:
+        elif self.list.currentRow() == 1:
             self.pool.display_basic_info(code)
+        elif self.list.currentRow() == 2:
+            self.watch.render_all_plots(code)
+            self.watch.draw_indicators(strategy)
         elif self.list.currentRow() == 3:
             self.backtest.set_code(code, name)
 
@@ -521,11 +522,11 @@ class Nav(QWidget):
         else:
             code = self.fav_table.item(row, 0).text()
         if self.list.currentRow() == 0:
-            self.watch.render_all_plots(code)
-            self.watch.draw_indicators(strategy)
-        elif self.list.currentRow() == 1:
             self.choose.re_render_all_plots(code)
             self.choose.re_draw_indicators(strategy)
+        elif self.list.currentRow() == 2:
+            self.watch.render_all_plots(code)
+            self.watch.draw_indicators(strategy)
         elif self.list.currentRow() == 3:
             self.backtest.set_strategy(strategy)
 
