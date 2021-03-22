@@ -71,6 +71,10 @@ class LuckyDuckHead:
         r_base_ma = base_ma[::-1]
         r_vol = volumes[::-1]
 
+        for i in range(10):
+            if i <= 8 and r_base_ma[i] < r_base_ma[i + 1]:
+                return False
+
         if r_base_ma[0] < r_fast_ma[0] < r_slow_ma[0] \
                 and r_base_ma[1] < r_slow_ma[1] <= r_fast_ma[1] \
                 and (r_vol[0] <= r_vol[1] / self.k
@@ -184,6 +188,10 @@ class LuckyDuckHead:
 
         if len(closes) < self.n + self.m:
             return False
+
+        for i in range(10):
+            if i <= 8 and r_base_ma[i] < r_base_ma[i + 1]:
+                return False
 
         if r_base_ma[0] < r_fast_ma[0] < r_slow_ma[0] \
                 and r_base_ma[1] < r_slow_ma[1] <= r_fast_ma[1] \
