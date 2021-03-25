@@ -6,13 +6,13 @@ from qtpy.QtGui import *
 from qtpy.QtCore import *
 
 from conf.conf import stock_pool_config_path
-from strategies.common import  get_stat_date, get_value_info
+from strategies.common import get_stat_date, get_value_info
 from strategies.value import ValueChoose
 
 
-class Pool(QWidget):
+class Factor(QWidget):
     def __init__(self, parent=None):
-        super(Pool, self).__init__(parent)
+        super(Factor, self).__init__(parent)
         self.setWindowTitle('股池')
 
         self.pool_thread = None
@@ -369,6 +369,6 @@ if __name__ == '__main__':
     import sys
 
     app = QApplication(sys.argv)
-    main = Pool()
+    main = Factor()
     main.show()
     sys.exit(app.exec_())

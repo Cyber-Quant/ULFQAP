@@ -26,12 +26,12 @@ from utils.custom_add_dialog import CustomAddDialog
 from widgets.plots import Plots
 
 
-class Choose(Plots):
+class Shape(Plots):
     fav_stock_changed_signal = Signal()
     kline_info_signal = Signal(str, float, float, float, float, int)
 
     def __init__(self, parent=None):
-        super(Choose, self).__init__(parent)
+        super(Shape, self).__init__(parent)
         self.setWindowTitle('选股')
 
         self.fav_stocks = []
@@ -477,6 +477,6 @@ if __name__ == '__main__':
     import sys
 
     app = QApplication(sys.argv)
-    main = Choose()
+    main = Shape()
     main.show()
     sys.exit(app.exec_())

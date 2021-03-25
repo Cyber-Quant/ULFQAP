@@ -7,9 +7,9 @@ from qtpy.QtWidgets import *
 from conf.conf import apply_strategies_config_path, fav_stocks_config_path, \
     custom_watch_config_path, bundle_dir
 from pages.backtest import Backtest
-from pages.choose import Choose
 from pages.config import Config
-from pages.pool import Pool
+from pages.factor import Factor
+from pages.shape import Shape
 from pages.watch import Watch
 from strategies.alligator import AlligatorConfig, AlligatorInfo
 from strategies.boll import BOLLConfig, BOLLInfo
@@ -300,11 +300,11 @@ class Nav(QWidget):
         self.list.setCurrentItem(choose_item)
 
     def init_stacked_window(self):
-        self.choose = Choose()
+        self.choose = Shape()
         self.choose.fav_stock_changed_signal.connect(self.on_refresh_fav_table)
         self.stacked_window.addWidget(self.choose)
 
-        self.pool = Pool()
+        self.pool = Factor()
         self.stacked_window.addWidget(self.pool)
 
         self.watch = Watch()
