@@ -6,7 +6,9 @@ bundle_dir = Path(getattr(sys, '_MEIPASS', Path.cwd()))
 db_path = bundle_dir / 'user_data/quant.db'
 
 global_config_path = bundle_dir / 'user_data/conf.json'
+
 apply_strategies_config_path = bundle_dir / 'user_data/apply_strategies.json'
+backtest_config_path = bundle_dir / 'user_data/backtest.json'
 custom_watch_config_path = bundle_dir / 'user_data/custom_watch.json'
 fav_stocks_config_path = bundle_dir / 'user_data/fav_stocks.json'
 stock_pool_config_path = bundle_dir / 'user_data/stock_pool.json'

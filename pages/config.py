@@ -1,5 +1,8 @@
 import baostock as bs
+import json
 
+from qtpy.QtCore import *
+from qtpy.QtGui import *
 from qtpy.QtWidgets import *
 
 from apis.code_index import need_update, reset_last_updated_date, \
@@ -8,6 +11,8 @@ from apis.code_index import need_update, reset_last_updated_date, \
 from apis.finance import FetchFinancialData, reset_finance_data
 from apis.k_charts import FetchDayK, get_code_list, reset_k_line_data
 from apis.statements import reset_statements_data
+from conf.conf import FIRST_DAY_YEAR, FIRST_DAY_MONTH, FIRST_DAY_DAY, \
+    backtest_config_path
 from pages.about import About
 
 
@@ -25,23 +30,88 @@ class Config(QWidget):
 
         self.progress_bar = QProgressBar()
 
-        self.up_group_box = QGroupBox()
+        self.up_group_box = QGroupBox('数据更新')
         up_h_box = QHBoxLayout()
         self.btn_up_stock_index = QPushButton('更新股票索引')
         self.btn_up_day_k = QPushButton('更新K线数据')
         self.btn_up_financial_data = QPushButton('更新财务数据')
+        self.btn_reset = QPushButton('删除所有数据')
         up_h_box.addWidget(self.btn_up_stock_index)
         up_h_box.addWidget(self.btn_up_day_k)
         up_h_box.addWidget(self.btn_up_financial_data)
         up_h_box.addStretch()
+        up_h_box.addWidget(self.btn_reset)
         self.up_group_box.setLayout(up_h_box)
 
-        self.reset_up_group_box = QGroupBox()
-        reset_up_h_box = QHBoxLayout()
-        self.btn_reset = QPushButton('删除所有数据')
-        reset_up_h_box.addWidget(self.btn_reset)
-        reset_up_h_box.addStretch()
-        self.reset_up_group_box.setLayout(reset_up_h_box)
+        if not backtest_config_path.exists():
+            backtest_config = {
+                'start_date': '2006-01-01',
+                'init_money': '10',
+                'fee': '2.5',
+                'pass_fee': '0.2',
+                'tax': '1'
+            }
+        else:
+            with open(backtest_config_path, 'r', encoding='utf-8') as f:
+                backtest_config = json.load(f)
+
+        self.op_group_box = QGroupBox('回测设置')
+        op_g_box = QGridLayout()
+        self.start_date_label = QLabel('起始日期')
+        self.start_date = QDateTimeEdit()
+        self.start_date.setCalendarPopup(True)
+        self.start_date.setDisplayFormat('yyyy-MM-dd')
+        self.start_date.setMinimumDate(QDate(FIRST_DAY_YEAR, FIRST_DAY_MONTH,
+                                             FIRST_DAY_DAY))
+        self.start_date.setMaximumDate(QDate.currentDate().addDays(-365))
+        self.start_date.setDate(QDate.fromString(
+            backtest_config['start_date'], 'yyyy-MM-dd'))
+
+        self.end_date_label = QLabel('结束日期')
+        self.end_date = QDateTimeEdit()
+        self.end_date.setCalendarPopup(True)
+        self.end_date.setDisplayFormat('yyyy-MM-dd')
+        self.end_date.setMinimumDate(QDate.currentDate().addDays(-3650))
+        self.end_date.setMaximumDate(QDate.currentDate().addDays(0))
+        self.end_date.setDate(QDate.currentDate())
+
+        double_validator = QDoubleValidator()
+        self.init_money_label = QLabel('初始资金(万)')
+        self.init_money_input = QLineEdit()
+        self.init_money_input.setValidator(double_validator)
+        self.init_money_input.setText(backtest_config['init_money'])
+
+        self.fee_label = QLabel('手续费(万分)')
+        self.fee_input = QLineEdit()
+        self.fee_input.setValidator(double_validator)
+        self.fee_input.setText(backtest_config['fee'])
+
+        self.pass_fee_label = QLabel('过户费(万分)')
+        self.pass_fee_input = QLineEdit()
+        self.pass_fee_input.setValidator(double_validator)
+        self.pass_fee_input.setText(backtest_config['pass_fee'])
+
+        self.tax_label = QLabel('印花税(千分)')
+        self.tax_input = QLineEdit()
+        self.tax_input.setValidator(double_validator)
+        self.tax_input.setText(backtest_config['tax'])
+
+        self.btn_save_backtest = QPushButton('保存')
+
+        op_g_box.addWidget(self.start_date_label, 0, 0)
+        op_g_box.addWidget(self.start_date, 1, 0)
+        op_g_box.addWidget(self.end_date_label, 0, 1)
+        op_g_box.addWidget(self.end_date, 1, 1)
+        op_g_box.addWidget(self.init_money_label, 0, 2)
+        op_g_box.addWidget(self.init_money_input, 1, 2)
+        op_g_box.addWidget(self.fee_label, 0, 3)
+        op_g_box.addWidget(self.fee_input, 1, 3)
+        op_g_box.addWidget(self.pass_fee_label, 0, 4)
+        op_g_box.addWidget(self.pass_fee_input, 1, 4)
+        op_g_box.addWidget(self.tax_label, 0, 5)
+        op_g_box.addWidget(self.tax_input, 1, 5)
+        op_g_box.addWidget(self.btn_save_backtest, 2, 5)
+        self.op_group_box.setLayout(op_g_box)
 
         about_h_box = QHBoxLayout()
         self.btn_about = QPushButton('关于')
@@ -51,7 +121,7 @@ class Config(QWidget):
         main_v_box = QVBoxLayout()
         main_v_box.addWidget(self.progress_bar)
         main_v_box.addWidget(self.up_group_box)
-        main_v_box.addWidget(self.reset_up_group_box)
+        main_v_box.addWidget(self.op_group_box)
         main_v_box.addStretch()
         main_v_box.addLayout(about_h_box)
 
@@ -62,6 +132,18 @@ class Config(QWidget):
         self.btn_up_financial_data.clicked.connect(self.on_up_financial_data)
         self.btn_reset.clicked.connect(self.on_reset)
         self.btn_about.clicked.connect(self.on_about)
+        self.btn_save_backtest.clicked.connect(self.on_save_backtest)
+
+    def on_save_backtest(self):
+        backtest_config = {
+            'start_date': self.start_date.date().toString('yyyy-MM-dd'),
+            'init_money': self.init_money_input.text(),
+            'fee': self.fee_input.text(),
+            'pass_fee': self.pass_fee_input.text(),
+            'tax': self.tax_input.text()
+        }
+        with open(backtest_config_path, 'w', encoding='utf-8') as f:
+            json.dump(backtest_config, f, indent=4, ensure_ascii=False)
 
     def enable_all(self):
         self.btn_up_stock_index.setEnabled(True)
