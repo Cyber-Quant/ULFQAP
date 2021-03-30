@@ -1,7 +1,7 @@
 TODO
 ---
 
-- New web plot widget or totally new web UI.
+- New dynamic K line and indicators plot.
 - Move to ClickHouse.
 - Import LSTM and other networks.
 - Spiders to fetch K line data to replace baostock.
