@@ -1,0 +1,28 @@
+{
+    "filter": [
+        {
+            "key": "ROE",
+            "condition": "大于",
+            "value": "12"
+        },
+        {
+            "key": "存货率",
+            "condition": "小于",
+            "value": "30"
+        },
+        {
+            "key": "应收帐款率",
+            "condition": "小于",
+            "value": "30"
+        },
+        {
+            "key": "资产负债率",
+            "condition": "小于",
+            "value": "50"
+        }
+    ],
+    "sort": [],
+    "backtest": {
+        "limit_up_no_sell": false
+    }
+}

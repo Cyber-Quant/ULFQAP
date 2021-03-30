@@ -5,7 +5,7 @@ from qtpy.QtWidgets import *
 from qtpy.QtGui import *
 from qtpy.QtCore import *
 
-from conf.conf import strategies_config_path
+from conf.conf import shape_strategies_config_path
 from strategies.common import get_latest_batch_data, calc_wpct
 
 
@@ -26,7 +26,7 @@ class KDJInfo:
 
 class KDJ:
     def __init__(self):
-        self.config_path = strategies_config_path.joinpath('kdj.json')
+        self.config_path = shape_strategies_config_path.joinpath('kdj.json')
         if self.config_path.exists():
             with open(self.config_path, 'r', encoding='utf-8') as f:
                 data = json.load(f)
@@ -245,7 +245,7 @@ class KDJConfig(QDialog):
         self.setWindowTitle('KDJ策略配置')
         self.setWindowModality(Qt.WindowModal)
 
-        self.config_path = strategies_config_path.joinpath('kdj.json')
+        self.config_path = shape_strategies_config_path.joinpath('kdj.json')
         self.info = KDJInfo()
 
         if self.config_path.exists():

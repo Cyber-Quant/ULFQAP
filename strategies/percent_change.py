@@ -5,7 +5,7 @@ from qtpy.QtWidgets import *
 from qtpy.QtGui import *
 from qtpy.QtCore import *
 
-from conf.conf import strategies_config_path
+from conf.conf import shape_strategies_config_path
 from strategies.common import get_latest_batch_data
 
 
@@ -22,7 +22,7 @@ class PercentChangeInfo:
 
 class PercentChange:
     def __init__(self):
-        self.config_path = strategies_config_path.joinpath(
+        self.config_path = shape_strategies_config_path.joinpath(
             'percent_change.json')
         if self.config_path.exists():
             with open(self.config_path, 'r', encoding='utf-8') as f:
@@ -33,8 +33,7 @@ class PercentChange:
 
     def _get_percent_change(self, code):
         date, _open, close, high, low, volume, amount, turn, pct_chg, \
-        ma_price, ma_volume = \
-            get_latest_batch_data(code, self.m)
+        ma_price, ma_volume = get_latest_batch_data(code, limit=self.m)
         return pct_chg
 
     def choose(self, code):
@@ -80,7 +79,7 @@ class PercentChangeConfig(QDialog):
         self.setWindowTitle('涨跌幅策略配置')
         self.setWindowModality(Qt.WindowModal)
 
-        self.config_path = strategies_config_path.joinpath(
+        self.config_path = shape_strategies_config_path.joinpath(
             'percent_change.json')
         self.info = PercentChangeInfo()
 

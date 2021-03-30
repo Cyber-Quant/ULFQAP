@@ -131,7 +131,5 @@ dmypy.json
 .idea/
 .vscode/
 
-/user_data/
-
 .env.leave
 

@@ -5,7 +5,7 @@ from qtpy.QtWidgets import *
 from qtpy.QtGui import *
 from qtpy.QtCore import *
 
-from conf.conf import strategies_config_path
+from conf.conf import shape_strategies_config_path
 from strategies.common import get_latest_batch_data
 
 
@@ -22,7 +22,7 @@ class TurnOverInfo:
 
 class TurnOver:
     def __init__(self):
-        self.config_path = strategies_config_path.joinpath('turn_over.json')
+        self.config_path = shape_strategies_config_path.joinpath('turn_over.json')
         if self.config_path.exists():
             with open(self.config_path, 'r', encoding='utf-8') as f:
                 data = json.load(f)
@@ -32,8 +32,7 @@ class TurnOver:
 
     def _get_turn_over(self, code):
         date, _open, close, high, low, volume, amount, turn, pct_chg, \
-        ma_price, ma_volume = \
-            get_latest_batch_data(code, self.m)
+        ma_price, ma_volume = get_latest_batch_data(code, limit=self.m)
         return turn
 
     def choose(self, code):
@@ -79,7 +78,7 @@ class TurnOverConfig(QDialog):
         self.setWindowTitle('换手率策略配置')
         self.setWindowModality(Qt.WindowModal)
 
-        self.config_path = strategies_config_path.joinpath('turn_over.json')
+        self.config_path = shape_strategies_config_path.joinpath('turn_over.json')
         self.info = TurnOverInfo()
 
         if self.config_path.exists():

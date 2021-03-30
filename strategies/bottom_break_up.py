@@ -5,7 +5,7 @@ from qtpy.QtWidgets import *
 from qtpy.QtGui import *
 from qtpy.QtCore import *
 
-from conf.conf import strategies_config_path
+from conf.conf import shape_strategies_config_path
 from strategies.common import calc_batch_ma, calc_batch_mav, calc_wpct, \
     get_latest_batch_data
 
@@ -23,7 +23,7 @@ class BottomBreakUpInfo:
 
 class BottomBreakUp:
     def __init__(self):
-        self.config_path = strategies_config_path.joinpath(
+        self.config_path = shape_strategies_config_path.joinpath(
             'bottom_break_up.json')
         if self.config_path.exists():
             with open(self.config_path, 'r', encoding='utf-8') as f:
@@ -97,7 +97,7 @@ class BottomBreakUp:
 
     def backtest(self, code, s_date, e_date, init_money, fee, pass_fee, tax):
         dates, opens, closes, highs, lows, volumes, amount, turn, pct_chg, \
-        ma_price, mv_volume = get_latest_batch_data(code, s_date=s_date,
+        ma_price, ma_volume = get_latest_batch_data(code, s_date=s_date,
                                                     e_date=e_date)
         ma_10 = self.calc_10_ma(closes)
         ma_20 = self.calc_20_ma(closes)
@@ -298,7 +298,7 @@ class BottomBreakUpConfig(QDialog):
         self.setWindowTitle('底部突破策略配置')
         self.setWindowModality(Qt.WindowModal)
 
-        self.config_path = strategies_config_path.joinpath(
+        self.config_path = shape_strategies_config_path.joinpath(
             'bottom_break_up.json')
         self.info = BottomBreakUpInfo()
 

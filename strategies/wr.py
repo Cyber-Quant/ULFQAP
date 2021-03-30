@@ -5,7 +5,7 @@ from qtpy.QtWidgets import *
 from qtpy.QtGui import *
 from qtpy.QtCore import *
 
-from conf.conf import strategies_config_path
+from conf.conf import shape_strategies_config_path
 from strategies.common import get_latest_batch_data, calc_wpct
 
 
@@ -24,7 +24,7 @@ class WRInfo:
 
 class WR:
     def __init__(self):
-        self.config_path = strategies_config_path.joinpath('wr.json')
+        self.config_path = shape_strategies_config_path.joinpath('wr.json')
         if self.config_path.exists():
             with open(self.config_path, 'r', encoding='utf-8') as f:
                 data = json.load(f)
@@ -222,7 +222,7 @@ class WRConfig(QDialog):
         self.setWindowTitle('WR策略配置')
         self.setWindowModality(Qt.WindowModal)
 
-        self.config_path = strategies_config_path.joinpath('wr.json')
+        self.config_path = shape_strategies_config_path.joinpath('wr.json')
         self.info = WRInfo()
 
         if self.config_path.exists():

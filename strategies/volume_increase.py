@@ -5,7 +5,7 @@ from qtpy.QtWidgets import *
 from qtpy.QtGui import *
 from qtpy.QtCore import *
 
-from conf.conf import strategies_config_path
+from conf.conf import shape_strategies_config_path
 from strategies.common import get_latest_batch_data
 
 
@@ -23,7 +23,7 @@ class VolumeIncreaseInfo:
 
 class VolumeIncrease:
     def __init__(self):
-        self.config_path = strategies_config_path.joinpath(
+        self.config_path = shape_strategies_config_path.joinpath(
             'volume_increase.json')
         if self.config_path.exists():
             with open(self.config_path, 'r', encoding='utf-8') as f:
@@ -32,12 +32,11 @@ class VolumeIncrease:
                 self.n = data['n']
         else:
             self.m = 20
-            self.m = 2
+            self.n = 2
 
     def _get_volumes(self, code):
         date, _open, close, high, low, volume, amount, turn, pct_chg, \
-        ma_price, ma_volume = \
-            get_latest_batch_data(code, self.m)
+        ma_price, ma_volume = get_latest_batch_data(code, limit=self.m)
         return volume
 
     def choose(self, code):
@@ -87,7 +86,7 @@ class VolumeIncreaseConfig(QDialog):
         self.setWindowTitle('成交量放大策略配置')
         self.setWindowModality(Qt.WindowModal)
 
-        self.config_path = strategies_config_path.joinpath(
+        self.config_path = shape_strategies_config_path.joinpath(
             'volume_increase.json')
         self.info = VolumeIncreaseInfo()
 

@@ -5,7 +5,7 @@ from qtpy.QtWidgets import *
 from qtpy.QtGui import *
 from qtpy.QtCore import *
 
-from conf.conf import strategies_config_path
+from conf.conf import shape_strategies_config_path
 from strategies.common import calc_batch_smma, calc_wpct, get_latest_batch_data
 
 
@@ -25,7 +25,7 @@ class AlligatorInfo:
 
 class Alligator:
     def __init__(self):
-        self.config_path = strategies_config_path.joinpath('alligator.json')
+        self.config_path = shape_strategies_config_path.joinpath('alligator.json')
         if self.config_path.exists():
             with open(self.config_path, 'r', encoding='utf-8') as f:
                 data = json.load(f)
@@ -84,7 +84,7 @@ class Alligator:
 
     def backtest(self, code, s_date, e_date, init_money, fee, pass_fee, tax):
         dates, opens, closes, highs, lows, volumes, amount, turn, pct_chg, \
-        ma_price, mv_volume = get_latest_batch_data(code, s_date=s_date,
+        ma_price, ma_volume = get_latest_batch_data(code, s_date=s_date,
                                                     e_date=e_date)
         ups = self.calc_batch_ups(closes)
         middles = self.calc_batch_middles(closes)
@@ -266,7 +266,7 @@ class AlligatorConfig(QDialog):
         self.setWindowTitle('Alligator策略配置')
         self.setWindowModality(Qt.WindowModal)
 
-        self.config_path = strategies_config_path.joinpath('alligator.json')
+        self.config_path = shape_strategies_config_path.joinpath('alligator.json')
         self.info = AlligatorInfo()
 
         if self.config_path.exists():

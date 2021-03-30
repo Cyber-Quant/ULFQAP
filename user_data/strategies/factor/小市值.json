@@ -1,0 +1,39 @@
+{
+    "filter": [
+        {
+            "key": "流通市值",
+            "condition": "排名最小",
+            "value": "94"
+        }
+    ],
+    "sort": [
+        {
+            "key": "PE",
+            "condition": "从小到大",
+            "value": "1"
+        },
+        {
+            "key": "ROE",
+            "condition": "从大到小",
+            "value": "30"
+        },
+        {
+            "key": "流通市值",
+            "condition": "从小到大",
+            "value": "30"
+        },
+        {
+            "key": "开盘价",
+            "condition": "从小到大",
+            "value": "30"
+        }
+    ],
+    "backtest": {
+        "per_stock_position": "7",
+        "adjust_period": "1",
+        "adjust_price": "开盘价",
+        "score": "27",
+        "max_hold_days": "13",
+        "limit_up_no_sell": true
+    }
+}

@@ -4,7 +4,8 @@ import numpy as np
 
 from db.models import AStockDayLine, AStockIndex, AStockBalanceData, \
     AStockOperationData, AStockProfitData
-from apis.k_charts import fetch_sina_minute_k, fetch_tencent_1_minute_k
+from apis.k_charts import fetch_sina_minute_k, fetch_tencent_1_minute_k, \
+    get_code_list
 from conf.conf import DEFAULT_K_LIMIT
 
 
@@ -281,68 +282,471 @@ def calc_batch_mav(vol, period):
     return mavs
 
 
-def filter_roe(v, date):
+def filter_pe(v, cond, v2, date):
+    if cond == '大于':
+        rows = AStockDayLine.select().where(AStockDayLine.date == date,
+                                            AStockDayLine.peTTM > v)
+    elif cond == '小于':
+        rows = AStockDayLine.select().where(AStockDayLine.date == date,
+                                            AStockDayLine.peTTM < v)
+    elif cond == '等于':
+        rows = AStockDayLine.select().where(AStockDayLine.date == date,
+                                            AStockDayLine.peTTM == v)
+    elif cond == '区间':
+        rows = AStockDayLine.select().where(AStockDayLine.date == date,
+                                            AStockDayLine.peTTM >= v,
+                                            AStockDayLine.peTTM <= v2)
+    elif cond == '排名最大':
+        rows = AStockDayLine.select().where(
+            AStockDayLine.date == date).order_by(
+            AStockDayLine.peTTM.desc()).limit(v)
+    elif cond == '排名最小':
+        rows = AStockDayLine.select().where(
+            AStockDayLine.date == date).order_by(
+            AStockDayLine.peTTM.asc()).limit(v)
+    elif cond == '排名区间':
+        rows = AStockDayLine.select().where(
+            AStockDayLine.date == date).order_by(
+            AStockDayLine.peTTM.asc()).limit(v2)
+
     stocks = []
-    rows = AStockProfitData.select().where(
-        AStockProfitData.ROE_avg >= v / 100,
-        AStockProfitData.stat_date == date)
-    for row in rows:
-        code = row.code
-        stocks.append(code)
+    if rows.count() > 0:
+        for i, row in enumerate(rows):
+            if cond == '排名区间':
+                if i <= v - 1:
+                    continue
+            code = row.code
+            stocks.append(code)
     return stocks
 
 
-def filter_ltv(v, date):
+def filter_roe(v, cond, v2, date):
+    if cond == '大于':
+        rows = AStockProfitData.select().where(
+            AStockProfitData.stat_date == date,
+            AStockProfitData.ROE_avg > v)
+    elif cond == '小于':
+        rows = AStockProfitData.select().where(
+            AStockProfitData.stat_date == date,
+            AStockProfitData.ROE_avg < v)
+    elif cond == '等于':
+        rows = AStockProfitData.select().where(
+            AStockProfitData.stat_date == date,
+            AStockProfitData.ROE_avg == v)
+    elif cond == '区间':
+        rows = AStockProfitData.select().where(
+            AStockProfitData.stat_date == date,
+            AStockProfitData.ROE_avg >= v,
+            AStockProfitData.ROE_avg <= v2)
+    elif cond == '排名最大':
+        rows = AStockProfitData.select().where(
+            AStockProfitData.stat_date == date).order_by(
+            AStockProfitData.ROE_avg.desc()).limit(v)
+    elif cond == '排名最小':
+        rows = AStockProfitData.select().where(
+            AStockProfitData.stat_date == date).order_by(
+            AStockProfitData.ROE_avg.asc()).limit(v)
+    elif cond == '排名区间':
+        rows = AStockProfitData.select().where(
+            AStockProfitData.stat_date == date).order_by(
+            AStockProfitData.ROE_avg.asc()).limit(v2)
+
+    stocks = []
+    if rows.count() > 0:
+        for i, row in enumerate(rows):
+            if cond == '排名区间':
+                if i <= v - 1:
+                    continue
+            code = row.code
+            stocks.append(code)
+    return stocks
+
+
+def filter_cmv(v, cond, v2, date):
+    codes = get_code_list()
+    cmvs = []
+    for code in codes:
+        cmv = get_circulated_market_value(code)
+        cmvs.append(cmv)
+    stocks = []
+    if cond == '大于':
+        for i, cmv in enumerate(cmvs):
+            if cmv > v:
+                stocks.append(codes[i])
+    elif cond == '小于':
+        for i, cmv in enumerate(cmvs):
+            if cmv < v:
+                stocks.append(codes[i])
+    elif cond == '等于':
+        for i, cmv in enumerate(cmvs):
+            if cmv == v:
+                stocks.append(codes[i])
+    elif cond == '区间':
+        for i, cmv in enumerate(cmvs):
+            if v <= cmv <= v2:
+                stocks.append(codes[i])
+    elif cond == '排名最大':
+        rank = [index for index, value in
+                sorted(list(enumerate(cmvs)), key=lambda x: x[1], reverse=True)]
+        for i in rank[:v]:
+            stocks.append(codes[i])
+    elif cond == '排名最小':
+        rank = [index for index, value in
+                sorted(list(enumerate(cmvs)), key=lambda x: x[1])]
+        for i in rank[:v]:
+            stocks.append(codes[i])
+    elif cond == '排名区间':
+        rank = [index for index, value in
+                sorted(list(enumerate(cmvs)), key=lambda x: x[1])]
+        for i in rank[v:v2]:
+            stocks.append(codes[i])
+    return stocks
+
+
+def filter_ito(v, cond, v2, date):
+    if cond == '大于':
+        rows = AStockOperationData.select().where(
+            AStockOperationData.stat_date == date,
+            AStockOperationData.INV_turn_ratio > v)
+    elif cond == '小于':
+        rows = AStockOperationData.select().where(
+            AStockOperationData.stat_date == date,
+            AStockOperationData.INV_turn_ratio < v)
+    elif cond == '等于':
+        rows = AStockOperationData.select().where(
+            AStockOperationData.stat_date == date,
+            AStockOperationData.INV_turn_ratio == v)
+    elif cond == '区间':
+        rows = AStockOperationData.select().where(
+            AStockOperationData.stat_date == date,
+            AStockOperationData.INV_turn_ratio >= v,
+            AStockOperationData.INV_turn_ratio <= v2)
+    elif cond == '排名最大':
+        rows = AStockOperationData.select().where(
+            AStockOperationData.stat_date == date).order_by(
+            AStockOperationData.INV_turn_ratio.desc()).limit(v)
+    elif cond == '排名最小':
+        rows = AStockOperationData.select().where(
+            AStockOperationData.stat_date == date).order_by(
+            AStockOperationData.INV_turn_ratio.asc()).limit(v)
+    elif cond == '排名区间':
+        rows = AStockOperationData.select().where(
+            AStockOperationData.stat_date == date).order_by(
+            AStockOperationData.INV_turn_ratio.asc()).limit(v2)
+
+    stocks = []
+    if rows.count() > 0:
+        for i, row in enumerate(rows):
+            if cond == '排名区间':
+                if i <= v - 1:
+                    continue
+            code = row.code
+            stocks.append(code)
+    return stocks
+
+
+def filter_artr(v, cond, v2, date):
+    if cond == '大于':
+        rows = AStockOperationData.select().where(
+            AStockOperationData.stat_date == date,
+            AStockOperationData.NR_turn_ratio > v)
+    elif cond == '小于':
+        rows = AStockOperationData.select().where(
+            AStockOperationData.stat_date == date,
+            AStockOperationData.NR_turn_ratio < v)
+    elif cond == '等于':
+        rows = AStockOperationData.select().where(
+            AStockOperationData.stat_date == date,
+            AStockOperationData.NR_turn_ratio == v)
+    elif cond == '区间':
+        rows = AStockOperationData.select().where(
+            AStockOperationData.stat_date == date,
+            AStockOperationData.NR_turn_ratio >= v,
+            AStockOperationData.NR_turn_ratio <= v2)
+    elif cond == '排名最大':
+        rows = AStockOperationData.select().where(
+            AStockOperationData.stat_date == date).order_by(
+            AStockOperationData.NR_turn_ratio.desc()).limit(v)
+    elif cond == '排名最小':
+        rows = AStockOperationData.select().where(
+            AStockOperationData.stat_date == date).order_by(
+            AStockOperationData.NR_turn_ratio.asc()).limit(v)
+    elif cond == '排名区间':
+        rows = AStockOperationData.select().where(
+            AStockOperationData.stat_date == date).order_by(
+            AStockOperationData.NR_turn_ratio.asc()).limit(v2)
+
+    stocks = []
+    if rows.count() > 0:
+        for i, row in enumerate(rows):
+            if cond == '排名区间':
+                if i <= v - 1:
+                    continue
+            code = row.code
+            stocks.append(code)
+    return stocks
+
+
+def filter_dar(v, cond, v2, date):
+    if cond == '大于':
+        rows = AStockBalanceData.select().where(
+            AStockBalanceData.stat_date == date,
+            AStockBalanceData.liability_to_asset > v)
+    elif cond == '小于':
+        rows = AStockBalanceData.select().where(
+            AStockBalanceData.stat_date == date,
+            AStockBalanceData.liability_to_asset < v)
+    elif cond == '等于':
+        rows = AStockBalanceData.select().where(
+            AStockBalanceData.stat_date == date,
+            AStockBalanceData.liability_to_asset == v)
+    elif cond == '区间':
+        rows = AStockBalanceData.select().where(
+            AStockBalanceData.stat_date == date,
+            AStockBalanceData.liability_to_asset >= v,
+            AStockBalanceData.liability_to_asset <= v2)
+    elif cond == '排名最大':
+        rows = AStockBalanceData.select().where(
+            AStockBalanceData.stat_date == date).order_by(
+            AStockBalanceData.liability_to_asset.desc()).limit(v)
+    elif cond == '排名最小':
+        rows = AStockBalanceData.select().where(
+            AStockBalanceData.stat_date == date).order_by(
+            AStockBalanceData.liability_to_asset.asc()).limit(v)
+    elif cond == '排名区间':
+        rows = AStockBalanceData.select().where(
+            AStockBalanceData.stat_date == date).order_by(
+            AStockBalanceData.liability_to_asset.asc()).limit(v2)
+
+    stocks = []
+    if rows.count() > 0:
+        for i, row in enumerate(rows):
+            if cond == '排名区间':
+                if i <= v - 1:
+                    continue
+            code = row.code
+            stocks.append(code)
+    return stocks
+
+
+def filter_ltv(v, cond, v2, date):
     return []
 
 
-def filter_ito(v, date):
+# FIXME 先取昨天收盘价吧，有时间再改
+def filter_op(v, cond, v2, date):
+    if cond == '大于':
+        rows = AStockDayLine.select().where(AStockDayLine.date == date,
+                                            AStockDayLine.close > v)
+    elif cond == '小于':
+        rows = AStockDayLine.select().where(AStockDayLine.date == date,
+                                            AStockDayLine.close < v)
+    elif cond == '等于':
+        rows = AStockDayLine.select().where(AStockDayLine.date == date,
+                                            AStockDayLine.close == v)
+    elif cond == '区间':
+        rows = AStockDayLine.select().where(AStockDayLine.date == date,
+                                            AStockDayLine.close >= v,
+                                            AStockDayLine.close <= v2)
+    elif cond == '排名最大':
+        rows = AStockDayLine.select().where(
+            AStockDayLine.date == date).order_by(
+            AStockDayLine.close.desc()).limit(v)
+    elif cond == '排名最小':
+        rows = AStockDayLine.select().where(
+            AStockDayLine.date == date).order_by(
+            AStockDayLine.close.asc()).limit(v)
+    elif cond == '排名区间':
+        rows = AStockDayLine.select().where(
+            AStockDayLine.date == date).order_by(
+            AStockDayLine.close.asc()).limit(v2)
+
     stocks = []
-    rows = AStockOperationData.select().where(
-        AStockOperationData.INV_turn_ratio <= v,
-        AStockOperationData.stat_date == date)
-    for row in rows:
-        code = row.code
-        stocks.append(code)
+    if rows.count() > 0:
+        for i, row in enumerate(rows):
+            if cond == '排名区间':
+                if i <= v - 1:
+                    continue
+            code = row.code
+            stocks.append(code)
     return stocks
 
 
-def filter_artr(v, date):
+def filter_last_turn_over(v, cond, v2, date):
+    if cond == '大于':
+        rows = AStockDayLine.select().where(AStockDayLine.date == date,
+                                            AStockDayLine.turn > v)
+    elif cond == '小于':
+        rows = AStockDayLine.select().where(AStockDayLine.date == date,
+                                            AStockDayLine.turn < v)
+    elif cond == '等于':
+        rows = AStockDayLine.select().where(AStockDayLine.date == date,
+                                            AStockDayLine.turn == v)
+    elif cond == '区间':
+        rows = AStockDayLine.select().where(AStockDayLine.date == date,
+                                            AStockDayLine.turn >= v,
+                                            AStockDayLine.turn <= v2)
+    elif cond == '排名最大':
+        rows = AStockDayLine.select().where(
+            AStockDayLine.date == date).order_by(
+            AStockDayLine.turn.desc()).limit(v)
+    elif cond == '排名最小':
+        rows = AStockDayLine.select().where(
+            AStockDayLine.date == date).order_by(
+            AStockDayLine.turn.asc()).limit(v)
+    elif cond == '排名区间':
+        rows = AStockDayLine.select().where(
+            AStockDayLine.date == date).order_by(
+            AStockDayLine.turn.asc()).limit(v2)
+
     stocks = []
-    rows = AStockOperationData.select().where(
-        AStockOperationData.NR_turn_ratio <= v,
-        AStockOperationData.stat_date == date)
-    for row in rows:
-        code = row.code
-        stocks.append(code)
+    if rows.count() > 0:
+        for i, row in enumerate(rows):
+            if cond == '排名区间':
+                if i <= v - 1:
+                    continue
+            code = row.code
+            stocks.append(code)
     return stocks
 
 
-def filter_dar(v, date):
+def filter_last_percent_change(v, cond, v2, date):
+    if cond == '大于':
+        rows = AStockDayLine.select().where(AStockDayLine.date == date,
+                                            AStockDayLine.pct_chg > v)
+    elif cond == '小于':
+        rows = AStockDayLine.select().where(AStockDayLine.date == date,
+                                            AStockDayLine.pct_chg < v)
+    elif cond == '等于':
+        rows = AStockDayLine.select().where(AStockDayLine.date == date,
+                                            AStockDayLine.pct_chg == v)
+    elif cond == '区间':
+        rows = AStockDayLine.select().where(AStockDayLine.date == date,
+                                            AStockDayLine.pct_chg >= v,
+                                            AStockDayLine.pct_chg <= v2)
+    elif cond == '排名最大':
+        rows = AStockDayLine.select().where(
+            AStockDayLine.date == date).order_by(
+            AStockDayLine.pct_chg.desc()).limit(v)
+    elif cond == '排名最小':
+        rows = AStockDayLine.select().where(
+            AStockDayLine.date == date).order_by(
+            AStockDayLine.pct_chg.asc()).limit(v)
+    elif cond == '排名区间':
+        rows = AStockDayLine.select().where(
+            AStockDayLine.date == date).order_by(
+            AStockDayLine.pct_chg.asc()).limit(v2)
+
     stocks = []
-    rows = AStockBalanceData.select().where(
-        AStockBalanceData.liability_to_asset <= v / 100,
-        AStockBalanceData.stat_date == date)
-    for row in rows:
-        code = row.code
-        stocks.append(code)
+    if rows.count() > 0:
+        for i, row in enumerate(rows):
+            if cond == '排名区间':
+                if i <= v - 1:
+                    continue
+            code = row.code
+            stocks.append(code)
     return stocks
 
 
-def get_value_info(code, date):
+def sort_pe(stocks, cond):
+    if cond == '从大到小':
+        stocks.sort(key=lambda x: x['pe'], reverse=True)
+    elif cond == '从小到大':
+        stocks.sort(key=lambda x: x['pe'], reverse=False)
+
+
+def sort_roe(stocks, cond):
+    if cond == '从大到小':
+        stocks.sort(key=lambda x: x['roe'], reverse=True)
+    elif cond == '从小到大':
+        stocks.sort(key=lambda x: x['roe'], reverse=False)
+
+
+def sort_cmv(stocks, cond):
+    if cond == '从大到小':
+        stocks.sort(key=lambda x: x['cmv'], reverse=True)
+    elif cond == '从小到大':
+        stocks.sort(key=lambda x: x['cmv'], reverse=False)
+
+
+def sort_ito(stocks, cond):
+    if cond == '从大到小':
+        stocks.sort(key=lambda x: x['ito'], reverse=True)
+    elif cond == '从小到大':
+        stocks.sort(key=lambda x: x['ito'], reverse=False)
+
+
+def sort_artr(stocks, cond):
+    if cond == '从大到小':
+        stocks.sort(key=lambda x: x['artr'], reverse=True)
+    elif cond == '从小到大':
+        stocks.sort(key=lambda x: x['artr'], reverse=False)
+
+
+def sort_dar(stocks, cond):
+    if cond == '从大到小':
+        stocks.sort(key=lambda x: x['dar'], reverse=True)
+    elif cond == '从小到大':
+        stocks.sort(key=lambda x: x['dar'], reverse=False)
+
+
+def sort_ltv(stocks, cond):
+    if cond == '从大到小':
+        stocks.sort(key=lambda x: x['ltv'], reverse=True)
+    elif cond == '从小到大':
+        stocks.sort(key=lambda x: x['ltv'], reverse=False)
+
+
+def sort_op(stocks, cond):
+    if cond == '从大到小':
+        stocks.sort(key=lambda x: x['op'], reverse=True)
+    elif cond == '从小到大':
+        stocks.sort(key=lambda x: x['op'], reverse=False)
+
+
+def sort_last_turn_over(stocks, cond):
+    if cond == '从大到小':
+        stocks.sort(key=lambda x: x['turn'], reverse=True)
+    elif cond == '从小到大':
+        stocks.sort(key=lambda x: x['turn'], reverse=False)
+
+
+def sort_last_percent_change(stocks, cond):
+    if cond == '从大到小':
+        stocks.sort(key=lambda x: x['pc'], reverse=True)
+    elif cond == '从小到大':
+        stocks.sort(key=lambda x: x['pc'], reverse=False)
+
+
+def get_factor_info(code):
     index = AStockIndex.select().where(AStockIndex.code == code)[0]
     name = index.name
+    rows = AStockDayLine.select().where(
+        AStockDayLine.code == code).order_by(
+        AStockDayLine.date.desc())[0]
+    if rows.count() == 0:
+        pe = 0
+        op = 0
+        turn = 0
+        pc = 0
+    else:
+        day_k_data = rows[0]
+        pe = round(day_k_data.peTTM, 2)
+        op = round(day_k_data.close, 2)
+        turn = round(day_k_data.turn, 2)
+        pc = round(day_k_data.pct_chg, 2)
     rows = AStockProfitData.select().where(
-        AStockProfitData.code == code, AStockProfitData.stat_date == date)
+        AStockProfitData.code == code).order_by(
+        AStockProfitData.stat_date.desc())[0]
     if rows.count() == 0:
         roe = 0
     else:
         profit_data = rows[0]
-        roe = round(profit_data.ROE_avg * 100, 2)
-    ltv = 0.0
+        roe = round(profit_data.ROE_avg, 2)
+    cmv = get_circulated_market_value(code)
     rows = AStockOperationData.select().where(
-        AStockOperationData.code == code,
-        AStockOperationData.stat_date == date)
+        AStockOperationData.code == code).order_by(
+        AStockOperationData.stat_date.desc())[0]
     if rows.count() == 0:
         ito = 0
         artr = 0
@@ -351,13 +755,15 @@ def get_value_info(code, date):
         ito = round(operation_data.INV_turn_ratio, 2)
         artr = round(operation_data.NR_turn_ratio, 2)
     rows = AStockBalanceData.select().where(
-        AStockBalanceData.code == code, AStockBalanceData.stat_date == date)
+        AStockBalanceData.code == code).order_by(
+        AStockBalanceData.stat_date.desc())[0]
     if rows.count() == 0:
         dar = 0
     else:
         balance_data = rows[0]
         dar = round(balance_data.liability_to_asset * 100, 2)
-    return code, name, roe, ltv, ito, artr, dar
+    ltv = 0.0
+    return code, name, pe, roe, cmv, ito, artr, dar, ltv, op, turn, pc
 
 
 def get_stat_date():
@@ -395,3 +801,12 @@ def get_total_share(code):
         AStockProfitData.stat_date.desc())[0]
     total_share = row.total_share
     return total_share
+
+
+def get_circulated_market_value(code):
+    circulated_share = get_liqa_share(code)
+    dates, opens, closes, highs, lows, volumes, amount, turn, pct_chg, \
+    ma_price, ma_volume = get_latest_batch_data(code, limit=1)
+    close = closes[0]
+    cmv = circulated_share * close
+    return cmv

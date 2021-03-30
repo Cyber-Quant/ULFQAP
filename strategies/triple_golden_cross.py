@@ -5,7 +5,7 @@ from qtpy.QtWidgets import *
 from qtpy.QtGui import *
 from qtpy.QtCore import *
 
-from conf.conf import strategies_config_path
+from conf.conf import shape_strategies_config_path
 from strategies.common import get_latest_batch_data, calc_batch_ma, \
     calc_batch_mav, calc_wpct
 from strategies.macd import MACD
@@ -26,7 +26,7 @@ class TripleGoldenCrossInfo:
 
 class TripleGoldenCross:
     def __init__(self):
-        self.config_path = strategies_config_path.joinpath(
+        self.config_path = shape_strategies_config_path.joinpath(
             'triple_golden_cross.json')
         if self.config_path.exists():
             with open(self.config_path, 'r', encoding='utf-8') as f:
@@ -265,7 +265,7 @@ class TripleGoldenCrossConfig(QDialog):
         self.setWindowTitle('三金叉策略配置')
         self.setWindowModality(Qt.WindowModal)
 
-        self.config_path = strategies_config_path.joinpath(
+        self.config_path = shape_strategies_config_path.joinpath(
             'triple_golden_cross.json')
         self.info = TripleGoldenCrossInfo()
 

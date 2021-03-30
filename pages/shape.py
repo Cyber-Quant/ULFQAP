@@ -5,12 +5,12 @@ from qtpy.QtGui import *
 from qtpy.QtCore import *
 
 from conf.conf import fav_stocks_config_path, apply_strategies_config_path, \
-    stock_pool_config_path
+    factor_pool_config_path
 from db.models import AStockIndex
 from strategies.alligator import AlligatorChoose, AlligatorInfo
 from strategies.boll import BOLLChoose, BOLLInfo
 from strategies.bottom_break_up import BottomBreakUpChoose, BottomBreakUpInfo
-from strategies.common import get_stat_date, get_value_info
+from strategies.common import get_stat_date, get_factor_info
 from strategies.kdj import KDJChoose, KDJInfo
 from strategies.lucky_duck_head import LuckyDuckHeadChoose, LuckyDuckHeadInfo
 from strategies.macd import MACDChoose, MACDInfo
@@ -35,7 +35,7 @@ class Shape(Plots):
         self.setWindowTitle('选股')
 
         self.fav_stocks = []
-        self.stock_pool = []
+        self.factor_pool = []
 
         self.stocks_to_be_chosen = []
         self.stocks_pre_chose = []
@@ -237,8 +237,8 @@ class Shape(Plots):
         self.display_basic_info(code)
 
     def display_basic_info(self, code):
-        _, _, roe, ltv, ito, artr, dar = get_value_info(
-            code, self.stat_date)
+        _, _, pe, roe, cmv, ito, artr, dar, ltv, op, turn, pc = get_factor_info(
+            code)
         self._display_basic_info(roe, ito, artr, dar)
 
     def _display_basic_info(self, roe, ito, artr, dar):
@@ -291,12 +291,12 @@ class Shape(Plots):
             self.stocks_to_be_chosen = self.stocks_pre_chose.copy()
             self.stocks_pre_chose.clear()
         elif self.pool_search_radio.isChecked():
-            if not stock_pool_config_path.exists():
-                self.stock_pool = []
+            if not factor_pool_config_path.exists():
+                self.factor_pool = []
             else:
-                with open(stock_pool_config_path, 'r', encoding='utf-8') as f:
-                    self.stock_pool = json.load(f)
-            self.stocks_to_be_chosen = self.stock_pool.copy()
+                with open(factor_pool_config_path, 'r', encoding='utf-8') as f:
+                    self.factor_pool = json.load(f)
+            self.stocks_to_be_chosen = self.factor_pool.copy()
         else:
             self.stocks_to_be_chosen.clear()
             stocks = AStockIndex.select()
