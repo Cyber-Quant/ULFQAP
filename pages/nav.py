@@ -6,6 +6,7 @@ from qtpy.QtWidgets import *
 
 from conf.conf import apply_strategies_config_path, fav_stocks_config_path, \
     custom_watch_config_path, bundle_dir
+from conf.version import name, channel, major, minor, fix
 from pages.backtest import Backtest
 from pages.config import Config
 from pages.factor import Factor
@@ -49,7 +50,9 @@ def get_item_widget(name, pic_path):
 class Nav(QWidget):
     def __init__(self, parent=None):
         super(Nav, self).__init__(parent)
-        self.setWindowTitle('量化分析平台')
+        ver_info = channel + '-' + str(major) + '.' + str(minor) + '.' + str(
+            fix)
+        self.setWindowTitle(name + '量化分析平台--' + ver_info)
         icon = QIcon()
         self.setWindowIcon(QIcon((bundle_dir / 'media/logo.svg').as_posix()))
         self.resize(1280, 768)
