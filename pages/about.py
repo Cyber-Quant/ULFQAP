@@ -2,7 +2,7 @@ from qtpy.QtCore import *
 from qtpy.QtGui import *
 from qtpy.QtWidgets import *
 
-from conf.version import name, channel, major, minor, fix
+from conf.version import RELEASE, name, channel, major, minor, fix
 from pages.license import License
 
 
@@ -13,11 +13,14 @@ class About(QDialog):
         self.setWindowModality(Qt.WindowModal)
 
         main_v_box = QVBoxLayout()
-        name_info = name + ' Qualitative Analysis Platform\n'
-        ver_info = channel + '-' + str(major) + '.' + str(minor) + '.' + str(
-            fix)
-        software_info = name_info + ver_info
-        self.about_label = QLabel(software_info)
+        if channel == RELEASE:
+            ver_info = 'v' + str(major) + '.' + str(minor) + '.' + str(
+                fix)
+        else:
+            ver_info = 'v' + str(major) + '.' + str(minor) + '.' + str(
+                fix) + '(' + channel + ')'
+        self.name_label = QLabel(name)
+        self.version_label = QLabel(ver_info)
         self.btn_license = QPushButton('查看用户协议')
         self.btn_license.setFlat(True)
         self.btn_license.setStyleSheet(
@@ -28,7 +31,8 @@ class About(QDialog):
         op_h_box.addStretch()
         op_h_box.addWidget(self.btn_ok)
 
-        main_v_box.addWidget(self.about_label)
+        main_v_box.addWidget(self.name_label)
+        main_v_box.addWidget(self.version_label)
         main_v_box.addWidget(self.btn_license)
         main_v_box.addLayout(op_h_box)
         self.setLayout(main_v_box)
