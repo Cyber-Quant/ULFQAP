@@ -5,8 +5,7 @@ from notifypy import Notify
 from qtpy.QtCore import *
 from qtpy.QtWidgets import *
 
-from conf.conf import fav_stocks_config_path, apply_strategies_config_path, \
-    bundle_dir
+from conf.conf import bundle_dir
 from strategies.alligator import AlligatorInfo
 from strategies.boll import BOLLInfo, BOLLWatch
 from strategies.bottom_break_up import BottomBreakUpInfo
@@ -59,11 +58,7 @@ class Watch(Plots):
         super(Watch, self).__init__(parent)
         self.setWindowTitle('自选股')
 
-        if not apply_strategies_config_path.exists():
-            self.watch_strategies = []
-        else:
-            with open(apply_strategies_config_path, 'r', encoding='utf-8') as f:
-                self.watch_strategies = json.load(f)
+        self.watch_strategies = []
 
         self.current_kline_period = '1'
         self.times = gen_time_slices()

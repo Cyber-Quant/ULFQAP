@@ -6,8 +6,7 @@ from qtpy.QtWidgets import *
 from qtpy.QtGui import *
 from qtpy.QtCore import *
 
-from conf.conf import fav_stocks_config_path, FIRST_DAY_YEAR, \
-    FIRST_DAY_MONTH, FIRST_DAY_DAY
+from conf.conf import FIRST_DAY_YEAR, FIRST_DAY_MONTH, FIRST_DAY_DAY
 from db.models import AStockIndex
 from strategies.alligator import Alligator, AlligatorBacktest, AlligatorInfo
 from strategies.boll import BOLL, BOLLBacktest, BOLLInfo

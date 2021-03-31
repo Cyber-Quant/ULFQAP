@@ -10,10 +10,8 @@ from strategies.bottom_break_up import BottomBreakUp
 from strategies.kdj import KDJ
 from strategies.lucky_duck_head import LuckyDuckHead
 from strategies.macd import MACD
-from strategies.mcst import MCST
 from strategies.rsi import RSI
 from strategies.triple_golden_cross import TripleGoldenCross
-from strategies.wr import WR
 from utils.candlestick import CandlestickItem
 
 
@@ -36,8 +34,6 @@ class Plots(QWidget):
         self.kdj_h_line = pg.InfiniteLine(angle=0, movable=False)
         self.rsi_v_line = pg.InfiniteLine(angle=90, movable=False)
         self.rsi_h_line = pg.InfiniteLine(angle=0, movable=False)
-        self.wr_v_line = pg.InfiniteLine(angle=90, movable=False)
-        self.wr_h_line = pg.InfiniteLine(angle=0, movable=False)
 
         self.plt_area = DockArea()
 
@@ -87,15 +83,6 @@ class Plots(QWidget):
         self.dock_rsi.addWidget(self.rsi_plt)
         self.dock_rsi.setFixedHeight(index_height)
 
-        self.dock_wr = Dock('WR')
-        self.wr_plt = pg.PlotWidget(enableMenu=False)
-        self.wr_plt.plotItem.setMouseEnabled(y=False)
-        self.wr_plt.hideAxis('bottom')
-        self.wr_plt.setXLink(self.k_plt)
-        self.plt_area.addDock(self.dock_wr, 'bottom', self.dock_rsi)
-        self.dock_wr.addWidget(self.wr_plt)
-        self.dock_wr.setFixedHeight(index_height)
-
         self.k_move_slot = pg.SignalProxy(self.k_plt.scene().sigMouseMoved,
                                           rateLimit=60,
                                           slot=self.kline_emit_info)
@@ -112,9 +99,6 @@ class Plots(QWidget):
         self.rsi_move_slot = pg.SignalProxy(self.rsi_plt.scene().sigMouseMoved,
                                             rateLimit=60,
                                             slot=self.rsi_emit_info)
-        self.wr_move_slot = pg.SignalProxy(self.wr_plt.scene().sigMouseMoved,
-                                           rateLimit=60,
-                                           slot=self.wr_emit_info)
 
     def re_render_all_plots(self, code):
         if code is None:
@@ -142,9 +126,6 @@ class Plots(QWidget):
         _rsi = RSI()
         fast_rsi, slow_rsi = _rsi.calc_rsi(close)
 
-        _wr = WR()
-        wr = _wr.calc_williams(close, high, low)
-
         for i in range(len(close)):
             obj = {
                 'id': i,
@@ -166,7 +147,6 @@ class Plots(QWidget):
                 'j': j[i],
                 'slow_rsi': slow_rsi[i],
                 'fast_rsi': fast_rsi[i],
-                'wr': wr[i]
             }
             self.kline_data.append(obj)
         self._render_all_plots()
@@ -179,7 +159,6 @@ class Plots(QWidget):
             self.kdj_plt.plotItem.clear()
             self.macd_plt.plotItem.clear()
             self.rsi_plt.plotItem.clear()
-            self.wr_plt.plotItem.clear()
 
             prices = []
             volumes = []
@@ -220,8 +199,6 @@ class Plots(QWidget):
             slow_rsis = []
             fast_rsis = []
 
-            wrs = []
-
             for item in self.kline_data:
                 uni_index.append(item['id'])
 
@@ -250,8 +227,6 @@ class Plots(QWidget):
 
                 slow_rsis.append(item['slow_rsi'])
                 fast_rsis.append(item['fast_rsi'])
-
-                wrs.append(item['wr'])
 
             if self.current_kline_period != '60':
                 ma_prices = []
@@ -312,11 +287,6 @@ class Plots(QWidget):
             self.rsi_plt.addItem(self.rsi_v_line, ignoreBounds=True)
             self.rsi_plt.addItem(self.rsi_h_line, ignoreBounds=True)
 
-            self.wr_plt.plotItem.clear()
-            self.wr_plt.plot(wrs, pen='w')
-            self.wr_plt.addItem(self.wr_v_line, ignoreBounds=True)
-            self.wr_plt.addItem(self.wr_h_line, ignoreBounds=True)
-
     def _emit_info(self, mouse_point):
         index = int(mouse_point.x())
         if -1 < index < len(self.kline_data):
@@ -357,7 +327,6 @@ class Plots(QWidget):
             self.macd_v_line.setPos(mouse_point.x())
             self.kdj_v_line.setPos(mouse_point.x())
             self.rsi_v_line.setPos(mouse_point.x())
-            self.wr_v_line.setPos(mouse_point.x())
 
     def vol_emit_info(self, event):
         pos = event[0]
@@ -371,7 +340,6 @@ class Plots(QWidget):
             self.macd_v_line.setPos(mouse_point.x())
             self.kdj_v_line.setPos(mouse_point.x())
             self.rsi_v_line.setPos(mouse_point.x())
-            self.wr_v_line.setPos(mouse_point.x())
 
     def macd_emit_info(self, event):
         pos = event[0]
@@ -385,7 +353,6 @@ class Plots(QWidget):
             self.vol_v_line.setPos(mouse_point.x())
             self.kdj_v_line.setPos(mouse_point.x())
             self.rsi_v_line.setPos(mouse_point.x())
-            self.wr_v_line.setPos(mouse_point.x())
 
     def kdj_emit_info(self, event):
         pos = event[0]
@@ -399,7 +366,6 @@ class Plots(QWidget):
             self.vol_v_line.setPos(mouse_point.x())
             self.macd_v_line.setPos(mouse_point.x())
             self.rsi_v_line.setPos(mouse_point.x())
-            self.wr_v_line.setPos(mouse_point.x())
 
     def rsi_emit_info(self, event):
         pos = event[0]
@@ -413,21 +379,6 @@ class Plots(QWidget):
             self.vol_v_line.setPos(mouse_point.x())
             self.macd_v_line.setPos(mouse_point.x())
             self.kdj_v_line.setPos(mouse_point.x())
-            self.wr_v_line.setPos(mouse_point.x())
-
-    def wr_emit_info(self, event):
-        pos = event[0]
-        if self.wr_plt.sceneBoundingRect().contains(pos):
-            mouse_point = self.wr_plt.plotItem.vb.mapSceneToView(pos)
-            self._emit_info(mouse_point)
-
-            self.wr_v_line.setPos(mouse_point.x())
-            self.wr_h_line.setPos(mouse_point.y())
-            self.k_v_line.setPos(mouse_point.x())
-            self.vol_v_line.setPos(mouse_point.x())
-            self.macd_v_line.setPos(mouse_point.x())
-            self.kdj_v_line.setPos(mouse_point.x())
-            self.rsi_v_line.setPos(mouse_point.x())
 
     def re_draw_indicators(self, name):
         self.current_indicator_name = name

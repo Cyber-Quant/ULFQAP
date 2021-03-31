@@ -1,32 +1,12 @@
-import json
-
 from qtpy.QtCore import *
 from qtpy.QtGui import *
 from qtpy.QtWidgets import *
 
-from conf.conf import apply_strategies_config_path, fav_stocks_config_path, \
-    custom_watch_config_path, bundle_dir
-from conf.version import name, channel, major, minor, fix
-from pages.backtest import Backtest
+from conf.conf import bundle_dir
+from conf.version import RELEASE, name, channel, major, minor, fix
 from pages.config import Config
 from pages.factor import Factor
 from pages.shape import Shape
-from pages.watch import Watch
-from strategies.alligator import AlligatorConfig, AlligatorInfo
-from strategies.boll import BOLLConfig, BOLLInfo
-from strategies.bottom_break_up import BottomBreakUpConfig, BottomBreakUpInfo
-from strategies.kdj import KDJConfig, KDJInfo
-from strategies.lucky_duck_head import LuckyDuckHeadConfig, LuckyDuckHeadInfo
-from strategies.macd import MACDConfig, MACDInfo
-from strategies.mcst import MCSTInfo
-from strategies.percent_change import PercentChangeConfig, PercentChangeInfo
-from strategies.rsi import RSIConfig, RSIInfo
-from strategies.triple_golden_cross import TripleGoldenCrossConfig, \
-    TripleGoldenCrossInfo
-from strategies.turn_over import TurnOverConfig, TurnOverInfo
-from strategies.wr import WRConfig, WRInfo
-from strategies.volume_increase import VolumeIncreaseConfig, VolumeIncreaseInfo
-from utils.custom_add_dialog import CustomAddDialog
 
 
 def get_item_widget(name, pic_path):
@@ -50,117 +30,19 @@ def get_item_widget(name, pic_path):
 class Nav(QWidget):
     def __init__(self, parent=None):
         super(Nav, self).__init__(parent)
-        ver_info = channel + '-' + str(major) + '.' + str(minor) + '.' + str(
-            fix)
-        self.setWindowTitle(name + '量化分析平台--' + ver_info)
+        if channel == RELEASE:
+            ver_info = 'v' + str(major) + '.' + str(minor) + '.' + str(
+                fix)
+        else:
+            ver_info = 'v' + str(major) + '.' + str(minor) + '.' + str(
+                fix) + '(' + channel + ')'
+        self.setWindowTitle(name + ' --- ' + ver_info)
         icon = QIcon()
         self.setWindowIcon(QIcon((bundle_dir / 'media/logo.svg').as_posix()))
         self.resize(1280, 768)
 
-        if not fav_stocks_config_path.exists():
-            self.fav_stocks = []
-        else:
-            with open(fav_stocks_config_path, 'r', encoding='utf-8') as f:
-                self.fav_stocks = json.load(f)
-
-        if not apply_strategies_config_path.exists():
-            self.apply_strategies = []
-        else:
-            with open(apply_strategies_config_path, 'r', encoding='utf-8') as f:
-                self.apply_strategies = json.load(f)
-
-        if not custom_watch_config_path.exists():
-            self.custom_watch = []
-        else:
-            with open(custom_watch_config_path, 'r', encoding='utf-8') as f:
-                self.custom_watch = json.load(f)
-
-        # NEW STRATEGIES #
-        self.triple_golden_cross_info = TripleGoldenCrossInfo()
-        self.lucky_duck_head_info = LuckyDuckHeadInfo()
-        self.bottom_break_up_info = BottomBreakUpInfo()
-        self.mcst_info = MCSTInfo()
-        self.volume_increase_info = VolumeIncreaseInfo()
-        self.turn_over_info = TurnOverInfo()
-        self.percent_change_info = PercentChangeInfo()
-        self.alligator_info = AlligatorInfo()
-        self.boll_info = BOLLInfo()
-        self.macd_info = MACDInfo()
-        self.kdj_info = KDJInfo()
-        self.rsi_info = RSIInfo()
-        self.wr_info = WRInfo()
-        self.strategies = [
-            {
-                'name': self.triple_golden_cross_info.name,
-                'choose': 'Y' if self.triple_golden_cross_info.choose_flag else 'N',
-                'watch': 'Y' if self.triple_golden_cross_info.watch_flag else 'N'
-            },
-            {
-                'name': self.lucky_duck_head_info.name,
-                'choose': 'Y' if self.lucky_duck_head_info.choose_flag else 'N',
-                'watch': 'Y' if self.lucky_duck_head_info.watch_flag else 'N'
-            },
-            {
-                'name': self.bottom_break_up_info.name,
-                'choose': 'Y' if self.bottom_break_up_info.choose_flag else 'N',
-                'watch': 'Y' if self.bottom_break_up_info.watch_flag else 'N'
-            },
-            {
-                'name': self.mcst_info.name,
-                'choose': 'Y' if self.mcst_info.choose_flag else 'N',
-                'watch': 'Y' if self.mcst_info.watch_flag else 'N'
-            },
-            {
-                'name': self.volume_increase_info.name,
-                'choose': 'Y' if self.volume_increase_info.choose_flag else 'N',
-                'watch': 'Y' if self.volume_increase_info.watch_flag else 'N'
-            },
-            {
-                'name': self.turn_over_info.name,
-                'choose': 'Y' if self.turn_over_info.choose_flag else 'N',
-                'watch': 'Y' if self.turn_over_info.watch_flag else 'N'
-            },
-            {
-                'name': self.percent_change_info.name,
-                'choose': 'Y' if self.percent_change_info.choose_flag else 'N',
-                'watch': 'Y' if self.percent_change_info.watch_flag else 'N'
-            },
-            {
-                'name': self.alligator_info.name,
-                'choose': 'Y' if self.alligator_info.choose_flag else 'N',
-                'watch': 'Y' if self.alligator_info.watch_flag else 'N'
-            },
-            {
-                'name': self.boll_info.name,
-                'choose': 'Y' if self.boll_info.choose_flag else 'N',
-                'watch': 'Y' if self.boll_info.watch_flag else 'N'
-            },
-            {
-                'name': self.kdj_info.name,
-                'choose': 'Y' if self.kdj_info.choose_flag else 'N',
-                'watch': 'Y' if self.kdj_info.watch_flag else 'N'
-            },
-            {
-                'name': self.macd_info.name,
-                'choose': 'Y' if self.macd_info.choose_flag else 'N',
-                'watch': 'Y' if self.macd_info.watch_flag else 'N'
-            },
-            {
-                'name': self.rsi_info.name,
-                'choose': 'Y' if self.rsi_info.choose_flag else 'N',
-                'watch': 'Y' if self.rsi_info.watch_flag else 'N'
-            },
-            {
-                'name': self.wr_info.name,
-                'choose': 'Y' if self.wr_info.choose_flag else 'N',
-                'watch': 'Y' if self.wr_info.watch_flag else 'N'
-            }
-        ]
-
         self.factor = None
         self.shape = None
-        self.watch = None
-        self.backtest = None
         self.config = None
 
         main_h_box = QHBoxLayout()
@@ -188,77 +70,6 @@ class Nav(QWidget):
 
         main_h_box.addLayout(op_v_box)
 
-        self.strategy_fav_widget = QWidget()
-        strategy_fav_v_box = QVBoxLayout()
-        strategy_fav_v_box.setContentsMargins(0, 10, 0, 10)
-        self.strategy_table = QTableWidget()
-        headers = ['应用', '策略', '选股', '盯盘']
-        self.strategy_table.setColumnCount(len(headers))
-        self.strategy_table.setHorizontalHeaderLabels(headers)
-        self.strategy_table.setColumnWidth(0, 37)
-        self.strategy_table.horizontalHeader().setSectionResizeMode(
-            1, QHeaderView.ResizeToContents)
-        self.strategy_table.setColumnWidth(2, 30)
-        self.strategy_table.setColumnWidth(3, 30)
-        self.strategy_table.verticalHeader().setVisible(False)
-        self.strategy_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
-        self.strategy_table.setSelectionBehavior(QAbstractItemView.SelectRows)
-        self.strategy_table.setSelectionMode(QAbstractItemView.SingleSelection)
-        self.strategy_table.setSortingEnabled(True)
-        self.strategy_table.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.strategy_table.customContextMenuRequested.connect(
-            self.open_strategy_table_menu)
-        self.strategy_table.itemSelectionChanged.connect(
-            self.on_strategy_table_row_changed)
-        self.strategy_table.setRowCount(len(self.strategies))
-
-        for i, strategy in enumerate(self.strategies):
-            check = QCheckBox(parent=self.strategy_table)
-            if self.strategies[i]['name'] in self.apply_strategies:
-                check.setChecked(True)
-            check.clicked.connect(self.update_watch_strategies)
-            self.strategy_table.setCellWidget(i, 0, check)
-            item_name = QTableWidgetItem(self.strategies[i]['name'])
-            item_name.setTextAlignment(Qt.AlignCenter)
-            self.strategy_table.setItem(i, 1, item_name)
-            item_choose = QTableWidgetItem(self.strategies[i]['choose'])
-            item_choose.setTextAlignment(Qt.AlignCenter)
-            self.strategy_table.setItem(i, 2, item_choose)
-            item_watch = QTableWidgetItem(self.strategies[i]['watch'])
-            item_watch.setTextAlignment(Qt.AlignCenter)
-            self.strategy_table.setItem(i, 3, item_watch)
-
-        self.fav_table = QTableWidget()
-        headers = ['代码', '名称']
-        self.fav_table.setColumnCount(len(headers))
-        self.fav_table.setHorizontalHeaderLabels(headers)
-        self.fav_table.horizontalHeader().setSectionResizeMode(
-            QHeaderView.Stretch)
-        self.fav_table.horizontalHeader().setVisible(False)
-        self.fav_table.verticalHeader().setVisible(False)
-        self.fav_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
-        self.fav_table.setSelectionBehavior(QAbstractItemView.SelectRows)
-        self.fav_table.setSelectionMode(QAbstractItemView.ExtendedSelection)
-        self.fav_table.setSortingEnabled(True)
-        self.fav_table.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.fav_table.customContextMenuRequested.connect(
-            self.open_fav_table_menu)
-        self.fav_table.itemSelectionChanged.connect(
-            self.on_fav_table_row_changed)
-
-        for stock in self.fav_stocks:
-            row = self.fav_table.rowCount()
-            self.fav_table.insertRow(row)
-            self.fav_table.setItem(row, 0, QTableWidgetItem(stock['code']))
-            self.fav_table.setItem(row, 1, QTableWidgetItem(stock['name']))
-
-        strategy_fav_v_box.addWidget(self.strategy_table)
-        strategy_fav_v_box.addWidget(self.fav_table)
-        self.strategy_fav_widget.setLayout(strategy_fav_v_box)
-        self.strategy_fav_widget.setMinimumWidth(220)
-        self.strategy_fav_widget.setMaximumWidth(250)
-        main_h_box.addWidget(self.strategy_fav_widget)
-
         self.stacked_window = QStackedWidget()
         main_h_box.addWidget(self.stacked_window)
 
@@ -282,18 +93,6 @@ class Nav(QWidget):
         self.list.addItem(shape_item)
         self.list.setItemWidget(shape_item, shape_widget)
 
-        watch_widget = get_item_widget('盯盘', bundle_dir / 'media/watch.svg')
-        watch_item = QListWidgetItem()
-        watch_item.setSizeHint(QSize(150, 70))
-        self.list.addItem(watch_item)
-        self.list.setItemWidget(watch_item, watch_widget)
-
-        test_widget = get_item_widget('回测', bundle_dir / 'media/backtest.svg')
-        test_item = QListWidgetItem()
-        test_item.setSizeHint(QSize(150, 70))
-        self.list.addItem(test_item)
-        self.list.setItemWidget(test_item, test_widget)
-
         config_widget = get_item_widget('设置', bundle_dir / 'media/setting.svg')
         config_item = QListWidgetItem()
         config_item.setSizeHint(QSize(150, 70))
@@ -307,272 +106,10 @@ class Nav(QWidget):
         self.stacked_window.addWidget(self.factor)
 
         self.shape = Shape()
-        self.shape.fav_stock_changed_signal.connect(self.on_refresh_fav_table)
         self.stacked_window.addWidget(self.shape)
-
-        self.watch = Watch()
-        self.stacked_window.addWidget(self.watch)
-
-        self.backtest = Backtest()
-        self.backtest.fav_stock_changed_signal.connect(
-            self.on_refresh_fav_table)
-        self.stacked_window.addWidget(self.backtest)
 
         self.config = Config()
         self.stacked_window.addWidget(self.config)
-
-    def update_watch_strategies(self):
-        check = self.sender()
-        i = self.strategy_table.indexAt(check.pos()).row()
-        if check.isChecked():
-            self.apply_strategies.append(self.strategies[i]['name'])
-        elif self.strategies[i]['name'] in self.apply_strategies:
-            self.apply_strategies.remove(self.strategies[i]['name'])
-
-        with open(apply_strategies_config_path, 'w', encoding='utf-8') as f:
-            json.dump(self.apply_strategies, f, indent=4, ensure_ascii=False)
-
-    def open_strategy_table_menu(self, pos):
-        pop_menu = QMenu()
-        setting_action = QAction('详情/设置', self)
-        pop_menu.addAction(setting_action)
-
-        setting_action.triggered.connect(self.on_strategy_setting)
-        pop_menu.exec_(self.strategy_table.mapToGlobal(pos))
-
-    def on_strategy_setting(self):
-        row = self.strategy_table.currentIndex().row()
-        name = self.strategy_table.item(row, 1).text()
-        # NEW STRATEGIES #
-        if name == self.triple_golden_cross_info.name:
-            cfg_dlg = TripleGoldenCrossConfig(self)
-            cfg_dlg.show()
-            cfg_dlg.exec_()
-        if name == self.lucky_duck_head_info.name:
-            cfg_dlg = LuckyDuckHeadConfig(self)
-            cfg_dlg.show()
-            cfg_dlg.exec_()
-        if name == self.bottom_break_up_info.name:
-            cfg_dlg = BottomBreakUpConfig(self)
-            cfg_dlg.show()
-            cfg_dlg.exec_()
-        if name == self.volume_increase_info.name:
-            cfg_dlg = VolumeIncreaseConfig(self)
-            cfg_dlg.show()
-            cfg_dlg.exec_()
-        if name == self.turn_over_info.name:
-            cfg_dlg = TurnOverConfig(self)
-            cfg_dlg.show()
-            cfg_dlg.exec_()
-        if name == self.percent_change_info.name:
-            cfg_dlg = PercentChangeConfig(self)
-            cfg_dlg.show()
-            cfg_dlg.exec_()
-        if name == self.alligator_info.name:
-            cfg_dlg = AlligatorConfig(self)
-            cfg_dlg.show()
-            cfg_dlg.exec_()
-        if name == self.boll_info.name:
-            cfg_dlg = BOLLConfig(self)
-            cfg_dlg.show()
-            cfg_dlg.exec_()
-        if name == self.kdj_info.name:
-            cfg_dlg = KDJConfig(self)
-            cfg_dlg.show()
-            cfg_dlg.exec_()
-        if name == self.macd_info.name:
-            cfg_dlg = MACDConfig(self)
-            cfg_dlg.show()
-            cfg_dlg.exec_()
-        if name == self.rsi_info.name:
-            cfg_dlg = RSIConfig(self)
-            cfg_dlg.show()
-            cfg_dlg.exec_()
-        if name == self.wr_info.name:
-            cfg_dlg = WRConfig(self)
-            cfg_dlg.show()
-            cfg_dlg.exec_()
-
-    def open_fav_table_menu(self, pos):
-        pop_menu = QMenu()
-        refresh_action = QAction('刷新', self)
-        custom_add_action = QAction('添加', self)
-        un_fav_action = QAction('删除', self)
-        set_custom_watch_action = QAction('设置价格提醒', self)
-        pop_menu.addAction(refresh_action)
-        pop_menu.addSeparator()
-        pop_menu.addAction(custom_add_action)
-        pop_menu.addAction(un_fav_action)
-        pop_menu.addSeparator()
-        pop_menu.addAction(set_custom_watch_action)
-
-        refresh_action.triggered.connect(self.on_refresh_fav_table)
-        custom_add_action.triggered.connect(self.on_custom_add)
-        un_fav_action.triggered.connect(self.on_un_fav)
-        set_custom_watch_action.triggered.connect(self.on_set_custom_watch)
-        pop_menu.exec_(self.fav_table.mapToGlobal(pos))
-
-    def on_refresh_fav_table(self):
-        if not fav_stocks_config_path.exists():
-            self.fav_stocks = []
-        else:
-            with open(fav_stocks_config_path, 'r', encoding='utf-8') as f:
-                self.fav_stocks = json.load(f)
-
-        self.fav_table.setRowCount(0)
-        for stock in self.fav_stocks:
-            row = self.fav_table.rowCount()
-            self.fav_table.insertRow(row)
-            self.fav_table.setItem(row, 0, QTableWidgetItem(stock['code']))
-            self.fav_table.setItem(row, 1, QTableWidgetItem(stock['name']))
-
-    def on_custom_add(self):
-        custom_add_dlg = CustomAddDialog(self)
-        custom_add_dlg.show()
-        custom_add_dlg.add_custom_stock_signal.connect(self.add_custom_item)
-        custom_add_dlg.exec_()
-
-    def add_custom_item(self, code, name):
-        stock = {
-            'code': code,
-            'name': name
-        }
-        if stock not in self.fav_stocks:
-            self.fav_stocks.append(stock)
-
-        row_idx = self.fav_table.rowCount()
-        self.fav_table.insertRow(row_idx)
-        self.fav_table.setItem(row_idx, 0, QTableWidgetItem(code))
-        self.fav_table.setItem(row_idx, 1, QTableWidgetItem(name))
-
-        with open(fav_stocks_config_path, 'w', encoding='utf-8') as f:
-            json.dump(self.fav_stocks, f, indent=4, ensure_ascii=False)
-
-    def on_un_fav(self):
-        rows = self.fav_table.selectedIndexes()
-        rows_to_remove = []
-        for row in rows:
-            if row.row() not in rows_to_remove:
-                rows_to_remove.append(row.row())
-                code = self.fav_table.item(row.row(), 0).text()
-                stock = {
-                    'code': code,
-                    'name': self.fav_table.item(row.row(), 1).text()
-                }
-                if stock in self.fav_stocks:
-                    self.fav_stocks.remove(stock)
-                for custom_watch_stock in self.custom_watch:
-                    if code == custom_watch_stock['code']:
-                        self.custom_watch.remove(custom_watch_stock)
-
-        rows_to_remove.sort(reverse=True)
-        for row_idx in rows_to_remove:
-            self.fav_table.removeRow(row_idx)
-
-        with open(fav_stocks_config_path, 'w', encoding='utf-8') as f:
-            json.dump(self.fav_stocks, f, indent=4, ensure_ascii=False)
-        with open(custom_watch_config_path, 'w', encoding='utf-8') as f:
-            json.dump(self.custom_watch, f, indent=4, ensure_ascii=False)
-
-    def on_set_custom_watch(self):
-        custom_watch_set_dlg = CustomWatchDialog(self)
-        custom_watch_set_dlg.show()
-        custom_watch_set_dlg.set_custom_watch_signal.connect(
-            self.set_custom_watch)
-        custom_watch_set_dlg.exec_()
-
-    def set_custom_watch(self, up, down):
-        row = self.fav_table.currentIndex().row()
-        if row == -1:
-            return
-        code = self.fav_table.item(row, 0).text()
-        name = self.fav_table.item(row, 1).text()
-        obj = {
-            'code': code,
-            'name': name,
-            'up': up,
-            'down': down
-        }
-        if not custom_watch_config_path.exists():
-            self.custom_watch = []
-        else:
-            with open(custom_watch_config_path, 'r', encoding='utf-8') as f:
-                self.custom_watch = json.load(f)
-        for item in self.custom_watch:
-            if item['code'] == code:
-                self.custom_watch.remove(item)
-        self.custom_watch.append(obj)
-        with open(custom_watch_config_path, 'w', encoding='utf-8') as f:
-            json.dump(self.custom_watch, f, indent=4, ensure_ascii=False)
-
-    def on_fav_table_row_changed(self):
-        row = self.fav_table.currentRow()
-        if row == -1:
-            return
-        code = self.fav_table.item(row, 0).text()
-        name = self.fav_table.item(row, 1).text()
-        row = self.strategy_table.currentRow()
-        if row != -1:
-            strategy = self.strategy_table.item(row, 1).text()
-        else:
-            strategy = None
-        if self.list.currentRow() == 0:
-            self.shape.re_render_all_plots(code)
-            self.shape.draw_indicators(strategy)
-        elif self.list.currentRow() == 2:
-            self.watch.render_all_plots(code)
-            self.watch.draw_indicators(strategy)
-        elif self.list.currentRow() == 3:
-            self.backtest.set_code(code, name)
-
-    def on_strategy_table_row_changed(self):
-        row = self.strategy_table.currentRow()
-        strategy = self.strategy_table.item(row, 1).text()
-        row = self.fav_table.currentRow()
-        if row == -1:
-            code = None
-        else:
-            code = self.fav_table.item(row, 0).text()
-        if self.list.currentRow() == 0:
-            self.shape.re_render_all_plots(code)
-            self.shape.re_draw_indicators(strategy)
-        elif self.list.currentRow() == 2:
-            self.watch.render_all_plots(code)
-            self.watch.draw_indicators(strategy)
-        elif self.list.currentRow() == 3:
-            self.backtest.set_strategy(strategy)
-
-
-class CustomWatchDialog(QDialog):
-    set_custom_watch_signal = Signal(float, float)
-
-    def __init__(self, parent=None):
-        super(CustomWatchDialog, self).__init__(parent)
-        self.setWindowModality(Qt.WindowModal)
-
-        double_validator = QDoubleValidator()
-        self.up_label = QLabel('上位价')
-        self.up_input = QLineEdit()
-        self.up_input.setValidator(double_validator)
-        self.down_label = QLabel('下位价')
-        self.down_input = QLineEdit()
-        self.down_input.setValidator(double_validator)
-        self.btn_cancel = QPushButton('取消')
-        self.btn_ok = QPushButton('确定')
-        main_form_box = QFormLayout()
-        main_form_box.addRow(self.up_label, self.up_input)
-        main_form_box.addRow(self.down_label, self.down_input)
-        main_form_box.addRow(self.btn_cancel, self.btn_ok)
-        self.setLayout(main_form_box)
-
-        self.btn_cancel.clicked.connect(self.close)
-        self.btn_ok.clicked.connect(self.on_ok)
-
-    def on_ok(self):
-        up = float(self.up_input.text())
-        down = float(self.down_input.text())
-        self.set_custom_watch_signal.emit(up, down)
-        self.close()
 
 
 if __name__ == '__main__':
