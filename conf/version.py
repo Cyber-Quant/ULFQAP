@@ -1,4 +1,4 @@
-SOFT_NAME = 'Cyber Qualitative Analysis Platform'
+SOFT_NAME = 'Cyber Quant'
 DEV = 'Dev'
 BETA = 'Beta'
 RELEASE = ''
