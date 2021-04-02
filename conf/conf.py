@@ -5,6 +5,11 @@ from pathlib import Path
 bundle_dir = Path(getattr(sys, '_MEIPASS', Path.cwd()))
 db_path = bundle_dir / 'user_data/quant.db'
 
+logo_svg_path = bundle_dir / 'media/logo.svg'
+logo_png_path = bundle_dir / 'media/logo.png'
+logo_icon_path = bundle_dir / 'media/logo.ico'
+logo_icns_path = bundle_dir / 'media/logo.icns'
+
 global_config_path = bundle_dir / 'user_data/conf.json'
 
 backtest_config_path = bundle_dir / 'user_data/backtest.json'

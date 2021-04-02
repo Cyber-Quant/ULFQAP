@@ -2,7 +2,7 @@ from qtpy.QtCore import *
 from qtpy.QtGui import *
 from qtpy.QtWidgets import *
 
-from conf.conf import bundle_dir
+from conf.conf import bundle_dir, logo_svg_path
 from conf.version import RELEASE, name, channel, major, minor, fix
 from pages.config import Config
 from pages.factor import Factor
@@ -38,7 +38,7 @@ class Nav(QWidget):
                 fix) + '(' + channel + ')'
         self.setWindowTitle(name + ' --- ' + ver_info)
         icon = QIcon()
-        self.setWindowIcon(QIcon((bundle_dir / 'media/logo.svg').as_posix()))
+        self.setWindowIcon(QIcon(logo_svg_path.as_posix()))
         self.resize(1280, 768)
 
         self.factor = None
@@ -54,10 +54,10 @@ class Nav(QWidget):
         self.logo = QLabel()
         # self.logo.setScaledContents(True)
         self.logo.setAutoFillBackground(True)
-        pe.setColor(QPalette.Window, Qt.red)
+        # pe.setColo(QPalette.Window, Qt.red)
         self.logo.setPalette(pe)
         self.logo.setFixedSize(50, 50)
-        pic = QPixmap((bundle_dir / 'media/logo.svg').as_posix()).scaled(50, 50)
+        pic = QPixmap(logo_svg_path.as_posix()).scaled(50, 50)
         self.logo.setPixmap(pic)
 
         self.list = QListWidget()
