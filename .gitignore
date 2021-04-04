@@ -138,3 +138,5 @@ user_data/quant.db
 
 .env.leave
 
+*DS_Store*
+
