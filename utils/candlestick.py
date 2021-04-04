@@ -17,14 +17,14 @@ class CandlestickItem(pg.GraphicsObject):
         self.pic = QPicture()
         painter = QPainter(self.pic)
         width = (self.data[1][0] - self.data[0][0]) / 3.0
-        blue_pen = pg.mkPen(color=(0, 240, 240, 255), width=width * 2)
-        blue_brush = pg.mkBrush((0, 240, 240, 255))
-        red_pen = pg.mkPen(color=(255, 60, 60, 255), width=width * 2)
-        red_brush = pg.mkBrush((255, 60, 60, 255))
+        green_pen = pg.mkPen(color=(0, 255, 255, 255), width=width * 2)
+        green_brush = pg.mkBrush((0, 255, 255, 255))
+        red_pen = pg.mkPen(color=(255, 0, 0, 255), width=width * 2)
+        red_brush = pg.mkBrush((255, 0, 0, 255))
         red_brush.setStyle(Qt.NoBrush)
 
         for (time, _open, _close, _high, _low) in self.data:
-            pen, brush, p_max, p_min = (blue_pen, blue_brush, _open, _close) \
+            pen, brush, p_max, p_min = (green_pen, green_brush, _open, _close) \
                 if _open > _close else (red_pen, red_brush, _close, _open)
             painter.setPen(pen)
             painter.setBrush(brush)

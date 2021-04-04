@@ -177,6 +177,8 @@ class Plots(QWidget):
             self.k_plt.addItem(self.info_label)
         else:
             uni_index = []
+            red_index = []
+            green_index = []
 
             k_data = []
             lows = []
@@ -184,6 +186,8 @@ class Plots(QWidget):
             k_axis = []
 
             volumes = []
+            red_volumes = []
+            green_volumes = []
 
             difs = []
             deas = []
@@ -205,6 +209,12 @@ class Plots(QWidget):
                 (i, _open, close, high, low) = (
                     item['id'], item['open'], item['close'], item['high'],
                     item['low'])
+                if _open > close:
+                    green_index.append(i)
+                    green_volumes.append(item['volume'])
+                else:
+                    red_index.append(i)
+                    red_volumes.append(item['volume'])
                 k_data.append((i, _open, close, high, low))
                 lows.append(item['low'])
                 highs.append(item['high'])
@@ -252,10 +262,18 @@ class Plots(QWidget):
             uni_width = (k_data[1][0] - k_data[0][0]) / 3.0
 
             self.vol_plt.plotItem.clear()
-            volume_bar = pg.BarGraphItem(x=uni_index, height=volumes,
-                                         width=uni_width,
-                                         pen='b')
-            self.vol_plt.addItem(volume_bar)
+            # volume_bar = pg.BarGraphItem(x=uni_index, height=volumes,
+            #                              width=uni_width,
+            #                              pen='b')
+            red_volume_bar = pg.BarGraphItem(x=red_index, height=red_volumes,
+                                             width=uni_width,
+                                             pen='r')
+            green_volume_bar = pg.BarGraphItem(x=green_index,
+                                               height=green_volumes,
+                                               width=uni_width,
+                                               pen='g')
+            self.vol_plt.addItem(red_volume_bar)
+            self.vol_plt.addItem(green_volume_bar)
             self.vol_plt.addItem(self.vol_v_line, ignoreBounds=True)
             self.vol_plt.addItem(self.vol_h_line, ignoreBounds=True)
 
@@ -308,12 +326,6 @@ class Plots(QWidget):
                     self.kline_data[index]['close'],
                     volume))
             self.info_label.setPos(mouse_point.x(), mouse_point.y())
-            self.kline_info_signal.emit(self.kline_data[index]['date'],
-                                        self.kline_data[index]['open'],
-                                        self.kline_data[index]['close'],
-                                        self.kline_data[index]['high'],
-                                        self.kline_data[index]['low'],
-                                        volume)
 
     def kline_emit_info(self, event):
         pos = event[0]
