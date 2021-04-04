@@ -66,6 +66,7 @@ class Nav(QWidget):
         self.list.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.list.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         op_v_box.addWidget(self.logo)
+        op_v_box.addSpacing(7)
         op_v_box.addWidget(self.list)
 
         main_h_box.addLayout(op_v_box)
@@ -87,13 +88,13 @@ class Nav(QWidget):
         self.list.addItem(factor_item)
         self.list.setItemWidget(factor_item, factor_widget)
 
-        shape_widget = get_item_widget('指标', bundle_dir / 'media/shape.svg')
+        shape_widget = get_item_widget('形态', bundle_dir / 'media/shape.svg')
         shape_item = QListWidgetItem()
         shape_item.setSizeHint(QSize(150, 70))
         self.list.addItem(shape_item)
         self.list.setItemWidget(shape_item, shape_widget)
 
-        config_widget = get_item_widget('设置', bundle_dir / 'media/setting.svg')
+        config_widget = get_item_widget('设置', bundle_dir / 'media/config.svg')
         config_item = QListWidgetItem()
         config_item.setSizeHint(QSize(150, 70))
         self.list.addItem(config_item)
