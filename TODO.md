@@ -3,9 +3,9 @@ TODO
 
 - New dynamic K line and indicators plot.
 - Move to ClickHouse.
-- Import LSTM and other networks.
+- Import Zen theory.
 - Spiders to fetch K line data to replace baostock.
-- Fetch and store minute K to support `Chan` theory.
+- Import LSTM and other networks.
 
 - Plugin system, make all strategies plugin.
 - More strategies like CCI, DMI, OBV, VR, BBI, DMA. No Ta-Lib.
