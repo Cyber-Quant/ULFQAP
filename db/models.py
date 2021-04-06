@@ -81,86 +81,12 @@ class AStockYJBB(BaseModel):
         db_table = 'a_stock_yjbb'
         indexes = (
             (('code', 'latest_notice_date'), False),
-            (('code', 'first_notice_date'), False),
+            (('code', 'latest_notice_date', 'report_date'), False),
         )
 
 
 idx = AStockYJBB.index(AStockYJBB.latest_notice_date.desc())
 AStockYJBB.add_index(idx)
-idx = AStockYJBB.index(AStockYJBB.first_notice_date.desc())
-AStockYJBB.add_index(idx)
-
-
-class AStockYJKB(BaseModel):
-    id = BigAutoField()
-    code = CharField(index=True)
-    name = CharField()
-    security_type = CharField()
-    trade_market = CharField()
-    ldate = DateTimeField()  # 公告日期
-    rdate = DateTimeField()
-    basic_eps = FloatField()  # 每股收益(元)
-    yysr = FloatField()  # 营业收入(元)
-    qntqys = FloatField()  # 去年同期(元)
-    ys = FloatField()  # 同比增长(%)
-    yshz = FloatField()  # 季环比增长(%)是通过这个算出来的，但是怎么算我不知道
-    jlr = FloatField()  # 净利润
-    qntqjlr = FloatField()  # 去年同期(元)
-    lr = FloatField()  # 同比增长(%)
-    sjlhz = FloatField()  # 季环比增长(%)是通过这个算出来的，但是怎么算我不知道
-    parent_bvps = FloatField()  # 每股净资产(元)
-    roe_weighted = FloatField()  # 净资产收益率(%)
-    publish_name = CharField()  # 所处行业
-    security_type_code = CharField()
-    trade_market_code = CharField()
-    first_notice_date = DateTimeField()
-
-    class Meta:
-        db_table = 'a_stock_yjkb'
-        indexes = (
-            (('code', 'first_notice_date'), False),
-            (('code', 'ldate'), False),
-        )
-
-
-idx = AStockYJKB.index(AStockYJKB.ldate.desc())
-AStockYJKB.add_index(idx)
-idx = AStockYJKB.index(AStockYJKB.first_notice_date.desc())
-AStockYJKB.add_index(idx)
-
-
-class AStockYJYG(BaseModel):
-    id = BigAutoField()
-    code = CharField(index=True)
-    name = CharField()
-    sclx = CharField()  # 所处板块
-    end_date = DateTimeField()
-    ndate = DateTimeField()  # 公告日期
-    forecastl = FloatField()  # 预测数值下限(元)
-    forecastt = FloatField()  # 预测数值上限(元)
-    increasel = FloatField()  # 业绩变动幅度上限(%)
-    increaset = FloatField()  # 业绩变动幅度下限(%)
-    forecast_content = CharField()  # 业绩变动
-    change_reason_descrpt = CharField()  # 业绩变动原因
-    forecast_type = CharField()  # 预告类型
-    year_earlier = FloatField()  # 上年同期值(元)
-    hymc = CharField()  # 所处行业
-    zfpx = FloatField()
-    jlrpx = FloatField()
-    forecast = CharField()
-    is_latest = CharField()
-    security_type_code = CharField()
-    trade_market_code = CharField()
-
-    class Meta:
-        db_table = 'a_stock_yjyg'
-        indexes = (
-            (('code', 'ndate'), False),
-        )
-
-
-idx = AStockYJYG.index(AStockYJYG.ndate.desc())
-AStockYJYG.add_index(idx)
 
 
 class AStockZCFZB(BaseModel):
@@ -225,6 +151,7 @@ class AStockZCFZB(BaseModel):
         db_table = 'a_stock_zcfzb'
         indexes = (
             (('code', 'notice_date'), False),
+            (('code', 'notice_date', 'report_date'), False),
         )
 
 
@@ -283,6 +210,7 @@ class AStockLRB(BaseModel):
         db_table = 'a_stock_lrb'
         indexes = (
             (('code', 'notice_date'), False),
+            (('code', 'notice_date', 'report_date'), False),
         )
 
 
@@ -344,6 +272,7 @@ class AStockXJLLB(BaseModel):
         db_table = 'a_stock_xjllb'
         indexes = (
             (('code', 'notice_date'), False),
+            (('code', 'notice_date', 'report_date'), False),
         )
 
 
