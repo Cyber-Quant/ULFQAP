@@ -173,7 +173,7 @@ class AStockZCFZB(BaseModel):
     mkt = CharField()
     report_time_type_code = CharField()
     combine_type_code = CharField()
-    data_ajust_type = IntegerField()
+    data_a_just_type = IntegerField()
     notice_date = DateTimeField()  # 公告日期
     report_date = DateTimeField()
     sum_asset = FloatField()  # 总资产(元)
@@ -190,6 +190,7 @@ class AStockZCFZB(BaseModel):
     account_pay_tb = FloatField()
     advance_receive = FloatField()  # 预收帐款(元)
     advance_receive_tb = FloatField()
+    sum_sh_equity = FloatField()
     sum_sh_equity_tb = FloatField()
     tdetz = FloatField()  # 总负债同比(%)
     ld = FloatField()
@@ -240,6 +241,7 @@ class AStockLRB(BaseModel):
     publish_name = CharField()  # 所处行业
     report_time_type_code = CharField()
     combine_type_code = CharField()
+    data_a_just_type = CharField()
     mkt = CharField()
     notice_date = DateTimeField()  # 公告日期
     report_date = DateTimeField()
@@ -269,7 +271,6 @@ class AStockLRB(BaseModel):
     premium_earned = FloatField()
     premium_earned_tb = FloatField()
     invest_income = FloatField()
-    invest_income_tb = FloatField()
     surrender_premium = FloatField()
     indemnity_exp = FloatField()
     yltz = FloatField()
@@ -298,7 +299,7 @@ class AStockXJLLB(BaseModel):
     publish_name = CharField()  # 所处行业
     report_time_type_code = CharField()
     combine_type_code = CharField()
-    data_ajust_type = IntegerField()
+    data_a_just_type = IntegerField()
     mkt = CharField()
     notice_date = DateTimeField()  # 公告日期
     report_date = DateTimeField()
