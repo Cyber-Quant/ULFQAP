@@ -30,6 +30,25 @@ import requests
 '''
 
 
+def fetch_sina_open_price(code_list):
+    s_codes = ''
+    for code in code_list:
+        code = code.replace('.', '')
+        s_codes += code + ','
+    price_all = requests.get('http://hq.sinajs.cn/list=' + s_codes).text
+
+    open_prices = []
+    price_tickers = re.findall('var hq_str_(.*?);', price_all)
+    for price_ticker in price_tickers:
+        price_tick = price_ticker.split(',')
+        if price_tick[3] == '':
+            open_price = 0.0
+        else:
+            open_price = float(price_tick[1])
+        open_prices.append(open_price)
+    return open_prices
+
+
 def fetch_sina_realtime_price(code_list):
     s_codes = ''
     for code in code_list:
