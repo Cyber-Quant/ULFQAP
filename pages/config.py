@@ -209,7 +209,6 @@ class Config(QWidget):
                 start_year = data['year']
             else:
                 start_year = FIRST_DAY_YEAR
-        print('--------从这一年开始取数据', start_year)
 
         self._up_statement_data(start_year)
 

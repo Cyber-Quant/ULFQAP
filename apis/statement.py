@@ -1698,34 +1698,6 @@ def batch_store_xjllb(data):
     xjllb_query.execute()
 
 
-def main():
-    tables = set_table()
-    for table in tables:
-        print(int(table['date'][:4]))
-        data = {'year': int(table['date'][:4])}
-        with open(statement_update_flag_file, 'w', encoding='utf-8') as f:
-            json.dump(data, f, indent=4, ensure_ascii=False)
-        date = table.get('date')
-        category = table.get('category')
-        category_type = table.get('category_type')
-        st = table.get('st')
-        sr = table.get('sr')
-        _filter = table.get('filter')
-        constant = fetch_table(date, category_type, st, sr, _filter, 1)
-        page_all = constant[0]
-        page_range = set_page(page_all)
-        start_page = page_range.get('start_page')
-        end_page = page_range.get('end_page')
-        for page in range(start_page, end_page):
-            res = fetch_table(date, category_type, st, sr, _filter, page)
-            data = res[1]
-            page = res[2]
-            for item in data:
-                print(category)
-                print(item)
-                return
-
-
 class FetchStatementData(QThread):
     sig_fetch_financial = Signal(int)
     sig_fetch_financial_done = Signal()
@@ -1745,7 +1717,6 @@ class FetchStatementData(QThread):
         j = 0
         for table in tables:
             i += 1
-            print(int(table['date'][:4]))
             data = {'year': int(table['date'][:4])}
             with open(statement_update_flag_file, 'w', encoding='utf-8') as f:
                 json.dump(data, f, indent=4, ensure_ascii=False)
@@ -1777,6 +1748,7 @@ class FetchStatementData(QThread):
                     msg = '爬取' + date + \
                           '报表过程中出错，请重试。没办法，收费数据一年几十万呢。'
                     self.err_signal.emit(msg)
+                    return
             if i % step == 0:
                 j += 1
                 self.sig_fetch_financial.emit(j)
