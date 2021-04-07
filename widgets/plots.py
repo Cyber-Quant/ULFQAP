@@ -459,14 +459,6 @@ class Plots(QWidget):
             slow_mav = lucky_duck_head.calc_slow_mav(volumes)
             vol_data = [fast_mav, slow_mav]
             vol_pen_colors = ['r', 'y']
-        elif self.current_indicator_name == self.mcst_info.name:
-            mcst = MCST()
-            _mcst = mcst.calc_batch_mcst(volumes, amount,
-                                         self.current_kline_code)
-            k_data = [_mcst]
-            k_pen_colors = ['y']
-            vol_data = []
-            vol_pen_colors = []
         elif self.current_indicator_name == self.triple_golden_cross_info.name:
             triple_golden_cross = TripleGoldenCross()
             fast_ma = triple_golden_cross.calc_fast_ma(closes)
