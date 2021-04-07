@@ -14,8 +14,7 @@ def save_last_updated_date(new_trading_day, flag):
         key = 'index_update_date'
     elif flag == 'd':
         key = 'day_k_update_date'
-    elif flag == 'f':
-        key = 'financial_update_date'
+
     if not global_config_path.exists():
         data = {key: new_trading_day}
     else:
@@ -87,8 +86,6 @@ def get_last_updated_date(flag):
         key = 'index_update_date'
     elif flag == 'd':
         key = 'day_k_update_date'
-    elif flag == 'f':
-        key = 'financial_update_date'
 
     if not global_config_path.exists():
         return FIRST_DAY
@@ -147,20 +144,8 @@ def store_all_code(data):
     query.execute()
 
 
-def get_today():
-    today = datetime.datetime.now()
-    today_str = today.strftime('%Y-%m-%d')
-    return today_str
-
-
 def get_year():
     return datetime.datetime.now().year
-
-
-def get_quarter():
-    month = datetime.datetime.now().month - 1
-    quarter = int(month / 3) + 1
-    return quarter
 
 
 if __name__ == '__main__':

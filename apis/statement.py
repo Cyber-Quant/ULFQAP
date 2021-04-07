@@ -3,7 +3,10 @@ import json
 import re
 import requests
 
-from conf.conf import FIRST_DAY_YEAR
+from qtpy.QtCore import *
+
+from apis.code_index import get_year
+from conf.conf import FIRST_DAY_YEAR, statement_update_flag_file
 from db.models import AStockLRB, AStockXJLLB, AStockYJBB, AStockZCFZB
 from db.ops import create_table, drop_table
 
@@ -19,9 +22,15 @@ def reset_statements_data():
     create_table(AStockZCFZB)
 
 
-def set_table():
+def set_table(start_year=None):
+    if start_year is not None:
+        start_year = start_year
+    else:
+        start_year = FIRST_DAY_YEAR
+    end_year = get_year() + 1
+
     tables = []
-    for year in range(FIRST_DAY_YEAR, 2021):
+    for year in range(start_year, end_year):
         for quarter in range(1, 5):
             month = '{:02d}'.format(quarter * 3)
             if (month == '06') or (month == '09'):
@@ -1692,6 +1701,10 @@ def batch_store_xjllb(data):
 def main():
     tables = set_table()
     for table in tables:
+        print(int(table['date'][:4]))
+        data = {'year': int(table['date'][:4])}
+        with open(statement_update_flag_file, 'w', encoding='utf-8') as f:
+            json.dump(data, f, indent=4, ensure_ascii=False)
         date = table.get('date')
         category = table.get('category')
         category_type = table.get('category_type')
@@ -1711,6 +1724,63 @@ def main():
                 print(category)
                 print(item)
                 return
+
+
+class FetchStatementData(QThread):
+    sig_fetch_financial = Signal(int)
+    sig_fetch_financial_done = Signal()
+    err_signal = Signal(str)
+
+    def __init__(self, start_year, parent=None):
+        super(FetchStatementData, self).__init__(parent)
+        self.start_year = start_year
+
+    def run(self):
+        self.sig_fetch_financial.emit(1)
+
+        tables = set_table(start_year=self.start_year)
+        total_num = int(len(tables) / 100 * 110)
+        step = int(total_num / 100)
+        i = 0
+        j = 0
+        for table in tables:
+            i += 1
+            print(int(table['date'][:4]))
+            data = {'year': int(table['date'][:4])}
+            with open(statement_update_flag_file, 'w', encoding='utf-8') as f:
+                json.dump(data, f, indent=4, ensure_ascii=False)
+            date = table.get('date')
+            category = table.get('category')
+            category_type = table.get('category_type')
+            st = table.get('st')
+            sr = table.get('sr')
+            _filter = table.get('filter')
+            constant = fetch_table(date, category_type, st, sr, _filter, 1)
+            page_all = constant[0]
+            page_range = set_page(page_all)
+            start_page = page_range.get('start_page')
+            end_page = page_range.get('end_page')
+            for page in range(start_page, end_page):
+                try:
+                    res = fetch_table(date, category_type, st, sr, _filter,
+                                      page)
+                    data = res[1]
+                    if category == 'YJBB':
+                        store_yybb(data)
+                    if category == 'ZCFZB':
+                        store_zcfzb(data)
+                    if category == 'LRB':
+                        store_lrb(data)
+                    if category == 'XJLLB':
+                        store_xjllb(data)
+                except Exception as e:
+                    msg = '爬取' + date + \
+                          '报表过程中出错，请重试。没办法，收费数据一年几十万呢。'
+                    self.err_signal.emit(msg)
+            if i % step == 0:
+                j += 1
+                self.sig_fetch_financial.emit(j)
+        self.sig_fetch_financial_done.emit()
 
 
 if __name__ == '__main__':

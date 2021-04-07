@@ -21,6 +21,8 @@ shape_strategies_config_path = bundle_dir / 'user_data/strategies/shape'
 
 licence_html_path = bundle_dir / 'media/license.html'
 
+statement_update_flag_file = bundle_dir / 'user_data/stat_up_flag.json'
+
 DEFAULT_K_LIMIT = 250
 
 DAY_K_READY_HOUR = 17
