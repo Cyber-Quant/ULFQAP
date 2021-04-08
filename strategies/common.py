@@ -2,8 +2,7 @@ import calendar
 import datetime
 import numpy as np
 
-from db.models import AStockDayLine, AStockIndex, AStockBalanceData, \
-    AStockOperationData, AStockProfitData
+from db.models import AStockDayLine, AStockIndex
 from apis.k_charts import fetch_sina_minute_k, fetch_tencent_1_minute_k, \
     get_code_list
 from conf.conf import DEFAULT_K_LIMIT
