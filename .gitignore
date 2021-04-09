@@ -135,6 +135,7 @@ user_data/.DS_Store
 user_data/conf.json
 user_data/custom_watch.json
 user_data/quant.db
+user_data/stat_up_flag.json
 
 .env.leave
 
