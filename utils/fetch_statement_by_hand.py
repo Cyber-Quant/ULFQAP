@@ -157,7 +157,7 @@ def get_table(date, category_type, st, sr, filter, page):
 
 
 def write_header(data, category, date):
-    with open('{}-{}.csv'.format(category, date), 'a', encoding='utf_8_sig',
+    with open('{}-{}.csv'.format(category, date), 'a', encoding='utf-8',
               newline='') as f:
         headers = list(data[0].keys())
         writer = csv.writer(f)
@@ -166,7 +166,7 @@ def write_header(data, category, date):
 
 def write_table(data, page, category, date):
     for d in data:
-        with open('{}-{}.csv'.format(category, date), 'a', encoding='utf_8_sig',
+        with open('{}-{}.csv'.format(category, date), 'a', encoding='utf-8',
                   newline='') as f:
             w = csv.writer(f)
             w.writerow(d.values())
