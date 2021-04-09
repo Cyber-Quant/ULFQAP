@@ -3,7 +3,7 @@ import json
 import re
 import requests
 
-from qtpy.QtCore import *
+from PySide2.QtCore import *
 
 from apis.code_index import get_year
 from conf.conf import FIRST_DAY_YEAR, statement_update_flag_file
@@ -534,11 +534,16 @@ def store_zcfzb(data):
             premium_advance_tb = 0
         else:
             premium_advance_tb = float(item['premiumadvance_tb'])
+        if item['noticedate'] == '-' or item['noticedate'] == '':
+            notice_date = datetime.datetime.strptime(
+                item['eutime'], '%Y-%m-%dT%H:%M:%S')
+        else:
+            notice_date = datetime.datetime.strptime(
+                item['noticedate'], '%Y-%m-%dT%H:%M:%S')
 
         rows = AStockZCFZB.select().where(
             AStockZCFZB.code == code,
-            AStockZCFZB.notice_date == datetime.datetime.strptime(
-                item['noticedate'], '%Y-%m-%dT%H:%M:%S'),
+            AStockZCFZB.notice_date == notice_date,
             AStockZCFZB.report_date == datetime.datetime.strptime(
                 item['reportdate'], '%Y-%m-%dT%H:%M:%S')
         )
@@ -553,8 +558,7 @@ def store_zcfzb(data):
                 report_time_type_code=item['reporttimetypecode'],
                 combine_type_code=item['combinetypecode'],
                 data_a_just_type=data_a_just_type,
-                notice_date=datetime.datetime.strptime(
-                    item['noticedate'], '%Y-%m-%dT%H:%M:%S'),
+                notice_date=notice_date,
                 report_date=datetime.datetime.strptime(
                     item['reportdate'], '%Y-%m-%dT%H:%M:%S'),
                 sum_asset=sum_asset,
@@ -1003,11 +1007,21 @@ def store_lrb(data):
             yyzc = 0
         else:
             yyzc = float(item['yyzc'])
+        if '/' in item['eutime']:
+            eu_time = datetime.datetime.strptime(
+                item['eutime'], '%Y/%m/%d %H:%M:%S')
+        else:
+            eu_time = datetime.datetime.strptime(
+                item['eutime'], '%Y-%m-%dT%H:%M:%S')
+        if item['noticedate'] == '-' or item['noticedate'] == '':
+            notice_date = eu_time
+        else:
+            notice_date = datetime.datetime.strptime(
+                item['noticedate'], '%Y-%m-%dT%H:%M:%S')
 
         rows = AStockLRB.select().where(
             AStockLRB.code == code,
-            AStockLRB.notice_date == datetime.datetime.strptime(
-                item['noticedate'], '%Y-%m-%dT%H:%M:%S'),
+            AStockLRB.notice_date == notice_date,
             AStockLRB.report_date == datetime.datetime.strptime(
                 item['reportdate'], '%Y-%m-%dT%H:%M:%S')
         )
@@ -1022,8 +1036,7 @@ def store_lrb(data):
                 combine_type_code=item['combinetypecode'],
                 data_a_just_type=data_a_just_type,
                 mkt=item['mkt'],
-                notice_date=datetime.datetime.strptime(
-                    item['noticedate'], '%Y-%m-%dT%H:%M:%S'),
+                notice_date=notice_date,
                 report_date=datetime.datetime.strptime(
                     item['reportdate'], '%Y-%m-%dT%H:%M:%S'),
                 parent_net_profit=parent_net_profit,
@@ -1057,8 +1070,7 @@ def store_lrb(data):
                 yltz=yltz,
                 sjltz=sjltz,
                 kcfjcxsyjlr=kcfjcxsyjlr,
-                eu_time=datetime.datetime.strptime(
-                    item['eutime'], '%Y-%m-%dT%H:%M:%S'),
+                eu_time=eu_time,
                 yyzc=yyzc
             )
             row.save()
@@ -1417,11 +1429,21 @@ def store_xjllb(data):
             ni_deposit_zb = 0
         else:
             ni_deposit_zb = float(item['nideposit_zb'])
+        if '/' in item['eutime']:
+            eu_time = datetime.datetime.strptime(
+                item['eutime'], '%Y/%m/%d %H:%M:%S')
+        else:
+            eu_time = datetime.datetime.strptime(
+                item['eutime'], '%Y-%m-%dT%H:%M:%S')
+        if item['noticedate'] == '-' or item['noticedate'] == '':
+            notice_date = eu_time
+        else:
+            notice_date = datetime.datetime.strptime(
+                item['noticedate'], '%Y-%m-%dT%H:%M:%S')
 
         rows = AStockXJLLB.select().where(
             AStockXJLLB.code == code,
-            AStockXJLLB.notice_date == datetime.datetime.strptime(
-                item['noticedate'], '%Y-%m-%dT%H:%M:%S'),
+            AStockXJLLB.notice_date == notice_date,
             AStockXJLLB.report_date == datetime.datetime.strptime(
                 item['reportdate'], '%Y-%m-%dT%H:%M:%S')
         )
@@ -1436,8 +1458,7 @@ def store_xjllb(data):
                 combine_type_code=item['combinetypecode'],
                 data_a_just_type=data_a_just_type,
                 mkt=item['mkt'],
-                notice_date=datetime.datetime.strptime(
-                    item['noticedate'], '%Y-%m-%dT%H:%M:%S'),
+                notice_date=notice_date,
                 report_date=datetime.datetime.strptime(
                     item['reportdate'], '%Y-%m-%dT%H:%M:%S'),
                 ni_cash_equi=ni_cash_equi,
@@ -1474,8 +1495,7 @@ def store_xjllb(data):
                 indemnity_pay=indemnity_pay,
                 indemnity_pay_zb=indemnity_pay_zb,
                 ni_deposit=ni_deposit,
-                eu_time=datetime.datetime.strptime(
-                    item['eutime'], '%Y-%m-%dT%H:%M:%S'),
+                eu_time=eu_time,
                 ni_deposit_zb=ni_deposit_zb
             )
             row.save()
@@ -1746,14 +1766,12 @@ class FetchStatementData(QThread):
                         store_xjllb(data)
                 except Exception as e:
                     msg = '爬取' + date + \
-                          '报表过程中出错，请重试。没办法，收费数据一年几十万呢。'
+                          '报表过程中出错，请重试。\n' + \
+                          '没办法，收费数据一年几十万呢。\n' + \
+                          '你花钱买，我不介意多写几行代码。\n' + str(e)
                     self.err_signal.emit(msg)
                     return
             if i % step == 0:
                 j += 1
                 self.sig_fetch_financial.emit(j)
         self.sig_fetch_financial_done.emit()
-
-
-if __name__ == '__main__':
-    main()
