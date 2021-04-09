@@ -1,9 +1,9 @@
 import datetime
 import json
 
-from qtpy.QtWidgets import *
-from qtpy.QtGui import *
-from qtpy.QtCore import *
+from PySide2.QtWidgets import *
+from PySide2.QtGui import *
+from PySide2.QtCore import *
 
 from conf.conf import shape_strategies_config_path
 from strategies.common import calc_batch_ma, calc_batch_mav, calc_wpct, \

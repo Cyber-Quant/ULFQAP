@@ -1,7 +1,7 @@
 import pyqtgraph as pg
 
-from qtpy.QtCore import *
-from qtpy.QtGui import *
+from PySide2.QtCore import *
+from PySide2.QtGui import *
 
 
 class CandlestickItem(pg.GraphicsObject):

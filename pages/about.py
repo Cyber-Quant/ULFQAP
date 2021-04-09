@@ -1,6 +1,6 @@
-from qtpy.QtCore import *
-from qtpy.QtGui import *
-from qtpy.QtWidgets import *
+from PySide2.QtCore import *
+from PySide2.QtGui import *
+from PySide2.QtWidgets import *
 
 from conf.version import RELEASE, name, channel, major, minor, fix
 from pages.license import License

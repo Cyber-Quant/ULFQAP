@@ -3,9 +3,9 @@ import json
 import numpy as np
 import time
 
-from qtpy.QtWidgets import *
-from qtpy.QtGui import *
-from qtpy.QtCore import *
+from PySide2.QtWidgets import *
+from PySide2.QtGui import *
+from PySide2.QtCore import *
 
 from apis.realtime_price import fetch_sina_realtime_price
 from conf.conf import shape_strategies_config_path

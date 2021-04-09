@@ -1,8 +1,8 @@
 import json
 
-from qtpy.QtWidgets import *
-from qtpy.QtGui import *
-from qtpy.QtCore import *
+from PySide2.QtWidgets import *
+from PySide2.QtGui import *
+from PySide2.QtCore import *
 
 from conf.conf import factor_pool_config_path
 from db.models import AStockIndex

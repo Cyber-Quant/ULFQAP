@@ -3,7 +3,6 @@ peewee
 pyinstaller
 pyqtgraph
 PySide2
-QtPy
 requests
 tinyaes
 Pillow

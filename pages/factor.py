@@ -2,9 +2,9 @@ import datetime
 import json
 
 from pathlib import Path
-from qtpy.QtWidgets import *
-from qtpy.QtGui import *
-from qtpy.QtCore import *
+from PySide2.QtWidgets import *
+from PySide2.QtGui import *
+from PySide2.QtCore import *
 
 from conf.conf import factor_strategies_config_path, factor_pool_config_path
 from strategies.factor import FactorChoose

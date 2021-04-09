@@ -1,7 +1,7 @@
 import json
 
-from qtpy.QtCore import *
-from qtpy.QtWidgets import *
+from PySide2.QtCore import *
+from PySide2.QtWidgets import *
 
 from conf.conf import global_config_path
 from pages.license import get_html

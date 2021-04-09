@@ -3,7 +3,7 @@ import datetime
 import json
 import requests
 
-from qtpy.QtCore import *
+from PySide2.QtCore import *
 
 from conf.conf import DEFAULT_K_LIMIT, FIRST_DAY
 from db.models import AStockDayLine, AStockIndex

@@ -1,7 +1,7 @@
 import pyqtgraph as pg
 
 from pyqtgraph.dockarea import *
-from qtpy.QtWidgets import *
+from PySide2.QtWidgets import *
 
 from strategies.common import get_latest_batch_data
 from strategies.alligator import Alligator

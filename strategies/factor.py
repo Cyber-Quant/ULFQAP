@@ -2,7 +2,7 @@ import baostock as bs
 import datetime
 import json
 
-from qtpy.QtCore import *
+from PySide2.QtCore import *
 
 from apis.code_index import fetch_last_trading_day
 from strategies.common import filter_pe, filter_roe, filter_cmv, filter_ito, \

@@ -1,6 +1,6 @@
 from pathlib import Path
-from qtpy.QtCore import *
-from qtpy.QtWidgets import *
+from PySide2.QtCore import *
+from PySide2.QtWidgets import *
 
 from conf.conf import factor_strategies_config_path
 

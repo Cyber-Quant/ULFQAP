@@ -1,15 +1,18 @@
 import baostock as bs
+import csv
 import json
 
-from qtpy.QtCore import *
-from qtpy.QtGui import *
-from qtpy.QtWidgets import *
+from pathlib import Path
+from PySide2.QtCore import *
+from PySide2.QtGui import *
+from PySide2.QtWidgets import *
 
 from apis.code_index import need_update, reset_last_updated_date, \
     fetch_last_trading_day, reset_stock_index, save_last_updated_date, \
     fetch_all_code, store_all_code
 from apis.k_charts import FetchDayK, get_code_list, reset_k_line_data
-from apis.statement import FetchStatementData, reset_statements_data
+from apis.statement import FetchStatementData, reset_statements_data, \
+    store_lrb, store_xjllb, store_yybb, store_zcfzb
 from conf.conf import FIRST_DAY_YEAR, FIRST_DAY_MONTH, FIRST_DAY_DAY, \
     backtest_config_path, statement_update_flag_file
 from pages.about import About
@@ -33,10 +36,12 @@ class Config(QWidget):
         self.btn_up_stock_index = QPushButton('更新股票索引')
         self.btn_up_day_k = QPushButton('更新K线数据')
         self.btn_up_statement_data = QPushButton('更新财报数据')
+        self.btn_up_statement_data_by_hand = QPushButton('更新财报数据(手动,推荐)')
         self.btn_reset = QPushButton('删除所有数据')
         up_h_box.addWidget(self.btn_up_stock_index)
         up_h_box.addWidget(self.btn_up_day_k)
         up_h_box.addWidget(self.btn_up_statement_data)
+        up_h_box.addWidget(self.btn_up_statement_data_by_hand)
         up_h_box.addStretch()
         up_h_box.addWidget(self.btn_reset)
         self.up_group_box.setLayout(up_h_box)
@@ -141,6 +146,8 @@ class Config(QWidget):
         self.btn_up_stock_index.clicked.connect(self.on_up_stock_index)
         self.btn_up_day_k.clicked.connect(self.on_up_day_k)
         self.btn_up_statement_data.clicked.connect(self.on_up_statement_data)
+        self.btn_up_statement_data_by_hand.clicked.connect(
+            self.on_up_statement_data_by_hand)
         self.btn_reset.clicked.connect(self.on_reset)
         self.btn_about.clicked.connect(self.on_about)
         self.btn_save_backtest.clicked.connect(self.on_save_backtest)
@@ -160,12 +167,14 @@ class Config(QWidget):
         self.btn_up_stock_index.setEnabled(True)
         self.btn_up_day_k.setEnabled(True)
         self.btn_up_statement_data.setEnabled(True)
+        self.btn_up_statement_data_by_hand.setEnabled(True)
         self.btn_reset.setEnabled(True)
 
     def disable_all(self):
         self.btn_up_stock_index.setDisabled(True)
         self.btn_up_day_k.setDisabled(True)
         self.btn_up_statement_data.setDisabled(True)
+        self.btn_up_statement_data_by_hand.setDisabled(True)
         self.btn_reset.setDisabled(True)
 
     def set_progress_bar(self, value):
@@ -183,7 +192,7 @@ class Config(QWidget):
         reset_statements_data()
         reset_last_updated_date()
 
-    def complete_financial_progress(self):
+    def complete_statement_progress(self):
         self.set_progress_bar(100)
         self.enable_all()
         data = {}
@@ -195,7 +204,7 @@ class Config(QWidget):
         self.ffd = FetchStatementData(start_year)
         self.ffd.sig_fetch_financial.connect(self.set_progress_bar)
         self.ffd.sig_fetch_financial_done.connect(
-            self.complete_financial_progress)
+            self.complete_statement_progress)
         self.ffd.err_signal.connect(self.show_warning)
         self.ffd.start()
 
@@ -211,6 +220,28 @@ class Config(QWidget):
                 start_year = FIRST_DAY_YEAR
 
         self._up_statement_data(start_year)
+
+    def on_up_statement_data_by_hand(self):
+        self.disable_all()
+        dir_choose = QFileDialog.getExistingDirectory(self,
+                                                      '选取财报csv文件路径', '')
+        if dir_choose == '':
+            return
+        for item in Path(dir_choose).glob('*.csv'):
+            data = []
+            with open(item, 'r', encoding='utf-8') as f:
+                csv_reader = csv.DictReader(f)
+                for row in csv_reader:
+                    data.append(row)
+            if '业绩报表' in item.as_posix():
+                store_yybb(data)
+            elif '资产负债表' in item.as_posix():
+                store_zcfzb(data)
+            elif '利润表' in item.as_posix():
+                store_lrb(data)
+            elif '现金流量表' in item.as_posix():
+                store_xjllb(data)
+        self.enable_all()
 
     def complete_day_k_progress(self):
         self.set_progress_bar(100)
