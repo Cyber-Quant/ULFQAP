@@ -1,4 +1,4 @@
 README
 ---
 
-Cyber is evolving into an A.I. Qualitative Analysis Platform.
+Ultra Low Frequency Qualitative Analysis Platform.
